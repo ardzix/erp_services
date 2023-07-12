@@ -1,0 +1,9 @@
+{% extends "admin/change_form.html" %}
+
+{% block after_related_objects %}
+    {{ block.super }}
+    <div style="margin-bottom: 10px;">
+        <input type="submit" name="_approve" value="Approve" style="background-color: #5cb85c;">
+        <input type="submit" name="_reject" value="Reject" style="background-color: #f0ad4e;">
+    </div>
+{% endblock %}
