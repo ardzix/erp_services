@@ -6,7 +6,7 @@ class Department(BaseModelGeneric):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"Department #{self.id62} - {self.name}"
+        return f"Department #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Department")
@@ -19,7 +19,7 @@ class Employee(BaseModelGeneric):
     # Add any other fields specific to your employee model
 
     def __str__(self):
-        return f"Employee #{self.id62} - {self.user.get_full_name()}"
+        return f"Employee #{self.id32} - {self.user.get_full_name()}"
 
     class Meta:
         verbose_name = _("Employee")
@@ -43,7 +43,7 @@ class Leave(BaseModelGeneric):
     # Add any other fields specific to your leave model
 
     def __str__(self):
-        return f"Leave #{self.id62} - {self.employee}"
+        return f"Leave #{self.id32} - {self.employee}"
 
     class Meta:
         verbose_name = _("Leave")
@@ -58,7 +58,7 @@ class Attendance(BaseModelGeneric):
     # Add any other fields specific to your attendance model
 
     def __str__(self):
-        return f"Attendance #{self.id62} - {self.employee}"
+        return f"Attendance #{self.id32} - {self.employee}"
 
     class Meta:
         verbose_name = _("Attendance")
@@ -72,7 +72,7 @@ class Performance(BaseModelGeneric):
     # Add any other fields specific to your performance model
 
     def __str__(self):
-        return f"Performance #{self.id62} - {self.employee}"
+        return f"Performance #{self.id32} - {self.employee}"
 
     class Meta:
         verbose_name = _("Performance")

@@ -32,7 +32,7 @@ class Supplier(BaseModelGeneric):
     )
 
     def __str__(self):
-        return f"Supplier #{self.id62} - {self.name}"
+        return f"Supplier #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Supplier")
@@ -63,7 +63,7 @@ class PurchaseOrder(BaseModelGeneric):
     # Add any other fields specific to your purchase order model
 
     def __str__(self):
-        return f"Purchase Order #{self.id62}"
+        return f"Purchase Order #{self.id32}"
 
     class Meta:
         verbose_name = _("Purchase Order")
@@ -92,7 +92,7 @@ class PurchaseOrderItem(BaseModelGeneric):
     # Add any other fields specific to your purchase order item model
 
     def __str__(self):
-        return f"Purchase Order Item #{self.id62} - {self.product}"
+        return f"Purchase Order Item #{self.id32} - {self.product}"
 
     class Meta:
         verbose_name = _("Purchase Order Item")
@@ -111,7 +111,7 @@ class Shipment(BaseModelGeneric):
     # Add any other fields specific to your shipment model
 
     def __str__(self):
-        return f"Shipment #{self.id62} - {self.purchase_order}"
+        return f"Shipment #{self.id32} - {self.purchase_order}"
 
     class Meta:
         verbose_name = _("Shipment")
@@ -135,7 +135,7 @@ class VendorPerformance(BaseModelGeneric):
     # Add any other fields specific to vendor performance tracking
 
     def __str__(self):
-        return f"Vendor Performance #{self.id62} - {self.supplier}"
+        return f"Vendor Performance #{self.id32} - {self.supplier}"
 
     class Meta:
         verbose_name = _("Vendor Performance")

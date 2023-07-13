@@ -30,7 +30,7 @@ class Customer(BaseModelGeneric):
     )
 
     def __str__(self):
-        return self.name
+        return f"Customer #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Customer")
@@ -62,7 +62,7 @@ class SalesOrder(BaseModelGeneric):
     # Add any other fields specific to your order model
 
     def __str__(self):
-        return f"Order #{self.id62} - {self.customer}"
+        return f"Order #{self.id32} - {self.customer}"
 
     class Meta:
         verbose_name = _("Order")
@@ -90,7 +90,7 @@ class OrderItem(BaseModelGeneric):
     # Add any other fields specific to your order item model
 
     def __str__(self):
-        return f"Order Item #{self.id62} - {self.product}"
+        return f"Order Item #{self.id32} - {self.product}"
 
     class Meta:
         verbose_name = _("Order Item")
@@ -122,7 +122,7 @@ class Invoice(BaseModelGeneric):
     # Add any other fields specific to your invoice model
 
     def __str__(self):
-        return f"Invoice #{self.id62} - {self.order}"
+        return f"Invoice #{self.id32} - {self.order}"
 
     class Meta:
         verbose_name = _("Invoice")
@@ -159,7 +159,7 @@ class SalesPayment(BaseModelGeneric):
     # Add any other fields specific to your payment model
 
     def __str__(self):
-        return f"Payment #{self.id62} - {self.invoice}"
+        return f"Payment #{self.id32} - {self.invoice}"
 
     class Meta:
         verbose_name = _("Payment")

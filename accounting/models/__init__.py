@@ -8,7 +8,7 @@ class Account(BaseModelGeneric):
     # Add any other fields specific to your account model
 
     def __str__(self):
-        return f"Account #{self.id62} - {self.name}"
+        return f"Account #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Account")
@@ -23,7 +23,7 @@ class Transaction(BaseModelGeneric):
     # Add any other fields specific to your transaction model
 
     def __str__(self):
-        return f"Transaction #{self.id62} - {self.account}"
+        return f"Transaction #{self.id32} - {self.account}"
 
     class Meta:
         verbose_name = _("Transaction")
@@ -36,7 +36,7 @@ class JournalEntry(BaseModelGeneric):
     # Add any other fields specific to your journal entry model
 
     def __str__(self):
-        return f"Journal Entry #{self.id62} - {self.transaction}"
+        return f"Journal Entry #{self.id32} - {self.transaction}"
 
     class Meta:
         verbose_name = _("Journal Entry")
@@ -49,7 +49,7 @@ class GeneralLedger(BaseModelGeneric):
     # Add any other fields specific to your general ledger model
 
     def __str__(self):
-        return f"General Ledger #{self.id62} - {self.account}"
+        return f"General Ledger #{self.id32} - {self.account}"
 
     class Meta:
         verbose_name = _("General Ledger")
@@ -62,7 +62,7 @@ class FinancialStatement(BaseModelGeneric):
     # Add any other fields specific to your financial statement model
 
     def __str__(self):
-        return f"Financial Statement #{self.id62} - {self.name}"
+        return f"Financial Statement #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Financial Statement")
@@ -76,7 +76,7 @@ class FinancialEntry(BaseModelGeneric):
     # Add any other fields specific to your financial entry model
 
     def __str__(self):
-        return f"Financial Entry #{self.id62} - {self.financial_statement}"
+        return f"Financial Entry #{self.id32} - {self.financial_statement}"
 
     class Meta:
         verbose_name = _("Financial Entry")

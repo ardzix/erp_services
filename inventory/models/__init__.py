@@ -11,7 +11,7 @@ class Category(BaseModelGeneric):
     description = models.TextField(blank=True, help_text=_("Enter the category description"))
 
     def __str__(self):
-        return f"Category #{self.id62} - {self.name}"
+        return f"Category #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Category")
@@ -26,7 +26,7 @@ class Product(BaseModelGeneric):
     quantity = models.IntegerField(help_text=_("Enter the product quantity"))
 
     def __str__(self):
-        return f"Product #{self.id62} - {self.name}"
+        return f"Product #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Product")
@@ -53,7 +53,7 @@ class ProductLog(models.Model):
         verbose_name_plural = _("Product Logs")
 
 
-class Warehouse(models.Model):
+class Warehouse(BaseModelGeneric):
     name = models.CharField(max_length=100, help_text=_("Enter the warehouse name"))
     address = models.TextField(help_text=_("Enter the warehouse address"))
     location = models.PointField(
@@ -64,14 +64,14 @@ class Warehouse(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"Warehouse #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Warehouse")
         verbose_name_plural = _("Warehouses")
 
 
-class WarehouseStock(models.Model):
+class WarehouseStock(BaseModelGeneric):
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, help_text=_("Select the warehouse"))
     product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the product"))
     quantity = models.IntegerField(default=0, help_text=_("Enter the product quantity in the warehouse"))
@@ -109,6 +109,12 @@ class StockMovement(BaseModelGeneric):
     to_warehouse = GenericForeignKey('to_warehouse_type', 'to_warehouse_id')
     movement_date = models.DateTimeField(blank=True, null=True, help_text=_("Specify the movement date"))
 
+    def __str__(self):
+        return f"Stock Movement #{self.id32}"
+
+    class Meta:
+        verbose_name = _("Stock Movement")
+        verbose_name_plural = _("Stock Movements")
 
 class StockAdjustment(BaseModelGeneric):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the product"))
@@ -117,7 +123,7 @@ class StockAdjustment(BaseModelGeneric):
     reason = models.TextField(blank=True, help_text=_("Enter the reason for the adjustment"))
 
     def __str__(self):
-        return f"Stock Adjustment #{self.id62}"
+        return f"Stock Adjustment #{self.id32}"
 
     class Meta:
         verbose_name = _("Stock Adjustment")
@@ -130,7 +136,7 @@ class ReplenishmentOrder(BaseModelGeneric):
     order_date = models.DateField(help_text=_("Specify the order date"))
 
     def __str__(self):
-        return f"Replenishment Order #{self.id62}"
+        return f"Replenishment Order #{self.id32}"
 
     class Meta:
         verbose_name = _("Replenishment Order")
@@ -142,7 +148,7 @@ class ReplenishmentReceived(BaseModelGeneric):
     received_date = models.DateField(help_text=_("Specify the received date"))
 
     def __str__(self):
-        return f"Replenishment Received #{self.id62}"
+        return f"Replenishment Received #{self.id32}"
 
     class Meta:
         verbose_name = _("Replenishment Received")
@@ -170,7 +176,8 @@ def update_warehouse_stock(sender, instance, **kwargs):
     if instance.from_warehouse_type == ContentType.objects.get_for_model(Warehouse):
         from_warehouse_stock, _ = WarehouseStock.objects.get_or_create(
             warehouse=instance.from_warehouse,
-            product=instance.product
+            product=instance.product,
+            created_by=instance.created_by
         )
         from_warehouse_stock.quantity -= instance.quantity
         from_warehouse_stock.save()
@@ -179,7 +186,8 @@ def update_warehouse_stock(sender, instance, **kwargs):
     if instance.to_warehouse_type == ContentType.objects.get_for_model(Warehouse):
         to_warehouse_stock, _ = WarehouseStock.objects.get_or_create(
             warehouse=instance.to_warehouse,
-            product=instance.product
+            product=instance.product,
+            created_by=instance.created_by
         )
         to_warehouse_stock.quantity += instance.quantity
         to_warehouse_stock.save()

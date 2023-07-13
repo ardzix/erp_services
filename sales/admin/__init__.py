@@ -6,7 +6,7 @@ from ..models import Customer, SalesOrder, OrderItem, Invoice, SalesPayment
 
 @admin.register(Customer)
 class CustomerAdmin(BaseAdmin):
-    list_display = ['name', 'contact_number', 'address', 'show_location']
+    list_display = ['id32', 'name', 'contact_number', 'address', 'show_location']
     list_filter = ['company_profile']
     search_fields = ['name', 'contact_number', 'address']
     fields = ['name', 'contact_number', 'address', 'location', 'company_profile']
@@ -24,9 +24,9 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(SalesOrder)
 class SalesOrderAdmin(ApproveRejectMixin, BaseAdmin):
     inlines = [OrderItemInline]
-    list_display = ['id62', 'customer', 'order_date', 'approved_by', 'total_amount']
+    list_display = ['id32', 'customer', 'order_date', 'approved_by', 'total_amount']
     list_filter = ['customer', 'order_date', 'approved_by']
-    search_fields = ['id62', 'customer__name']
+    search_fields = ['id32', 'customer__name']
     fields = ['customer', 'order_date', 'approved_by', 'approved_at', 'unapproved_by', 'unapproved_at']
 
     def total_amount(self, instance):
@@ -35,16 +35,16 @@ class SalesOrderAdmin(ApproveRejectMixin, BaseAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(BaseAdmin):
-    list_display = ['id62', 'order', 'product', 'quantity', 'price']
+    list_display = ['id32', 'order', 'product', 'quantity', 'price']
     list_filter = ['order']
-    search_fields = ['id62', 'order__id62', 'product__name']
+    search_fields = ['id32', 'order__id32', 'product__name']
     fields = ['order', 'product', 'quantity', 'price']
 
 @admin.register(Invoice)
 class InvoiceAdmin(BaseAdmin):
-    list_display = ['id62', 'order', 'invoice_date', 'total_amount']
+    list_display = ['id32', 'order', 'invoice_date', 'total_amount']
     list_filter = ['order__customer', 'invoice_date', 'approved_by']
-    search_fields = ['id62', 'order__id62']
+    search_fields = ['id32', 'order__id32']
     fields = ['order', 'invoice_date', 'approved_by', 'approved_at']
     raw_id_fields = ['order']
 
@@ -54,9 +54,9 @@ class InvoiceAdmin(BaseAdmin):
 
 @admin.register(SalesPayment)
 class SalesPaymentAdmin(BaseAdmin):
-    list_display = ['id62', 'invoice', 'total_amount', 'payment_date', 'approved_by', 'approved_at']
+    list_display = ['id32', 'invoice', 'total_amount', 'payment_date', 'approved_by', 'approved_at']
     list_filter = ['invoice__order__customer', 'payment_date', 'approved_by']
-    search_fields = ['id62', 'invoice__order__id62']
+    search_fields = ['id32', 'invoice__order__id32']
     fields = ['invoice', 'amount', 'payment_date', 'approved_by', 'approved_at']
     raw_id_fields = ['invoice']
 

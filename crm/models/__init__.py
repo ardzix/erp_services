@@ -21,7 +21,7 @@ class Lead(BaseModelGeneric):
     # Add any other fields specific to your lead model
 
     def __str__(self):
-        return f"Lead #{self.id62} - {self.name}"
+        return f"Lead #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Lead")
@@ -36,7 +36,7 @@ class Contact(BaseModelGeneric):
     # Add any other fields specific to your contact model
 
     def __str__(self):
-        return f"Contact #{self.id62} - {self.first_name} {self.last_name}"
+        return f"Contact #{self.id32} - {self.first_name} {self.last_name}"
 
     class Meta:
         verbose_name = _("Contact")
@@ -51,7 +51,7 @@ class Account(BaseModelGeneric):
     # Add any other fields specific to your account model
 
     def __str__(self):
-        return f"Account #{self.id62} - {self.name}"
+        return f"Account #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Account")
@@ -76,7 +76,7 @@ class Opportunity(BaseModelGeneric):
     # Add any other fields specific to your opportunity model
 
     def __str__(self):
-        return f"Opportunity #{self.id62} - {self.name}"
+        return f"Opportunity #{self.id32} - {self.name}"
 
     class Meta:
         verbose_name = _("Opportunity")
@@ -106,7 +106,7 @@ class Activity(BaseModelGeneric):
     # Add any other fields specific to your activity model
 
     def __str__(self):
-        return f"Activity #{self.id62} - {self.get_type_display()}"
+        return f"Activity #{self.id32} - {self.get_type_display()}"
 
     class Meta:
         verbose_name = _("Activity")

@@ -12,7 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
 from .moment import to_timestamp
-from .base62 import base62_encode
+from .base32 import base32_encode
 
 
 User = settings.AUTH_USER_MODEL
@@ -22,7 +22,7 @@ class _BaseAbstract(models.Model):
     site = models.ForeignKey(Site, related_name="%(app_label)s_%(class)s_site",
                              blank=True, null=True, on_delete=models.CASCADE,)
     nonce = models.CharField(max_length=128, blank=True, null=True)
-    id62 = models.CharField(
+    id32 = models.CharField(
         max_length=100,
         db_index=True,
         blank=True,
@@ -90,13 +90,13 @@ class _BaseAbstract(models.Model):
         self.updated_at = now
         self.updated_at_timestamp = to_timestamp(self.updated_at)
 
-        # generate id62
-        if not self.id62:
+        # generate id32
+        if not self.id32:
             prev = self.__class__.objects.last()
             obj_id = 1
             if prev:
                 obj_id = prev.id +1
-            self.id62 = base62_encode(obj_id)
+            self.id32 = base32_encode(obj_id)
 
         return super(_BaseAbstract, self).save(*args, **kwargs)
 
