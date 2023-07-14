@@ -1,7 +1,8 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from reversion.admin import VersionAdmin
 from leaflet.admin import LeafletGeoAdmin
 
@@ -91,11 +92,22 @@ class ApproveRejectMixin:
     
 class BaseAdmin(LeafletGeoAdmin, VersionAdmin):
 
+    def message_user(self, request, message, level=messages.ERROR, extra_tags='', fail_silently=False):
+        if isinstance(message, ValidationError):
+            level = messages.ERROR
+        super().message_user(request, message, level, extra_tags, fail_silently)
+
     def save_model(self, request, obj, form, change):
         if not change:  # Only set the created_by field for new objects
             obj.created_by = request.user
+            obj.created_at = timezone.now()
+            obj.created_at_timestamp = timezone.now().timestamp()
         obj.updated_by = request.user
-        super().save_model(request, obj, form, change)
+        try:
+            obj.full_clean()  # Perform model validation before saving
+            super().save_model(request, obj, form, change)
+        except ValidationError as e:
+            self.message_user(request, f"Error: {str(e)}", level='error')
 
     def save_related(self, request, form, formsets, change):
         for formset in formsets:

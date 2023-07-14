@@ -3,8 +3,9 @@ from django.db.models.signals import pre_save, post_save, pre_delete
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from libs.base_model import BaseModelGeneric, User
-from inventory.models import Product, StockMovement, Warehouse
+from inventory.models import Product, StockMovement, Warehouse, WarehouseStock
 from hr.models import Employee
 
 
@@ -61,6 +62,8 @@ class WorkOrder(BaseModelGeneric):
         related_name='assigned_work_orders',
         verbose_name=_("Assigned to")
     )
+    start_time = models.DateTimeField(blank=True, null=True)
+    end_time = models.DateTimeField(blank=True, null=True)
     # Add any other fields specific to your work order model
 
     def __str__(self):
@@ -73,7 +76,7 @@ class WorkOrder(BaseModelGeneric):
 
 class ProductionTracking(BaseModelGeneric):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
+    start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField()
     produced_quantity = models.PositiveIntegerField()
     # Add any other fields specific to your production tracking model
@@ -85,6 +88,25 @@ class ProductionTracking(BaseModelGeneric):
         verbose_name = _("Production Tracking")
         verbose_name_plural = _("Production Tracking")
 
+@receiver(pre_save, sender=ProductionOrder)
+def validate_production_order(sender, instance, **kwargs):
+    product = instance.product
+
+    # Check if the product has a BillOfMaterials
+    try:
+        bom = product.billofmaterials
+    except BillOfMaterials.DoesNotExist:
+        raise ValidationError("Product must have a BillOfMaterials to create a ProductionOrder")
+
+    # Check if the product has any BOMComponent
+    if not bom.components.exists():
+        raise ValidationError("Product must have at least one BOMComponent to create a ProductionOrder")
+
+def get_work_order_component_quantity(component, work_order):
+    return component.quantity * work_order.production_order.quantity  # Calculate the required quantity based on the BOM and work order quantity
+
+def get_stock(warehouse, component):
+    return WarehouseStock.objects.get(warehouse=warehouse, product=component.component)
 
 @receiver(post_save, sender=WorkOrder)
 def move_materials_to_workcenter(sender, instance, created, **kwargs):
@@ -92,28 +114,43 @@ def move_materials_to_workcenter(sender, instance, created, **kwargs):
         # Fetch the BOM components for the associated product of the production order
         bom_components = BOMComponent.objects.filter(bom__product=instance.production_order.product)
         
-        # Iterate over the BOM components and create stock movements to move materials from inventory to work center
+        # Iterate over the BOM components and deduct stocks
         for component in bom_components:
-            quantity = component.quantity * instance.production_order.quantity  # Calculate the required quantity based on the BOM and work order quantity
+            quantity = get_work_order_component_quantity(component, instance)
             product = component.component
             product.quantity -= quantity
             product.updated_by = instance.created_by
             product.save()
-            StockMovement.objects.create(
-                product=product,
-                quantity=quantity,
-                to_warehouse_type=ContentType.objects.get_for_model(Warehouse),
-                to_warehouse_id=instance.work_center_warehouse.id,
-                created_by=instance.created_by
-            )
 
+            stock = get_stock(instance.work_center_warehouse, component)
+            stock.quantity -= quantity
+            stock.updated_by = instance.created_by
+            stock.save()
 
 @receiver(pre_save, sender=WorkOrder)
 def check_workorder_before_started(sender, instance, **kwargs):
-    instance.started_before = False
-    wo_before = WorkOrder.objects.filter(pk=instance.pk).last()
-    if wo_before:
-        instance.started_before = True if wo_before.start_date and wo_before.end_date else False
+    if not instance.pk:
+        product = instance.production_order.product
+        warehouse = instance.work_center_warehouse
+        bom_components = BOMComponent.objects.filter(bom__product=product)
+        # Iterate over the BOM components and check for stocks
+        for component in bom_components:
+            quantity = get_work_order_component_quantity(component, instance)
+            stock = get_stock(warehouse, component)
+            if stock.quantity < quantity:
+                raise ValidationError(_(f'Stock {component.component} is lower than quantity needed to produce {product}'))
+
+@receiver(pre_save, sender=ProductionTracking)
+def check_production_tracking(sender, instance, **kwargs):
+    work_order = instance.work_order
+    if not work_order.start_time:
+        raise ValidationError(_('Work order has not been started'))
+    if work_order.end_time:
+        raise ValidationError(_('Work order has been finished'))
+
+@receiver(pre_save, sender=ProductionTracking)
+def set_tracking_time(sender, instance, **kwargs):
+    instance.start_tim = instance.work_order.start_time
 
 @receiver(post_save, sender=ProductionTracking)
 def update_product_quantity(sender, instance, created, **kwargs):
@@ -123,6 +160,20 @@ def update_product_quantity(sender, instance, created, **kwargs):
         product.quantity += quantity
         product.updated_by = instance.created_by
         product.save()
+
+        warehouse = instance.work_order.work_center_warehouse
+        stock = WarehouseStock.objects.get(product=product, warehouse=warehouse)
+        stock.quantity += quantity
+        stock.updated_by = instance.created_by
+        stock.save()
+
+@receiver(post_save, sender=ProductionTracking)
+def update_work_order(sender, instance, created, **kwargs):
+    if created:
+        work_order = instance.work_order
+        work_order.end_time = instance.end_time
+        work_order.updated_by = instance.created_by
+        work_order.save()
 
 @receiver(post_save, sender=ProductionTracking)
 def create_stock_movement(sender, instance, created, **kwargs):

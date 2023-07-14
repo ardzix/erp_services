@@ -29,7 +29,6 @@ class WarehouseFilter(admin.SimpleListFilter):
         # Define the filter options and their display labels
         return (
             ('warehouse', _('Warehouse')),
-            ('production', _('Production')),
             ('customer', _('Customer')),
             ('supplier', _('Supplier')),
         )
@@ -58,8 +57,8 @@ class ToWarehouseFilter(WarehouseFilter):
 
 @admin.register(StockMovement)
 class StockMovementAdmin(BaseAdmin):
-    list_display = ['id32', 'product', 'quantity', 'from_warehouse', 'to_warehouse', 'movement_date']
-    list_filter = ['movement_date', FromWarehouseFilter ,ToWarehouseFilter]
+    list_display = ['id32', 'product', 'quantity', 'from_warehouse', 'to_warehouse', 'status', 'movement_date']
+    list_filter = ['movement_date', 'status', FromWarehouseFilter ,ToWarehouseFilter]
     search_fields = ['product__name']
     fields = ['product', 'quantity', 'from_warehouse', 'to_warehouse', 'movement_date']
     readonly_fields = ['from_warehouse', 'to_warehouse']

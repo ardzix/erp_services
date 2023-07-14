@@ -74,7 +74,7 @@ class Warehouse(BaseModelGeneric):
 class WarehouseStock(BaseModelGeneric):
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, help_text=_("Select the warehouse"))
     product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the product"))
-    quantity = models.IntegerField(default=0, help_text=_("Enter the product quantity in the warehouse"))
+    quantity = models.PositiveIntegerField(default=0, help_text=_("Enter the product quantity in the warehouse"))
 
     def __str__(self):
         return f"Warehouse Stock: {self.warehouse.name} - Product: {self.product.name} - Quantity: {self.quantity}"
@@ -83,6 +83,14 @@ class WarehouseStock(BaseModelGeneric):
         verbose_name = _("Warehouse Stock")
         verbose_name_plural = _("Warehouse Stocks")
 
+MOVEMENT_STATUS = (
+    (1, _('Requested')),
+    (2, _('Canceled')),
+    (3, _('Preparing')),
+    (4, _('On Delivery')),
+    (5, _('Delivered')),
+    (6, _('Returned')),
+)
 
 class StockMovement(BaseModelGeneric):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the product"))
@@ -108,6 +116,7 @@ class StockMovement(BaseModelGeneric):
     to_warehouse_id = models.PositiveIntegerField(blank=True, null=True, help_text=_("Enter the ID of the destination warehouse"))
     to_warehouse = GenericForeignKey('to_warehouse_type', 'to_warehouse_id')
     movement_date = models.DateTimeField(blank=True, null=True, help_text=_("Specify the movement date"))
+    status = models.PositiveSmallIntegerField(default=1, choices=MOVEMENT_STATUS)
 
     def __str__(self):
         return f"Stock Movement #{self.id32}"
@@ -173,7 +182,7 @@ def create_product_log(sender, instance, **kwargs):
 @receiver(post_save, sender=StockMovement)
 def update_warehouse_stock(sender, instance, **kwargs):
     # Deduct the quantity from the source warehouse
-    if instance.from_warehouse_type == ContentType.objects.get_for_model(Warehouse):
+    if instance.status == 4 and instance.from_warehouse_type == ContentType.objects.get_for_model(Warehouse):
         from_warehouse_stock, _ = WarehouseStock.objects.get_or_create(
             warehouse=instance.from_warehouse,
             product=instance.product,
@@ -183,7 +192,7 @@ def update_warehouse_stock(sender, instance, **kwargs):
         from_warehouse_stock.save()
 
     # Add the quantity to the destination warehouse
-    if instance.to_warehouse_type == ContentType.objects.get_for_model(Warehouse):
+    if instance.status == 5 and  instance.to_warehouse_type == ContentType.objects.get_for_model(Warehouse):
         to_warehouse_stock, _ = WarehouseStock.objects.get_or_create(
             warehouse=instance.to_warehouse,
             product=instance.product,
