@@ -75,6 +75,8 @@ class OrderItem(BaseModelGeneric):
     order = models.ForeignKey(
         SalesOrder,
         on_delete=models.CASCADE,
+        related_name='order_items',  # Update the related_name
+        related_query_name='orderitem',
         help_text=_("Select the order associated with the item")
     )
     product = models.ForeignKey(
