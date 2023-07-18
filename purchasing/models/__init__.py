@@ -162,9 +162,9 @@ def update_product_quantity(sender, instance, **kwargs):
             StockMovement.objects.create(
                 product_id=instance.product.pk,
                 quantity=abs(quantity_diff),
-                destionation_type=ContentType.objects.get_for_model(
+                destination_type=ContentType.objects.get_for_model(
                     Supplier),
-                destionation_id=instance.purchase_order.supplier.id,
+                destination_id=instance.purchase_order.supplier.id,
                 created_by=instance.updated_by if instance.updated_by else instance.created_by
             )
 
