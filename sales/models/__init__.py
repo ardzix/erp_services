@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import pre_save, post_save, pre_delete
 from django.contrib.contenttypes.models import ContentType
 from django.dispatch import receiver
-from inventory.models import Product, StockMovement
+from inventory.models import Product, StockMovement, StockMovementItem
 from libs.base_model import BaseModelGeneric, User
 from identities.models import CompanyProfile
 
@@ -59,6 +59,8 @@ class SalesOrder(BaseModelGeneric):
         verbose_name=_("Approved at"),
         help_text=_("Specify the date and time of approval")
     )
+    stock_movement = models.ForeignKey(
+        StockMovement, blank=True, null=True, on_delete=models.SET_NULL)
     # Add any other fields specific to your order model
 
     def __str__(self):
@@ -174,32 +176,48 @@ def update_product_quantity(sender, instance, **kwargs):
         quantity_diff = instance.quantity - old_quantity
         Product.objects.filter(pk=instance.product.pk).update(quantity=models.F(
             'quantity') - quantity_diff, updated_by_id=instance.updated_by_id)
-        if quantity_diff < 0:
-            StockMovement.objects.create(
+        if quantity_diff != 0 and instance.order.stock_movement:
+            smi, created = StockMovementItem.objects.get_or_create(
                 product_id=instance.product.pk,
-                quantity=abs(quantity_diff),
-                origin_type=ContentType.objects.get_for_model(
-                    Customer),
-                origin_id=order_item.order.customer.id,
-                created_by=order_item.updated_by if order_item.updated_by else order_item.created_by
+                stock_movement=instance.order.stock_movement,
+                created_by= order_item.created_by
             )
-        elif quantity_diff > 0:
-            StockMovement.objects.create(
-                product_id=instance.product.pk,
-                quantity=abs(quantity_diff),
-                destionation_type=ContentType.objects.get_for_model(
-                    Customer),
-                destionation_id=order_item.order.customer.id,
-                created_by=order_item.updated_by if order_item.updated_by else order_item.created_by
-            )
+            smi.quantity = abs(quantity_diff)
+            smi.save()
 
 
 @receiver(pre_save, sender=SalesOrder)
 def check_salesorder_before_approved(sender, instance, **kwargs):
     instance.approved_before = False
+    instance.unapproved_before = False
     so_before = SalesOrder.objects.filter(pk=instance.pk).last()
     if so_before:
         instance.approved_before = True if so_before.approved_at and so_before.approved_by else False
+        instance.unapproved_before = True if so_before.unapproved_at and so_before.unapproved_by else False
+
+
+@receiver(post_save, sender=SalesOrder)
+def create_stock_movement(sender, instance, **kwargs):
+    if not instance.approved_before and instance.approved_at:
+        sm = StockMovement.objects.create(
+            destination_type=ContentType.objects.get_for_model(Customer),
+            destination_id=instance.customer.id,
+            created_by=instance.updated_by if instance.updated_by else instance.created_by
+        )
+        instance.stock_movement = sm
+        instance.save()
+        for item in OrderItem.objects.filter(order=instance).all():
+            smi, created = StockMovementItem.objects.get_or_create(
+                    product_id=item.product.pk,
+                    stock_movement=instance.stock_movement,
+                    created_by= item.created_by
+                )
+            smi.quantity = abs(item.quantity)
+            smi.save()
+    if not instance.unapproved_before and instance.unapproved_at:
+        sm = instance.stock_movement
+        if sm.status <= 4:
+            sm.delete()
 
 
 @receiver(post_save, sender=OrderItem)
@@ -214,17 +232,16 @@ def update_product_quantity(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=OrderItem)
 def create_stock_movement(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.order.stock_movement:
         product = instance.product
         quantity = instance.quantity
-
-        StockMovement.objects.create(
+        smi, created = StockMovementItem.objects.get_or_create(
             product=product,
-            quantity=quantity,
-            destionation_type=ContentType.objects.get_for_model(Customer),
-            destionation_id=instance.order.customer.id,
-            created_by=instance.updated_by if instance.updated_by else instance.created_by
+            stock_movement=instance.order.stock_movement,
+            created_by=instance.created_by
         )
+        smi.quantity = quantity
+        smi.save()
 
 
 @receiver(pre_delete, sender=OrderItem)
