@@ -9,14 +9,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-#    ports:
-#      - '127.0.0.1:8103:443'
-#    image: 'strongpapazola/ubuntu:dr-mekanik'
     networks:
       - development
+    volumes:
+#      - /var/www/html:/app/static
+      - erp_service:/app/static
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
 networks:
   development:
     name: development
     driver: bridge
 ##  docker-compose up -d --force-recreate --build
+
+volumes:
+  erp_service:
