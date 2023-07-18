@@ -41,7 +41,7 @@ EXPOSE 8000
 #RUN cp project/production_settings.py project/local_settings.py 
 
 #RUN python3 manage.py makemigrations
-RUN python3 manage.py migrate
+#RUN python3 manage.py migrate
 
 RUN mkdir -p static/upload
 RUN echo yes | python3 manage.py collectstatic

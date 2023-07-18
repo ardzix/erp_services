@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-$(i+u8smen#ob!^5i7o5j4*cdsm44k8e@=%j_3-vxa$t6^&3=t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["erp.nikici.com"]
 
 
 # Application definition

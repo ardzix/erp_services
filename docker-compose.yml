@@ -4,6 +4,8 @@ services:
   app:
     container_name: erp_services
     restart: always
+    ports:
+      - 8000:8000
     build:
       context: .
       dockerfile: Dockerfile
