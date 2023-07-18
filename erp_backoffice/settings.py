@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'accounting',
     'hr',
     'crm',
+    'logistics',
 
     'rest_framework',
     'rest_framework.authtoken',
