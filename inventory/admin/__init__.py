@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django import forms
 from libs.admin import BaseAdmin
 
-from inventory.models import Category, Product, ProductLog, StockMovement, StockAdjustment, ReplenishmentOrder, ReplenishmentReceived, Warehouse, WarehouseStock
+from inventory.models import Category, Product, ProductLog, StockMovement, StockMovementItem, StockAdjustment, ReplenishmentOrder, ReplenishmentReceived, Warehouse, WarehouseStock
 
 
 @admin.register(Category)
@@ -47,12 +47,12 @@ class FromWarehouseFilter(WarehouseFilter):
 
 class ToWarehouseFilter(WarehouseFilter):
     title = _('Destination Filter')  # Display name of the filter
-    parameter_name = 'destionation_filter'  # URL parameter name for the filter
+    parameter_name = 'destination_filter'  # URL parameter name for the filter
 
     def queryset(self, request, queryset):
         # Apply the filter based on the selected option
         if self.value():
-            return queryset.filter(destionation_type__model=self.value())
+            return queryset.filter(destination_type__model=self.value())
         return queryset
     
 
@@ -62,17 +62,26 @@ class WarehouseTypeForm(forms.ModelForm):
         # Customize the queryset for the foreign key field
         ct = ContentType.objects.filter(model__in=['customer', 'supplier', 'warehouse'])
         self.fields['origin_type'].queryset = ct
-        self.fields['destionation_type'].queryset = ct
+        self.fields['destination_type'].queryset = ct
+
+
+class StockMovementItemInline(admin.TabularInline):
+    model = StockMovementItem
+    extra = 1
+    fields = ['product', 'quantity']
+    raw_id_fields = ['product']
+    verbose_name_plural = _("Stock Movement Items")
 
 
 @admin.register(StockMovement)
 class StockMovementAdmin(BaseAdmin):
     form = WarehouseTypeForm
-    list_display = ['id32', 'product', 'quantity', 'origin', 'destionation', 'status', 'movement_date']
+    list_display = ['id32', 'origin', 'destination', 'status', 'movement_date']
     list_filter = ['movement_date', 'status', FromWarehouseFilter ,ToWarehouseFilter]
     search_fields = ['product__name']
-    fields = ['product', 'quantity', 'status', 'movement_date', 'origin', 'origin_id', 'origin_type', 'destionation', 'destionation_id', 'destionation_type']
-    readonly_fields = ['origin', 'destionation']
+    fields = ['status', 'movement_date', 'origin', 'origin_id', 'origin_type', 'destination', 'destination_id', 'destination_type']
+    readonly_fields = ['origin', 'destination']
+    inlines = [StockMovementItemInline]
 
     def origin(self, obj):
         if obj.origin:
@@ -80,15 +89,15 @@ class StockMovementAdmin(BaseAdmin):
         else:
             return ''
 
-    def destionation(self, obj):
-        if obj.destionation:
-            return f"{obj.destionation}"
+    def destination(self, obj):
+        if obj.destination:
+            return f"{obj.destination}"
         else:
             return ''
 
 
     origin.short_description = _('Origin')
-    destionation.short_description = _('Destination')
+    destination.short_description = _('Destination')
 
 
 @admin.register(StockAdjustment)

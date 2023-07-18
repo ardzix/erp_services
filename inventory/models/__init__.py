@@ -87,14 +87,13 @@ MOVEMENT_STATUS = (
     (1, _('Requested')),
     (2, _('Canceled')),
     (3, _('Preparing')),
-    (4, _('On Delivery')),
-    (5, _('Delivered')),
-    (6, _('Returned')),
+    (4, _('Ready to pickup')),
+    (5, _('On Delivery')),
+    (6, _('Delivered')),
+    (7, _('Returned')),
 )
 
 class StockMovement(BaseModelGeneric):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the product"))
-    quantity = models.IntegerField(help_text=_("Enter the quantity"))
     origin_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -105,7 +104,7 @@ class StockMovement(BaseModelGeneric):
     )
     origin_id = models.PositiveIntegerField(blank=True, null=True, help_text=_("Enter the ID of the source warehouse"))
     origin = GenericForeignKey('origin_type', 'origin_id')
-    destionation_type = models.ForeignKey(
+    destination_type = models.ForeignKey(
         ContentType,
         blank=True, null=True,
         on_delete=models.CASCADE,
@@ -113,8 +112,8 @@ class StockMovement(BaseModelGeneric):
         related_query_name='to_stockmovement',
         help_text=_("Select the content type of the destination warehouse")
     )
-    destionation_id = models.PositiveIntegerField(blank=True, null=True, help_text=_("Enter the ID of the destination warehouse"))
-    destionation = GenericForeignKey('destionation_type', 'destionation_id')
+    destination_id = models.PositiveIntegerField(blank=True, null=True, help_text=_("Enter the ID of the destination warehouse"))
+    destination = GenericForeignKey('destination_type', 'destination_id')
     movement_date = models.DateTimeField(blank=True, null=True, help_text=_("Specify the movement date"))
     status = models.PositiveSmallIntegerField(default=1, choices=MOVEMENT_STATUS)
 
@@ -124,6 +123,27 @@ class StockMovement(BaseModelGeneric):
     class Meta:
         verbose_name = _("Stock Movement")
         verbose_name_plural = _("Stock Movements")
+
+class StockMovementItem(BaseModelGeneric):
+    stock_movement = models.ForeignKey(
+        StockMovement,
+        on_delete=models.CASCADE,
+        related_name='items',
+        help_text=_("Select the stock movement")
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        help_text=_("Select the product")
+    )
+    quantity = models.IntegerField(default = 0, help_text=_("Enter the quantity"))
+
+    def __str__(self):
+        return f"Stock Movement Item #{self.id32} - {self.product}"
+
+    class Meta:
+        verbose_name = _("Stock Movement Item")
+        verbose_name_plural = _("Stock Movement Items")
 
 class StockAdjustment(BaseModelGeneric):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the product"))
@@ -182,7 +202,7 @@ def create_product_log(sender, instance, **kwargs):
 @receiver(post_save, sender=StockMovement)
 def update_warehouse_stock(sender, instance, **kwargs):
     # Deduct the quantity from the source warehouse
-    if instance.status == 4 and instance.origin_type == ContentType.objects.get_for_model(Warehouse):
+    if instance.status == 5 and instance.origin_type == ContentType.objects.get_for_model(Warehouse):
         origin_stock, _ = WarehouseStock.objects.get_or_create(
             warehouse=instance.origin,
             product=instance.product,
@@ -192,11 +212,11 @@ def update_warehouse_stock(sender, instance, **kwargs):
         origin_stock.save()
 
     # Add the quantity to the destination warehouse
-    if instance.status == 5 and  instance.destionation_type == ContentType.objects.get_for_model(Warehouse):
-        destionation_stock, _ = WarehouseStock.objects.get_or_create(
-            warehouse=instance.destionation,
+    if instance.status == 6 and  instance.destination_type == ContentType.objects.get_for_model(Warehouse):
+        destination_stock, _ = WarehouseStock.objects.get_or_create(
+            warehouse=instance.destination,
             product=instance.product,
             created_by=instance.created_by
         )
-        destionation_stock.quantity += instance.quantity
-        destionation_stock.save()
+        destination_stock.quantity += instance.quantity
+        destination_stock.save()
