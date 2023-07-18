@@ -95,7 +95,7 @@ MOVEMENT_STATUS = (
 class StockMovement(BaseModelGeneric):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the product"))
     quantity = models.IntegerField(help_text=_("Enter the quantity"))
-    from_warehouse_type = models.ForeignKey(
+    origin_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
         blank=True, null=True,
@@ -103,9 +103,9 @@ class StockMovement(BaseModelGeneric):
         related_query_name='from_stockmovement',
         help_text=_("Select the content type of the source warehouse")
     )
-    from_warehouse_id = models.PositiveIntegerField(blank=True, null=True, help_text=_("Enter the ID of the source warehouse"))
-    from_warehouse = GenericForeignKey('from_warehouse_type', 'from_warehouse_id')
-    to_warehouse_type = models.ForeignKey(
+    origin_id = models.PositiveIntegerField(blank=True, null=True, help_text=_("Enter the ID of the source warehouse"))
+    origin = GenericForeignKey('origin_type', 'origin_id')
+    destionation_type = models.ForeignKey(
         ContentType,
         blank=True, null=True,
         on_delete=models.CASCADE,
@@ -113,8 +113,8 @@ class StockMovement(BaseModelGeneric):
         related_query_name='to_stockmovement',
         help_text=_("Select the content type of the destination warehouse")
     )
-    to_warehouse_id = models.PositiveIntegerField(blank=True, null=True, help_text=_("Enter the ID of the destination warehouse"))
-    to_warehouse = GenericForeignKey('to_warehouse_type', 'to_warehouse_id')
+    destionation_id = models.PositiveIntegerField(blank=True, null=True, help_text=_("Enter the ID of the destination warehouse"))
+    destionation = GenericForeignKey('destionation_type', 'destionation_id')
     movement_date = models.DateTimeField(blank=True, null=True, help_text=_("Specify the movement date"))
     status = models.PositiveSmallIntegerField(default=1, choices=MOVEMENT_STATUS)
 
@@ -182,21 +182,21 @@ def create_product_log(sender, instance, **kwargs):
 @receiver(post_save, sender=StockMovement)
 def update_warehouse_stock(sender, instance, **kwargs):
     # Deduct the quantity from the source warehouse
-    if instance.status == 4 and instance.from_warehouse_type == ContentType.objects.get_for_model(Warehouse):
-        from_warehouse_stock, _ = WarehouseStock.objects.get_or_create(
-            warehouse=instance.from_warehouse,
+    if instance.status == 4 and instance.origin_type == ContentType.objects.get_for_model(Warehouse):
+        origin_stock, _ = WarehouseStock.objects.get_or_create(
+            warehouse=instance.origin,
             product=instance.product,
             created_by=instance.created_by
         )
-        from_warehouse_stock.quantity -= instance.quantity
-        from_warehouse_stock.save()
+        origin_stock.quantity -= instance.quantity
+        origin_stock.save()
 
     # Add the quantity to the destination warehouse
-    if instance.status == 5 and  instance.to_warehouse_type == ContentType.objects.get_for_model(Warehouse):
-        to_warehouse_stock, _ = WarehouseStock.objects.get_or_create(
-            warehouse=instance.to_warehouse,
+    if instance.status == 5 and  instance.destionation_type == ContentType.objects.get_for_model(Warehouse):
+        destionation_stock, _ = WarehouseStock.objects.get_or_create(
+            warehouse=instance.destionation,
             product=instance.product,
             created_by=instance.created_by
         )
-        to_warehouse_stock.quantity += instance.quantity
-        to_warehouse_stock.save()
+        destionation_stock.quantity += instance.quantity
+        destionation_stock.save()

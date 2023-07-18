@@ -1,7 +1,8 @@
 from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
-from django.db.models import Q
-from libs.admin import ApproveRejectMixin, BaseAdmin
+from django.contrib.contenttypes.models import ContentType
+from django import forms
+from libs.admin import BaseAdmin
 
 from inventory.models import Category, Product, ProductLog, StockMovement, StockAdjustment, ReplenishmentOrder, ReplenishmentReceived, Warehouse, WarehouseStock
 
@@ -35,49 +36,59 @@ class WarehouseFilter(admin.SimpleListFilter):
 
 
 class FromWarehouseFilter(WarehouseFilter):
-    title = _('From Warehouse Filter')  # Display name of the filter
-    parameter_name = 'from_warehouse_filter'  # URL parameter name for the filter
+    title = _('Origin Filter')  # Display name of the filter
+    parameter_name = 'origin_filter'  # URL parameter name for the filter
 
     def queryset(self, request, queryset):
         # Apply the filter based on the selected option
         if self.value():
-            return queryset.filter(from_warehouse_type__model=self.value())
+            return queryset.filter(origin_type__model=self.value())
         return queryset
 
 class ToWarehouseFilter(WarehouseFilter):
-    title = _('To Warehouse Filter')  # Display name of the filter
-    parameter_name = 'to_warehouse_filter'  # URL parameter name for the filter
+    title = _('Destination Filter')  # Display name of the filter
+    parameter_name = 'destionation_filter'  # URL parameter name for the filter
 
     def queryset(self, request, queryset):
         # Apply the filter based on the selected option
         if self.value():
-            return queryset.filter(to_warehouse_type__model=self.value())
+            return queryset.filter(destionation_type__model=self.value())
         return queryset
+    
+
+class WarehouseTypeForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customize the queryset for the foreign key field
+        ct = ContentType.objects.filter(model__in=['customer', 'supplier', 'warehouse'])
+        self.fields['origin_type'].queryset = ct
+        self.fields['destionation_type'].queryset = ct
 
 
 @admin.register(StockMovement)
 class StockMovementAdmin(BaseAdmin):
-    list_display = ['id32', 'product', 'quantity', 'from_warehouse', 'to_warehouse', 'status', 'movement_date']
+    form = WarehouseTypeForm
+    list_display = ['id32', 'product', 'quantity', 'origin', 'destionation', 'status', 'movement_date']
     list_filter = ['movement_date', 'status', FromWarehouseFilter ,ToWarehouseFilter]
     search_fields = ['product__name']
-    fields = ['product', 'quantity', 'from_warehouse', 'to_warehouse', 'movement_date']
-    readonly_fields = ['from_warehouse', 'to_warehouse']
+    fields = ['product', 'quantity', 'status', 'movement_date', 'origin', 'origin_id', 'origin_type', 'destionation', 'destionation_id', 'destionation_type']
+    readonly_fields = ['origin', 'destionation']
 
-    def from_warehouse(self, obj):
-        if obj.from_warehouse:
-            return f"{obj.from_warehouse}"
+    def origin(self, obj):
+        if obj.origin:
+            return f"{obj.origin}"
         else:
             return ''
 
-    def to_warehouse(self, obj):
-        if obj.to_warehouse:
-            return f"{obj.to_warehouse}"
+    def destionation(self, obj):
+        if obj.destionation:
+            return f"{obj.destionation}"
         else:
             return ''
 
 
-    from_warehouse.short_description = _('From Warehouse')
-    to_warehouse.short_description = _('To Warehouse')
+    origin.short_description = _('Origin')
+    destionation.short_description = _('Destination')
 
 
 @admin.register(StockAdjustment)

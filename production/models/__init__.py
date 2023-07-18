@@ -184,8 +184,8 @@ def create_stock_movement(sender, instance, created, **kwargs):
         StockMovement.objects.create(
             product=product,
             quantity=quantity,
-            from_warehouse_type=ContentType.objects.get_for_model(Warehouse),
-            from_warehouse_id=instance.work_order.work_center_warehouse.pk,
+            origin_type=ContentType.objects.get_for_model(Warehouse),
+            origin_id=instance.work_order.work_center_warehouse.pk,
             created_by=instance.updated_by if instance.updated_by else instance.created_by
         )
 

@@ -153,18 +153,18 @@ def update_product_quantity(sender, instance, **kwargs):
             StockMovement.objects.create(
                 product_id=instance.product.pk,
                 quantity=quantity_diff,
-                from_warehouse_type=ContentType.objects.get_for_model(
+                origin_type=ContentType.objects.get_for_model(
                     Supplier),
-                from_warehouse_id=instance.purchase_order.supplier.id,
+                origin_id=instance.purchase_order.supplier.id,
                 created_by=instance.updated_by if instance.updated_by else instance.created_by
             )
         elif quantity_diff < 0:
             StockMovement.objects.create(
                 product_id=instance.product.pk,
                 quantity=abs(quantity_diff),
-                to_warehouse_type=ContentType.objects.get_for_model(
+                destionation_type=ContentType.objects.get_for_model(
                     Supplier),
-                to_warehouse_id=instance.purchase_order.supplier.id,
+                destionation_id=instance.purchase_order.supplier.id,
                 created_by=instance.updated_by if instance.updated_by else instance.created_by
             )
 
@@ -186,8 +186,8 @@ def create_stock_movement(sender, instance, created, **kwargs):
         StockMovement.objects.create(
             product=product,
             quantity=quantity,
-            from_warehouse_type=ContentType.objects.get_for_model(Supplier),
-            from_warehouse_id=instance.purchase_order.supplier.id,
+            origin_type=ContentType.objects.get_for_model(Supplier),
+            origin_id=instance.purchase_order.supplier.id,
             created_by=instance.updated_by if instance.updated_by else instance.created_by
         )
 
