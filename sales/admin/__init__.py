@@ -30,7 +30,8 @@ class SalesOrderAdmin(ApproveRejectMixin, BaseAdmin):
     fields = ['customer', 'order_date', 'approved_by', 'approved_at', 'unapproved_by', 'unapproved_at']
 
     def total_amount(self, instance):
-        total_amount = instance.orderitem_set.aggregate(total_price=Sum(F('price')*F('quantity'))).get('total_price')
+        # total_amount = instance.orderitem_set.aggregate(total_price=Sum(F('price')*F('quantity'))).get('total_price')
+        total_amount = 0
         return f'{total_amount:,.0f}'
 
 @admin.register(OrderItem)
