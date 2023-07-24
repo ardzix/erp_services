@@ -21,6 +21,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from common.views import CustomAuthToken
 from sales.router import router as sales_router
+from django.conf import settings
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -33,6 +34,7 @@ schema_view = get_schema_view(
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
+    url=settings.BASE_URL,
 )
 urlpatterns = [
 
