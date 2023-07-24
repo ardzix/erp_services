@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  static:
+    container_name: static
+    restart: always
+#    image: mdillon/postgis
+    image: nginx:latest
+    ports:
+     - 8080:80
+    volumes:
+      - erp_services_erp_service:/usr/share/nginx/html/static/
+    networks:
+      - development
+
+networks:
+    development:
+        name: development
+        driver: bridge
+volumes:
+  erp_services_erp_service:
+    external: true

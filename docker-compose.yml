@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: erp_services
+    restart: always
+    ports:
+      - 8000:8000
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - development
+    volumes:
+#      - /var/www/html:/app/static
+      - erp_service:/app/static
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+networks:
+  development:
+    name: development
+    driver: bridge
+##  docker-compose up -d --force-recreate --build
+
+volumes:
+  erp_service:
