@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'crm',
     'logistics',
 
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'leaflet',
