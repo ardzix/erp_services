@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+    sonar-scanner-cli:
+        environment:
+            - 'SONAR_HOST_URL=https://sonarqube.nikici.com/'
+            - SONAR_SCANNER_OPTS=-Dsonar.projectKey=erp-fe
+#            - SONAR_TOKEN=06ab10526a8b038b68a6a41a3d61f8d2c9971b62
+            - SONAR_TOKEN=9c2e57c1bb45c94ce49fb1c52709ac8b8fc1d227
+        volumes:
+            - '/var/lib/jenkins/workspace/erp.nikici.com/be/:/usr/src'
+        image: sonarsource/sonar-scanner-cli
+
+# docker run --rm -e SONAR_HOST_URL="https://sonarqube.nikici.com/" -e SONAR_SCANNER_OPTS="-Dsonar.projectKey=com.kayaroll.be" -e SONAR_TOKEN="69d3977a9af567f93bc6eaf4d1284e524a5ddef1" -v "${YOUR_REPO}:/usr/src" sonarsource/sonar-scanner-cli
