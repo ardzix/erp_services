@@ -1,6 +1,6 @@
 from django.contrib import admin
 from libs.admin import ApproveRejectMixin, BaseAdmin
-from ..models import UserProfile, CompanyProfile
+from ..models import UserProfile, CompanyProfile, Brand
 
 @admin.register(UserProfile)
 class UserProfileAdmin(BaseAdmin):
@@ -23,3 +23,10 @@ class CompanyProfileAdmin(BaseAdmin):
     def owned_by_email(self, obj):
         return obj.owned_by.email
     owned_by_email.short_description = 'Owned by'
+
+@admin.register(Brand)
+class BrandProfileAdmin(BaseAdmin):
+    list_display = ['company', 'name']
+    list_filter = []
+    search_fields = ['name', 'company__name']
+    fields = ['company', 'name', 'description']

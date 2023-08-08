@@ -21,6 +21,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from common.views import CustomAuthToken
 from sales.router import router as sales_router
+from inventory.router import router as inventory_router
 from django.conf import settings
 
 schema_view = get_schema_view(
@@ -39,7 +40,8 @@ schema_view = get_schema_view(
 urlpatterns = [
 
     path('api/auth/login/', CustomAuthToken.as_view(), name='api-login'),
-    path('api/', include(sales_router.urls)),
+    path('api/sales/', include(sales_router.urls)),
+    path('api/inventory/', include(inventory_router.urls)),
 
     path('admin/', admin.site.urls),
 

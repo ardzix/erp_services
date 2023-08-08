@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django import forms
 from libs.admin import BaseAdmin
 
-from inventory.models import Category, Product, ProductLog, StockMovement, StockMovementItem, StockAdjustment, ReplenishmentOrder, ReplenishmentReceived, Warehouse, WarehouseStock
+from inventory.models import Category, Unit, Product, ProductGroup, ProductLog, StockMovement, StockMovementItem, StockAdjustment, ReplenishmentOrder, ReplenishmentReceived, Warehouse, WarehouseStock
 
 
 @admin.register(Category)
@@ -13,15 +13,27 @@ class CategoryAdmin(BaseAdmin):
     fields = ['name', 'description']
 
 
+@admin.register(Unit)
+class UnitAdmin(BaseAdmin):
+    list_display = ['id32', 'name', 'symbol']
+    fields = ['name', 'symbol', 'conversion_factor', 'parent']
+
+
 @admin.register(Product)
 class ProductAdmin(BaseAdmin):
-    list_display = ['id32', 'name', 'description', 'price', 'quantity', 'phsycal_quantity', 'category']
+    list_display = ['sku', 'name', 'description', 'base_price', 'quantity', 'phsycal_quantity', 'category']
     list_filter = ['category']
-    fields = ['name', 'description', 'price', 'quantity', 'phsycal_quantity', 'category']
+    fields = ['name', 'alias', 'sku', 'description', 'base_price', 'last_buy_price', 'sell_price', 'quantity', 'minimum_quantity', 'phsycal_quantity', 'category', 'smallest_unit', 'purchasing_unit', 'sales_unit', 'stock_unit', 'product_type', 'price_calculation', 'brand']
     readonly_fields = ['phsycal_quantity']
 
     def phsycal_quantity(self, obj):
         return obj.phsycal_quantity
+
+
+@admin.register(ProductGroup)
+class ProductGroupAdmin(BaseAdmin):
+    list_display = ['id32', 'name']
+    fields = ['name', 'products', 'parent']
 
 
 class WarehouseFilter(admin.SimpleListFilter):
