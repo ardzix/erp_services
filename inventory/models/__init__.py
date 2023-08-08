@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from libs.base_model import BaseModelGeneric, User
+from identities.models import Brand
 
 class Category(BaseModelGeneric):
     name = models.CharField(max_length=100, help_text=_("Enter the category name"))
@@ -16,17 +17,100 @@ class Category(BaseModelGeneric):
     class Meta:
         verbose_name = _("Category")
         verbose_name_plural = _("Categories")
+        
+class Unit(BaseModelGeneric):
+    name = models.CharField(max_length=100, help_text=_("Enter the unit name"))
+    symbol = models.CharField(max_length=10, help_text=_("Enter the unit symbol"))
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subunits', help_text=_("Select the parent unit"))
+    conversion_factor = models.DecimalField(max_digits=10, decimal_places=4, default=1, help_text=_("Conversion factor to parent unit"))
+    level = models.PositiveIntegerField(help_text=_("Unit depth level"), default=0)
 
+    def __str__(self):
+        return f"Unit #{self.id32} - {self.name}"
+
+    class Meta:
+        verbose_name = _("Unit")
+        verbose_name_plural = _("Units")
+
+    def save(self, *args, **kwargs):
+        if self.parent:
+            self.level = self.parent.level + 1
+        else:
+            self.level = 0
+        super().save(*args, **kwargs)
+
+    def get_ancestors(self):
+        """
+        Returns a queryset of all parent units (ancestors) recursively.
+        """
+        ancestors = []
+        current_unit = self.parent
+        while current_unit is not None:
+            ancestors.append(current_unit)
+            current_unit = current_unit.parent
+        return Unit.objects.filter(id__in=[ancestor.id for ancestor in ancestors])
+
+    def get_descendants(self):
+        """
+        Returns a queryset of all child units (descendants) recursively.
+        """
+        descendants = []
+        for child in self.subunits.all():
+            descendants.append(child)
+            descendants.extend(child.get_descendants())
+        return Unit.objects.filter(id__in=[descendant.id for descendant in descendants])
+    
 
 class Product(BaseModelGeneric):
+    PRODUCT_TYPE_CHOICES = [
+        ('raw_material', _("Raw Material - Used to create other products")),
+        ('finished_goods', _("Finished Goods - Completed and ready for sale")),
+        ('intermediate', _("Intermediate Product - Partly finished, used in production")),
+        ('consumable', _("Consumable - Used in the production process but not part of the final product")),
+    ]
+    PRICE_CALCULATION = [
+        ('fifo', _("FIFO - First in first out of buy price history")),
+        ('lifo', _("LIFO - Last in first out of buy price history")),
+        ('average', _("Average - Average of buy price history")),
+        ('production_cost', _("Production Cost - Form direct material cost, labour cost, and manufacturing overhead")),
+    ]
+
     name = models.CharField(max_length=100, help_text=_("Enter the product name"))
+    alias = models.CharField(max_length=100, blank=True, null=True, help_text=_("Enter the product alias name"))
+    sku = models.CharField(max_length=100, help_text=_("Enter the product stock keeping unit or barcode"))
     description = models.TextField(help_text=_("Enter the product description"))
-    price = models.DecimalField(max_digits=10, decimal_places=2, help_text=_("Price in IDR (Rp)"))
+    base_price = models.DecimalField(max_digits=10, decimal_places=2, help_text=_("Base price in IDR (Rp)"))
+    last_buy_price = models.DecimalField(max_digits=10, decimal_places=2, help_text=_("Last buy price in IDR (Rp)"))
+    sell_price = models.DecimalField(max_digits=10, decimal_places=2, help_text=_("Sell price in IDR (Rp)"))
     category = models.ForeignKey(Category, on_delete=models.CASCADE, help_text=_("Select the product category"))
     quantity = models.IntegerField(help_text=_("Enter the product quantity"))
+    smallest_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_smallest', default=None, null=True, blank=True, help_text=_("Select the smallest unit for the product"))
+    purchasing_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_purchasing', default=None, null=True, blank=True, help_text=_("Select the purchasing unit for the product"))
+    sales_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_sales', default=None, null=True, blank=True, help_text=_("Select the sales unit for the product"))
+    stock_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_stock', default=None, null=True, blank=True, help_text=_("Select the stock unit for the product"))
+    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES, help_text=_("Select the product type"))
+    price_calculation = models.CharField(max_length=20, choices=PRICE_CALCULATION, help_text=_("Select on how the base price will be calculated"))
+    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True, help_text=_("Select the product brand"))
+    minimum_quantity = models.PositiveIntegerField(
+        default=0,
+        help_text=_("Enter the minimum quantity at which the product needs to be restocked")
+    )
+    is_active = models.BooleanField(
+        default=False,
+        help_text=_("Check if this product is active")
+    )
 
     def __str__(self):
         return f"Product #{self.id32} - {self.name}"
+
+    def save(self, *args, **kwargs):
+        if not self.purchasing_unit:
+            self.purchasing_unit = self.smallest_unit
+        if not self.sales_unit:
+            self.sales_unit = self.smallest_unit
+        if not self.stock_unit:
+            self.stock_unit = self.smallest_unit
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Product")
@@ -37,6 +121,18 @@ class Product(BaseModelGeneric):
         warehouse_stocks = WarehouseStock.objects.filter(product=self)
         total_quantity = warehouse_stocks.aggregate(models.Sum('quantity'))['quantity__sum']
         return total_quantity or 0
+
+class ProductGroup(BaseModelGeneric):
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subgroups', help_text=_("Select the parent group"))
+    name = models.CharField(max_length=100, help_text=_("Enter the product name"))
+    products = models.ManyToManyField(Product)
+
+    def __str__(self):
+        return f"Product Group #{self.id32} - {self.name}"
+
+    class Meta:
+        verbose_name = _("Product Group")
+        verbose_name_plural = _("Product Groups")
 
 
 class ProductLog(models.Model):
@@ -82,6 +178,22 @@ class WarehouseStock(BaseModelGeneric):
     class Meta:
         verbose_name = _("Warehouse Stock")
         verbose_name_plural = _("Warehouse Stocks")
+
+
+class ProductLocation(BaseModelGeneric):
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, help_text=_("Select the warehouse"))
+    area = models.CharField(max_length=100, help_text=_("Enter the area within the warehouse"))
+    shelving = models.CharField(max_length=100, help_text=_("Enter the shelving within the area"))
+    position = models.CharField(max_length=100, help_text=_("Enter the specific position on the shelving"))
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the product"))
+    quantity = models.PositiveIntegerField(default=0, help_text=_("Enter the product quantity in this location"))
+
+    def __str__(self):
+        return f"Warehouse: {self.warehouse.name} - Area: {self.area} - Shelving: {self.shelving} - Position: {self.position} - Product: {self.product.name} - Quantity: {self.quantity}"
+
+    class Meta:
+        verbose_name = _("Product Location")
+        verbose_name_plural = _("Product Locations")
 
 MOVEMENT_STATUS = (
     (1, _('Requested')),

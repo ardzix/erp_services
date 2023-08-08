@@ -38,6 +38,29 @@ class Supplier(BaseModelGeneric):
         verbose_name = _("Supplier")
         verbose_name_plural = _("Suppliers")
 
+class SupplierProduct(BaseModelGeneric):
+    supplier = models.ForeignKey(
+        Supplier,
+        on_delete=models.CASCADE,
+        help_text=_("Select the supplier for this product")
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        help_text=_("Select the product provided by the supplier")
+    )
+    is_default_supplier = models.BooleanField(
+        default=False,
+        help_text=_("Check if this supplier is the default supplier for the product")
+    )
+
+    def __str__(self):
+        return f"{self.supplier} - {self.product}"
+
+    class Meta:
+        verbose_name = _("Supplier Product")
+        verbose_name_plural = _("Supplier Products")
+
 class PurchaseOrder(BaseModelGeneric):
     supplier = models.ForeignKey(
         Supplier,

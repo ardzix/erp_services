@@ -30,3 +30,16 @@ class CompanyProfile(BaseModelGeneric):
     class Meta:
         verbose_name = _("Company Profile")
         verbose_name_plural = _("Company Profiles")
+
+
+class Brand(BaseModelGeneric):
+    company = models.ForeignKey(CompanyProfile, on_delete=models.SET_NULL, blank=True, null=True)
+    name = models.CharField(max_length=100, help_text=_("Enter the brand name"))
+    description = models.TextField(blank=True, help_text=_("Enter the brand description"))
+
+    def __str__(self):
+        return f"Brand #{self.id32} - {self.name}"
+
+    class Meta:
+        verbose_name = _("Brand")
+        verbose_name_plural = _("Brands")

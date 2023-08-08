@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from libs.pagination import CustomPagination
 
 from rest_framework.permissions import IsAuthenticated
@@ -53,7 +53,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
     pagination_class = CustomPagination  # Add your custom pagination class if needed
 
     @swagger_auto_schema(
@@ -75,7 +75,7 @@ class SalesOrderViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
     queryset = SalesOrder.objects.all()
     serializer_class = SalesOrderSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
     pagination_class = CustomPagination  # Add your custom pagination class if needed
 
 
