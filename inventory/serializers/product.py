@@ -1,12 +1,18 @@
 from rest_framework import serializers
+from common.serializers import FileSerializer
 from ..models import Product
 
 class ProductListSerializer(serializers.ModelSerializer):
+    picture = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ['id32', 'name', 'sku', 'base_price', 'sell_price', 'quantity', 'product_type']
+        fields = ['id32', 'name', 'sku', 'base_price', 'sell_price', 'quantity', 'product_type', 'picture']
+
+    def get_picture(self, object):
+        return object.picture.file.url if object.picture and object.picture.file else None
 
 class ProductDetailSerializer(serializers.ModelSerializer):
+    picture = FileSerializer(read_only=True)
     category = serializers.StringRelatedField()
     smallest_unit = serializers.StringRelatedField()
     purchasing_unit = serializers.StringRelatedField()
@@ -20,7 +26,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'name', 'sku', 'description', 'base_price', 'sell_price', 
             'category', 'quantity', 'smallest_unit', 'purchasing_unit', 'sales_unit', 
             'stock_unit', 'product_type', 'price_calculation', 'brand', 'minimum_quantity', 
-            'is_active'
+            'is_active', 'picture'
             # add or remove fields as needed
         ]
 

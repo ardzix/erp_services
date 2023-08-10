@@ -1,34 +1,33 @@
 from rest_framework import serializers
+from common.serializers import FileSerializer
 from ..models import UserProfile, CompanyProfile, Brand, File
 
-class FileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = File
-        fields = '__all__'
-
 class UserProfileSerializer(serializers.ModelSerializer):
-    profile_picture = serializers.PrimaryKeyRelatedField(queryset=File.objects.all())
+    profile_picture = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = ['id', 'profile_picture', 'bio', 'contact_number']
+        fields = ['id32', 'profile_picture', 'bio', 'contact_number']
+
+    def get_profile_picture(self, object):
+        return object.picture.file.url if object.picture and object.picture.file else None
 
 class UserProfileDetailSerializer(serializers.ModelSerializer):
     profile_picture = FileSerializer(read_only=True)
 
     class Meta:
         model = UserProfile
-        fields = ['id', 'profile_picture', 'bio', 'contact_number']
+        fields = ['id32', 'profile_picture', 'bio', 'contact_number']
 
 
 class CompanyProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyProfile
-        fields = ['id', 'company_name', 'address', 'contact_number']
+        fields = ['id32', 'company_name', 'address', 'contact_number']
 
 class BrandSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=CompanyProfile.objects.all())
 
     class Meta:
         model = Brand
-        fields = ['id', 'company', 'name', 'description']
+        fields = ['id32', 'company', 'name', 'description']

@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from ..models import Supplier
 from identities.models import CompanyProfile
+from identities.serializers import CompanyProfileSerializer
+from ..models import Supplier
 
 
 class SupplierListSerializer(serializers.ModelSerializer):
@@ -10,7 +11,7 @@ class SupplierListSerializer(serializers.ModelSerializer):
 
 
 class SupplierDetailSerializer(serializers.ModelSerializer):
-    company_profile = serializers.PrimaryKeyRelatedField(queryset=CompanyProfile.objects.all())
+    company_profile = CompanyProfileSerializer(read_only=True)
     location_coordinate = serializers.SerializerMethodField()
 
     def get_location_coordinate(self, obj):
