@@ -541,14 +541,10 @@ msgid "Units"
 msgstr "Unit"
 
 #: inventory/models/__init__.py:78
-#, fuzzy
-#| msgid "Finished Goods - Selesai dan siap dijual"
 msgid "Finished Goods - Completed and ready for sale"
 msgstr "Barang Jadi - Selesai dan siap dijual"
 
 #: inventory/models/__init__.py:79
-#, fuzzy
-#| msgid "Intermediate Product - Sebagian selesai, digunakan dalam produksi"
 msgid "Intermediate Product - Partly finished, used in production"
 msgstr "Produk Perantara - Sebagian selesai, digunakan dalam produksi"
 
@@ -671,8 +667,6 @@ msgid "Select the user who created the log"
 msgstr "Pilih pengguna yang membuat log"
 
 #: inventory/models/__init__.py:188
-#, fuzzy, python-brace-format
-#| msgid "{product_name} - Perubahan Jumlah: {quantity_change}"
 msgid "{product_name} - Quantity Change: {quantity_change}"
 msgstr "{product_name} - Perubahan Jumlah: {quantity_change}"
 
