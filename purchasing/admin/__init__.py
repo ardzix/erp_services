@@ -1,13 +1,21 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from libs.admin import ApproveRejectMixin, BaseAdmin
-from ..models import Supplier, PurchaseOrder, PurchaseOrderItem, Shipment, VendorPerformance
+from ..models import Supplier, SupplierProduct, PurchaseOrder, PurchaseOrderItem, Shipment, VendorPerformance
 
 @admin.register(Supplier)
 class SupplierAdmin(BaseAdmin):
     list_display = ['id32', 'name', 'contact_number', 'address']
     list_filter = ['company_profile']
     fields = ['name', 'contact_number', 'address', 'location', 'company_profile']
+
+
+@admin.register(SupplierProduct)
+class SupplierProductAdmin(BaseAdmin):
+    list_display = ['id32', 'supplier', 'product']
+    list_filter = ['is_default_supplier']
+    search_fields = ['supplier__name', 'product__name']
+    fields = ['supplier', 'product', 'is_default_supplier']
 
 
 class OrderItemInline(admin.TabularInline):

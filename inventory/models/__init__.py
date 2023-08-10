@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from libs.base_model import BaseModelGeneric, User
+from common.models import File
 from identities.models import Brand
 
 
@@ -128,6 +129,8 @@ class Product(BaseModelGeneric):
         default=False,
         help_text=_("Check if this product is active")
     )
+    picture = models.ForeignKey(
+        File, blank=True, null=True, on_delete=models.SET_NULL, help_text=_("Picture for the product"))
 
     def __str__(self):
         return _("Product #{product_id} - {product_name}").format(
