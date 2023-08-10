@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-10 10:54+0700\n"
+"POT-Creation-Date: 2023-08-10 13:15+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,281 +17,387 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
 #: accounting/models/__init__.py:11 crm/models/__init__.py:51
 #, python-brace-format
 msgid "Account #{account_id} - {account_name}"
 msgstr "Akun #{account_id} - {account_name}"
 
+#: accounting/models/__init__.py:14 crm/models/__init__.py:54
 msgid "Account"
 msgstr "Akun"
 
+#: accounting/models/__init__.py:15 crm/models/__init__.py:55
 msgid "Accounts"
 msgstr "Akun"
 
+#: accounting/models/__init__.py:25
+#, python-brace-format
 msgid "Transaction #{transaction_id} - {transaction_account}"
 msgstr "Transaksi #{transaction_id} - {transaction_account}"
 
+#: accounting/models/__init__.py:28
 msgid "Transaction"
 msgstr "Transaksi"
 
+#: accounting/models/__init__.py:29
 msgid "Transactions"
 msgstr "Transaksi"
 
+#: accounting/models/__init__.py:37
+#, python-brace-format
 msgid "Journal Entry #{entry_id} - {entry_transaction}"
 msgstr "Entri Jurnal #{entry_id} - {entry_transaction}"
 
+#: accounting/models/__init__.py:40
 msgid "Journal Entry"
 msgstr "Entri Jurnal"
 
+#: accounting/models/__init__.py:41
 msgid "Journal Entries"
 msgstr "Entri Jurnal"
 
+#: accounting/models/__init__.py:49
+#, python-brace-format
 msgid "General Ledger #{ledger_id} - {ledger_account}"
 msgstr "Buku Besar Umum #{ledger_id} - {ledger_account}"
 
+#: accounting/models/__init__.py:52
 msgid "General Ledger"
 msgstr "Buku Besar Umum"
 
+#: accounting/models/__init__.py:53
 msgid "General Ledgers"
 msgstr "Buku Besar Umum"
 
+#: accounting/models/__init__.py:61
+#, python-brace-format
 msgid "Financial Statement #{statement_id} - {statement_name}"
 msgstr "Laporan Keuangan #{statement_id} - {statement_name}"
 
+#: accounting/models/__init__.py:64
 msgid "Financial Statement"
 msgstr "Laporan Keuangan"
 
+#: accounting/models/__init__.py:65
 msgid "Financial Statements"
 msgstr "Laporan Keuangan"
 
+#: accounting/models/__init__.py:75
+#, python-brace-format
 msgid "Financial Entry #{entry_id} - {entry_statement}"
 msgstr "Entri Keuangan #{entry_id} - {entry_statement}"
 
+#: accounting/models/__init__.py:78
 msgid "Financial Entry"
 msgstr "Entri Keuangan"
 
+#: accounting/models/__init__.py:79
 msgid "Financial Entries"
 msgstr "Entri Keuangan"
 
+#: common/models/__init__.py:36
 msgid "File"
 msgstr "Berkas"
 
+#: common/models/__init__.py:37
 msgid "Files"
 msgstr "Berkas"
 
+#: crm/models/__init__.py:7
 msgid "The name of the lead"
 msgstr "Nama calon pelanggan"
 
+#: crm/models/__init__.py:8
 msgid "The email of the lead"
 msgstr "Email calon pelanggan"
 
+#: crm/models/__init__.py:9
 msgid "The phone number of the lead"
 msgstr "Nomor telepon calon pelanggan"
 
+#: crm/models/__init__.py:10
 msgid "The source from where the lead originated"
 msgstr "Sumber asal calon pelanggan"
 
+#: crm/models/__init__.py:21
 msgid "The status of the lead"
 msgstr "Status calon pelanggan"
 
+#: crm/models/__init__.py:25
+#, python-brace-format
 msgid "Lead #{lead_id} - {lead_name}"
 msgstr "Calon Pelanggan #{lead_id} - {lead_name}"
 
+#: crm/models/__init__.py:28
 msgid "Lead"
 msgstr "Calon Pelanggan"
 
+#: crm/models/__init__.py:29
 msgid "Leads"
 msgstr "Calon Pelanggan"
 
+#: crm/models/__init__.py:32
 msgid "The first name of the contact"
 msgstr "Nama depan kontak"
 
+#: crm/models/__init__.py:33
 msgid "The last name of the contact"
 msgstr "Nama belakang kontak"
 
+#: crm/models/__init__.py:34
 msgid "The email of the contact"
 msgstr "Email kontak"
 
+#: crm/models/__init__.py:35
 msgid "The phone number of the contact"
 msgstr "Nomor telepon kontak"
 
+#: crm/models/__init__.py:38
+#, python-brace-format
 msgid "Contact #{contact_id} - {contact_first_name} {contact_last_name}"
 msgstr "Kontak #{contact_id} - {contact_first_name} {contact_last_name}"
 
+#: crm/models/__init__.py:41
 msgid "Contact"
 msgstr "Kontak"
 
+#: crm/models/__init__.py:42
 msgid "Contacts"
 msgstr "Kontak"
 
+#: crm/models/__init__.py:45
 msgid "The name of the account"
 msgstr "Nama akun"
 
+#: crm/models/__init__.py:46
 msgid "The email of the account"
 msgstr "Email akun"
 
+#: crm/models/__init__.py:47
 msgid "The phone number of the account"
 msgstr "Nomor telepon akun"
 
+#: crm/models/__init__.py:48
 msgid "The address of the account"
 msgstr "Alamat akun"
 
+#: crm/models/__init__.py:58
 msgid "The name of the opportunity"
 msgstr "Nama peluang"
 
+#: crm/models/__init__.py:59
 msgid "The associated account of the opportunity"
 msgstr "Akun terkait peluang"
 
+#: crm/models/__init__.py:60
 msgid "The value of the opportunity"
 msgstr "Nilai peluang"
 
+#: crm/models/__init__.py:61
 msgid "The probability percentage of closing the opportunity"
 msgstr "Persentase peluang penutupan"
 
+#: crm/models/__init__.py:71
 msgid "The stage of the opportunity"
 msgstr "Tahap peluang"
 
+#: crm/models/__init__.py:75
+#, python-brace-format
 msgid "Opportunity #{opportunity_id} - {opportunity_name}"
 msgstr "Peluang #{opportunity_id} - {opportunity_name}"
 
+#: crm/models/__init__.py:78
 msgid "Opportunity"
 msgstr "Peluang"
 
+#: crm/models/__init__.py:79
 msgid "Opportunities"
 msgstr "Peluang"
 
+#: crm/models/__init__.py:90
 msgid "The type of the activity"
 msgstr "Tipe kegiatan"
 
+#: crm/models/__init__.py:91
 msgid "The due date of the activity"
 msgstr "Tanggal jatuh tempo kegiatan"
 
+#: crm/models/__init__.py:100
 msgid "The status of the activity"
 msgstr "Status kegiatan"
 
+#: crm/models/__init__.py:104
+#, python-brace-format
 msgid "Activity #{activity_id} - {activity_type}"
 msgstr "Kegiatan #{activity_id} - {activity_type}"
 
+#: crm/models/__init__.py:107
 msgid "Activity"
 msgstr "Kegiatan"
 
+#: crm/models/__init__.py:108
 msgid "Activities"
 msgstr "Kegiatan"
 
+#: erp_backoffice/settings.py:198
 msgid "English"
 msgstr "Inggris"
 
+#: erp_backoffice/settings.py:199
 msgid "Indonesian"
 msgstr "Indonesia"
 
+#: hr/models/__init__.py:6
 msgid "The name of the department"
 msgstr "Nama departemen"
 
+#: hr/models/__init__.py:9
+#, python-brace-format
 msgid "Department #{dept_id} - {dept_name}"
 msgstr "Departemen #{dept_id} - {dept_name}"
 
+#: hr/models/__init__.py:12
 msgid "Department"
 msgstr "Departemen"
 
+#: hr/models/__init__.py:13
 msgid "Departments"
 msgstr "Departemen"
 
+#: hr/models/__init__.py:16
 msgid "The associated user of the employee"
 msgstr "Pengguna terkait karyawan"
 
+#: hr/models/__init__.py:17
 msgid "The department the employee belongs to"
 msgstr "Departemen tempat karyawan bekerja"
 
+#: hr/models/__init__.py:20
+#, python-brace-format
 msgid "Employee #{emp_id} - {emp_name}"
 msgstr "Karyawan #{emp_id} - {emp_name}"
 
+#: hr/models/__init__.py:23
 msgid "Employee"
 msgstr "Karyawan"
 
+#: hr/models/__init__.py:24
 msgid "Employees"
 msgstr "Karyawan"
 
+#: hr/models/__init__.py:27
 msgid "The employee who requested the leave"
 msgstr "Karyawan yang mengajukan cuti"
 
+#: hr/models/__init__.py:28
 msgid "The type of leave"
 msgstr "Tipe cuti"
 
+#: hr/models/__init__.py:29
 msgid "Start date of the leave"
 msgstr "Tanggal mulai cuti"
 
+#: hr/models/__init__.py:30
 msgid "End date of the leave"
 msgstr "Tanggal akhir cuti"
 
+#: hr/models/__init__.py:39
 msgid "The status of the leave request"
 msgstr "Status permintaan cuti"
 
+#: hr/models/__init__.py:43
+#, python-brace-format
 msgid "Leave #{leave_id} - {leave_emp}"
 msgstr "Cuti #{leave_id} - {leave_emp}"
 
+#: hr/models/__init__.py:46
 msgid "Leave"
 msgstr "Cuti"
 
+#: hr/models/__init__.py:47
 msgid "Leaves"
 msgstr "Cuti"
 
+#: hr/models/__init__.py:50
 msgid "The employee whose attendance is recorded"
 msgstr "Karyawan yang hadir di catat"
 
+#: hr/models/__init__.py:51
 msgid "Date of attendance"
 msgstr "Tanggal kehadiran"
 
+#: hr/models/__init__.py:52
 msgid "Clock-in time of the employee"
 msgstr "Jam masuk karyawan"
 
+#: hr/models/__init__.py:53
 msgid "Clock-out time of the employee"
 msgstr "Jam keluar karyawan"
 
+#: hr/models/__init__.py:56
+#, python-brace-format
 msgid "Attendance #{att_id} - {att_emp}"
 msgstr "Kehadiran #{att_id} - {att_emp}"
 
+#: hr/models/__init__.py:59
 msgid "Attendance"
 msgstr "Kehadiran"
 
+#: hr/models/__init__.py:60
 msgid "Attendances"
 msgstr "Kehadiran"
 
+#: hr/models/__init__.py:63
 msgid "The employee being reviewed"
 msgstr "Karyawan yang diulas"
 
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:151
 msgid "Poor"
 msgstr "Buruk"
 
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:151
 msgid "Fair"
 msgstr "Cukup"
 
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:151
 msgid "Good"
 msgstr "Baik"
 
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:151
 msgid "Very Good"
 msgstr "Sangat Baik"
 
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:151
 msgid "Excellent"
 msgstr "Luar Biasa"
 
+#: hr/models/__init__.py:64
 msgid "Rating given to the employee's performance"
 msgstr "Penilaian terhadap kinerja karyawan"
 
+#: hr/models/__init__.py:65
 msgid "Additional review notes"
 msgstr "Catatan tambahan ulasan"
 
+#: hr/models/__init__.py:68
+#, python-brace-format
 msgid "Performance #{perf_id} - {perf_emp}"
 msgstr "Kinerja #{perf_id} - {perf_emp}"
 
+#: hr/models/__init__.py:71
 msgid "Performance"
 msgstr "Kinerja"
 
+#: hr/models/__init__.py:72
 msgid "Performances"
 msgstr "Kinerja"
 
+#: identities/models/__init__.py:10
 msgid "Profile picture for the user"
 msgstr "Foto profil untuk pengguna"
 
+#: identities/models/__init__.py:12
 msgid "Biographical information about the user"
 msgstr "Informasi biografi tentang pengguna"
 
@@ -434,41 +540,17 @@ msgstr "Unit"
 msgid "Units"
 msgstr "Unit"
 
-#: inventory/models/__init__.py:77
-msgid "Raw Material - Digunakan untuk membuat produk lain"
-msgstr "Bahan Baku - Digunakan untuk membuat produk lain"
-
 #: inventory/models/__init__.py:78
-msgid "Finished Goods - Selesai dan siap dijual"
+#, fuzzy
+#| msgid "Finished Goods - Selesai dan siap dijual"
+msgid "Finished Goods - Completed and ready for sale"
 msgstr "Barang Jadi - Selesai dan siap dijual"
 
 #: inventory/models/__init__.py:79
-msgid "Intermediate Product - Sebagian selesai, digunakan dalam produksi"
+#, fuzzy
+#| msgid "Intermediate Product - Sebagian selesai, digunakan dalam produksi"
+msgid "Intermediate Product - Partly finished, used in production"
 msgstr "Produk Perantara - Sebagian selesai, digunakan dalam produksi"
-
-#: inventory/models/__init__.py:81
-msgid ""
-"Consumable - Digunakan dalam proses produksi tetapi tidak menjadi bagian dari produk akhir"
-msgstr ""
-"Barang Habis Pakai - Digunakan dalam proses produksi tetapi tidak menjadi bagian dari produk akhir"
-
-#: inventory/models/__init__.py:84
-msgid "FIFO - Pertama masuk pertama keluar dari sejarah harga beli"
-msgstr "FIFO - Pertama masuk pertama keluar dari sejarah harga beli"
-
-#: inventory/models/__init__.py:85
-msgid "LIFO - Terakhir masuk pertama keluar dari sejarah harga beli"
-msgstr "LIFO - Terakhir masuk pertama keluar dari sejarah harga beli"
-
-#: inventory/models/__init__.py:86
-msgid "Average - Rata-rata dari sejarah harga beli"
-msgstr "Rata-rata - Rata-rata dari sejarah harga beli"
-
-#: inventory/models/__init__.py:88
-msgid ""
-"Production Cost - Terdiri dari biaya bahan langsung, biaya tenaga kerja, dan overhead manufaktur"
-msgstr ""
-"Biaya Produksi - Terdiri dari biaya bahan langsung, biaya tenaga kerja, dan overhead manufaktur"
 
 #: inventory/models/__init__.py:92 inventory/models/__init__.py:163
 msgid "Enter the product name"
@@ -589,8 +671,9 @@ msgid "Select the user who created the log"
 msgstr "Pilih pengguna yang membuat log"
 
 #: inventory/models/__init__.py:188
-#, python-brace-format
-msgid "{product_name} - Perubahan Jumlah: {quantity_change}"
+#, fuzzy, python-brace-format
+#| msgid "{product_name} - Perubahan Jumlah: {quantity_change}"
+msgid "{product_name} - Quantity Change: {quantity_change}"
 msgstr "{product_name} - Perubahan Jumlah: {quantity_change}"
 
 #: inventory/models/__init__.py:194
@@ -642,8 +725,7 @@ msgid ""
 "Warehouse Stock: {warehouse_name} - Product: {product_name} - Quantity: "
 "{quantity}"
 msgstr ""
-"Stok Gudang: {warehouse_name} - Produk: {product_name} - Jumlah: "
-"{quantity}"
+"Stok Gudang: {warehouse_name} - Produk: {product_name} - Jumlah: {quantity}"
 
 #: inventory/models/__init__.py:238
 msgid "Warehouse Stock"
@@ -675,8 +757,8 @@ msgid ""
 "Warehouse: {warehouse_name} - Area: {area} - Shelving: {shelving} - "
 "Position: {position} - Product: {product_name} - Quantity: {quantity}"
 msgstr ""
-"Gudang: {warehouse_name} - Area: {area} - Rak: {shelving} - "
-"Posisi: {position} - Produk: {product_name} - Jumlah: {quantity}"
+"Gudang: {warehouse_name} - Area: {area} - Rak: {shelving} - Posisi: "
+"{position} - Produk: {product_name} - Jumlah: {quantity}"
 
 #: inventory/models/__init__.py:270
 msgid "Product Location"
@@ -907,189 +989,267 @@ msgstr "Masukkan koordinat lokasi"
 #: logistics/models/__init__.py:54
 msgid "Specify the movement timestamp"
 msgstr "Tentukan waktu perpindahan"
+
+#: logistics/models/__init__.py:57
+#, python-brace-format
 msgid "Driver Movement #{movement_id} - {driver_name} at {timestamp}"
 msgstr "Pergerakan Pengemudi #{movement_id} - {driver_name} pada {timestamp}"
 
+#: logistics/models/__init__.py:60
 msgid "Driver Movement"
 msgstr "Pergerakan Pengemudi"
 
+#: logistics/models/__init__.py:61
 msgid "Driver Movements"
 msgstr "Pergerakan-pergerakan Pengemudi"
 
+#: production/admin/__init__.py:37
 msgid "Components per quantity"
 msgstr "Komponen per kuantitas"
 
+#: production/admin/__init__.py:45
 msgid "Ordered"
 msgstr "Dipesan"
 
+#: production/admin/__init__.py:46
 msgid "Started"
 msgstr "Dimulai"
 
+#: production/admin/__init__.py:47
 msgid "Finished"
 msgstr "Selesai"
 
+#: production/admin/__init__.py:49
 msgid "Work Order Status Filter"
 msgstr "Filter Status Perintah Kerja"
 
+#: production/models/__init__.py:13
 msgid "Select the main product for this BOM"
 msgstr "Pilih produk utama untuk BOM ini"
 
+#: production/models/__init__.py:17
+#, python-brace-format
 msgid "BOM #{id32} - {product}"
 msgstr "BOM #{id32} - {product}"
 
+#: production/models/__init__.py:20
 msgid "Bill of Materials"
 msgstr "Daftar Bahan"
 
+#: production/models/__init__.py:21
 msgid "Bills of Materials"
 msgstr "Daftar-daftar Bahan"
 
+#: production/models/__init__.py:25
 msgid "Select the associated BOM"
 msgstr "Pilih BOM yang terkait"
 
+#: production/models/__init__.py:26
 msgid "Select the component product"
 msgstr "Pilih produk komponen"
 
+#: production/models/__init__.py:27
 msgid "Enter the quantity of the component in the BOM"
 msgstr "Masukkan jumlah komponen di BOM"
 
+#: production/models/__init__.py:30
+#, python-brace-format
 msgid "Component #{id32} - {component} (BOM: {bom})"
 msgstr "Komponen #{id32} - {component} (BOM: {bom})"
 
+#: production/models/__init__.py:33
 msgid "BOM Component"
 msgstr "Komponen BOM"
 
+#: production/models/__init__.py:34
 msgid "BOM Components"
 msgstr "Komponen-komponen BOM"
 
+#: production/models/__init__.py:38
 msgid "Select the product for this production order"
 msgstr "Pilih produk untuk perintah produksi ini"
 
+#: production/models/__init__.py:39
 msgid "Enter the quantity for the production order"
 msgstr "Masukkan jumlah untuk perintah produksi ini"
 
+#: production/models/__init__.py:40
 msgid "Enter the start date for the production order"
 msgstr "Masukkan tanggal mulai untuk perintah produksi ini"
 
+#: production/models/__init__.py:41
 msgid "Enter the end date for the production order"
 msgstr "Masukkan tanggal akhir untuk perintah produksi ini"
 
+#: production/models/__init__.py:45
+#, python-brace-format
 msgid "Production Order #{id32} - {product}"
 msgstr "Perintah Produksi #{id32} - {product}"
 
+#: production/models/__init__.py:48
 msgid "Production Order"
 msgstr "Perintah Produksi"
 
+#: production/models/__init__.py:49
 msgid "Production Orders"
 msgstr "Perintah-perintah Produksi"
 
+#: production/models/__init__.py:53
 msgid "Select the associated production order"
 msgstr "Pilih perintah produksi yang terkait"
 
+#: production/models/__init__.py:54
 msgid "Enter the operation number for the work order"
 msgstr "Masukkan nomor operasi untuk perintah kerja"
 
+#: production/models/__init__.py:55
 msgid "Enter the work center for the work order"
 msgstr "Masukkan pusat kerja untuk perintah kerja"
 
+#: production/models/__init__.py:56
 msgid "Select the warehouse for the work center"
 msgstr "Pilih gudang untuk pusat kerja"
 
+#: production/models/__init__.py:63
 msgid "Assigned to"
 msgstr "Ditugaskan kepada"
 
+#: production/models/__init__.py:64
 msgid "Select the employee assigned to the work order"
 msgstr "Pilih karyawan yang ditugaskan untuk perintah kerja"
 
+#: production/models/__init__.py:66
 msgid "Enter the start time for the work order"
 msgstr "Masukkan waktu mulai untuk perintah kerja"
 
+#: production/models/__init__.py:67
 msgid "Enter the end time for the work order"
 msgstr "Masukkan waktu selesai untuk perintah kerja"
 
+#: production/models/__init__.py:71
+#, python-brace-format
 msgid "Work Order #{id32} - {production_order}"
 msgstr "Perintah Kerja #{id32} - {production_order}"
 
+#: production/models/__init__.py:74
 msgid "Work Order"
 msgstr "Perintah Kerja"
 
+#: production/models/__init__.py:75
 msgid "Work Orders"
 msgstr "Perintah-perintah Kerja"
 
+#: production/models/__init__.py:79
 msgid "Select the associated work order"
 msgstr "Pilih perintah kerja yang terkait"
 
+#: production/models/__init__.py:80
 msgid "Enter the start time for production tracking"
 msgstr "Masukkan waktu mulai untuk pelacakan produksi"
 
+#: production/models/__init__.py:81
 msgid "Enter the end time for production tracking"
 msgstr "Masukkan waktu selesai untuk pelacakan produksi"
 
+#: production/models/__init__.py:82
 msgid "Enter the quantity produced"
 msgstr "Masukkan jumlah yang diproduksi"
 
+#: production/models/__init__.py:86
+#, python-brace-format
 msgid "Production Tracking #{id32} - {work_order}"
 msgstr "Pelacakan Produksi #{id32} - {work_order}"
 
+#: production/models/__init__.py:89 production/models/__init__.py:90
 msgid "Production Tracking"
 msgstr "Pelacakan Produksi"
 
-msgid "Stock {component.component} is lower than quantity needed to produce {product}"
-msgstr "Stok {component.component} lebih rendah dari jumlah yang diperlukan untuk memproduksi {product}"
+#: production/models/__init__.py:142
+#, python-brace-format
+msgid ""
+"Stock {component.component} is lower than quantity needed to produce "
+"{product}"
+msgstr ""
+"Stok {component.component} lebih rendah dari jumlah yang diperlukan untuk "
+"memproduksi {product}"
 
+#: production/models/__init__.py:148
 msgid "Work order has not been started"
 msgstr "Perintah kerja belum dimulai"
 
+#: production/models/__init__.py:150
 msgid "Work order has been finished"
 msgstr "Perintah kerja telah selesai"
 
+#: purchasing/models/__init__.py:12
 msgid "Enter the supplier's name"
 msgstr "Masukkan nama pemasok"
 
+#: purchasing/models/__init__.py:16 sales/models/__init__.py:15
 msgid "Enter the contact number"
 msgstr "Masukkan nomor kontak"
 
+#: purchasing/models/__init__.py:19 sales/models/__init__.py:16
 msgid "Enter the address"
 msgstr "Masukkan alamat"
 
+#: purchasing/models/__init__.py:32
 msgid "Select the company profile for this supplier"
 msgstr "Pilih profil perusahaan untuk pemasok ini"
 
+#: purchasing/models/__init__.py:36
+#, python-brace-format
 msgid "Supplier #{id32} - {name}"
 msgstr "Pemasok #{id32} - {name}"
 
+#: purchasing/models/__init__.py:40
 msgid "Suppliers"
 msgstr "Pemasok-pemasok"
 
+#: purchasing/models/__init__.py:46
 msgid "Select the supplier for this product"
 msgstr "Pilih pemasok untuk produk ini"
 
+#: purchasing/models/__init__.py:51
 msgid "Select the product provided by the supplier"
 msgstr "Pilih produk yang disediakan oleh pemasok"
 
+#: purchasing/models/__init__.py:55
 msgid "Check if this supplier is the default supplier for the product"
 msgstr "Periksa apakah pemasok ini adalah pemasok utama untuk produk"
 
+#: purchasing/models/__init__.py:59
+#, python-brace-format
 msgid "{supplier} - {product}"
 msgstr "{supplier} - {product}"
 
+#: purchasing/models/__init__.py:62
 msgid "Supplier Product"
 msgstr "Produk Pemasok"
 
+#: purchasing/models/__init__.py:63
 msgid "Supplier Products"
 msgstr "Produk-produk Pemasok"
 
+#: purchasing/models/__init__.py:69
 msgid "Select the supplier associated with the order"
 msgstr "Pilih pemasok yang terkait dengan pesanan"
 
+#: purchasing/models/__init__.py:72 sales/models/__init__.py:45
 msgid "Enter the order date"
 msgstr "Masukkan tanggal pesanan"
 
+#: purchasing/models/__init__.py:80 sales/models/__init__.py:52
+#: sales/models/__init__.py:116 sales/models/__init__.py:153
 msgid "Approved by"
 msgstr "Disetujui oleh"
 
+#: purchasing/models/__init__.py:81
 msgid "Select the user who approved the purchase order"
 msgstr "Pilih pengguna yang menyetujui pesanan pembelian"
 
+#: purchasing/models/__init__.py:86 sales/models/__init__.py:58
+#: sales/models/__init__.py:122 sales/models/__init__.py:159
 msgid "Approved at"
 msgstr "Disetujui pada"
 
@@ -1298,3 +1458,54 @@ msgstr "Pembayaran"
 #: sales/models/__init__.py:169
 msgid "Payments"
 msgstr "Pembayaran-pembayaran"
+
+#~ msgid "Raw Material - Digunakan untuk membuat produk lain"
+#~ msgstr "Bahan Baku - Digunakan untuk membuat produk lain"
+
+#~ msgid ""
+#~ "Consumable - Digunakan dalam proses produksi tetapi tidak menjadi bagian "
+#~ "dari produk akhir"
+#~ msgstr ""
+#~ "Barang Habis Pakai - Digunakan dalam proses produksi tetapi tidak menjadi "
+#~ "bagian dari produk akhir"
+
+#~ msgid "FIFO - Pertama masuk pertama keluar dari sejarah harga beli"
+#~ msgstr "FIFO - Pertama masuk pertama keluar dari sejarah harga beli"
+
+#~ msgid "LIFO - Terakhir masuk pertama keluar dari sejarah harga beli"
+#~ msgstr "LIFO - Terakhir masuk pertama keluar dari sejarah harga beli"
+
+#~ msgid "Average - Rata-rata dari sejarah harga beli"
+#~ msgstr "Rata-rata - Rata-rata dari sejarah harga beli"
+
+#~ msgid ""
+#~ "Production Cost - Terdiri dari biaya bahan langsung, biaya tenaga kerja, "
+#~ "dan overhead manufaktur"
+#~ msgstr ""
+#~ "Biaya Produksi - Terdiri dari biaya bahan langsung, biaya tenaga kerja, "
+#~ "dan overhead manufaktur"#: inventory/models/__init__.py:77
+msgid "Raw Material - Used to create other products"
+msgstr "Bahan Baku - Digunakan untuk membuat produk lain"
+
+#: inventory/models/__init__.py:81
+msgid ""
+"Consumable - Used in the production process but not part of the final product"
+msgstr "Barang Habis Pakai - Digunakan dalam proses produksi tetapi bukan bagian dari produk akhir"
+
+#: inventory/models/__init__.py:84
+msgid "FIFO - First in first out of buy price history"
+msgstr "FIFO - Pertama masuk pertama keluar dari riwayat harga beli"
+
+#: inventory/models/__init__.py:85
+msgid "LIFO - Last in first out of buy price history"
+msgstr "LIFO - Terakhir masuk pertama keluar dari riwayat harga beli"
+
+#: inventory/models/__init__.py:86
+msgid "Average - Average of buy price history"
+msgstr "Rata-rata - Rata-rata dari riwayat harga beli"
+
+#: inventory/models/__init__.py:88
+msgid ""
+"Production Cost - Form direct material cost, labour cost, and manufacturing "
+"overhead"
+msgstr "Biaya Produksi - Terbentuk dari biaya bahan baku langsung, biaya tenaga kerja, dan overhead pabrikasi"
