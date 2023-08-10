@@ -20,8 +20,10 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from common.views import CustomAuthToken
-from sales.router import router as sales_router
+from identities.router import router as identities_router
 from inventory.router import router as inventory_router
+from purchasing.router import router as purchasing_router
+from sales.router import router as sales_router
 from django.conf.urls.i18n import i18n_patterns
 from django.views.i18n import set_language
 from django.conf import settings
@@ -44,8 +46,10 @@ schema_view = get_schema_view(
 urlpatterns = [
 
     path('api/auth/login/', CustomAuthToken.as_view(), name='api-login'),
-    path('api/sales/', include(sales_router.urls)),
+    path('api/identities/', include(identities_router.urls)),
     path('api/inventory/', include(inventory_router.urls)),
+    path('api/purchasing/', include(purchasing_router.urls)),
+    path('api/sales/', include(sales_router.urls)),
 
     path('i18n/setlang/', set_language, name='set_language'),
 
