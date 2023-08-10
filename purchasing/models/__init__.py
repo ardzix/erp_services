@@ -61,6 +61,7 @@ class SupplierProduct(BaseModelGeneric):
     class Meta:
         verbose_name = _("Supplier Product")
         verbose_name_plural = _("Supplier Products")
+        unique_together = ['supplier', 'product']  # Ensure uniqueness
 
 class PurchaseOrder(BaseModelGeneric):
     supplier = models.ForeignKey(
@@ -164,6 +165,14 @@ class VendorPerformance(BaseModelGeneric):
         verbose_name = _("Vendor Performance")
         verbose_name_plural = _("Vendor Performances")
 
+@receiver(pre_save, sender=SupplierProduct)
+def ensure_single_default_supplier(sender, instance, **kwargs):
+    # If the instance is set as default supplier:
+    if instance.is_default_supplier:
+        # Set all other instances where is_default_supplier is True for the same product to False:
+        sender.objects.filter(product=instance.product, is_default_supplier=True)\
+            .exclude(pk=instance.pk)\
+            .update(is_default_supplier=False)
 
 @receiver(pre_save, sender=PurchaseOrderItem)
 def update_product_quantity(sender, instance, **kwargs):

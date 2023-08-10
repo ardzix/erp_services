@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from common.serializers import FileSerializer
+from purchasing.serializers.supplier import SupplierProductSerializer
+from purchasing.models import SupplierProduct
 from ..models import Product
 
 class ProductListSerializer(serializers.ModelSerializer):
@@ -11,6 +13,17 @@ class ProductListSerializer(serializers.ModelSerializer):
     def get_picture(self, object):
         return object.picture.file.url if object.picture and object.picture.file else None
 
+
+class SupplierSerializer(SupplierProductSerializer):
+    supplier_product_id32 = serializers.StringRelatedField(source='id32', read_only=True)
+    supplier_id32 = serializers.StringRelatedField(source='supplier.id32', read_only=True)
+    supplier_name = serializers.StringRelatedField(source='supplier.name', read_only=True)
+
+    class Meta:
+        model = SupplierProduct
+        fields = ['supplier_product_id32', 'supplier_id32', 'supplier_name', 'is_default_supplier']
+
+
 class ProductDetailSerializer(serializers.ModelSerializer):
     picture = FileSerializer(read_only=True)
     category = serializers.StringRelatedField()
@@ -19,6 +32,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     sales_unit = serializers.StringRelatedField()
     stock_unit = serializers.StringRelatedField()
     brand = serializers.StringRelatedField()
+    suppliers = SupplierSerializer(source='supplierproduct_set', many=True)
+
 
     class Meta:
         model = Product
@@ -26,7 +41,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'name', 'sku', 'description', 'base_price', 'sell_price', 
             'category', 'quantity', 'smallest_unit', 'purchasing_unit', 'sales_unit', 
             'stock_unit', 'product_type', 'price_calculation', 'brand', 'minimum_quantity', 
-            'is_active', 'picture'
+            'is_active', 'picture', 'suppliers'
             # add or remove fields as needed
         ]
 
