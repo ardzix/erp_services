@@ -2,13 +2,13 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
 
+
 class Account(BaseModelGeneric):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    # Add any other fields specific to your account model
 
     def __str__(self):
-        return f"Account #{self.id32} - {self.name}"
+        return _("Account #{account_id} - {account_name}").format(account_id=self.id32, account_name=self.name)
 
     class Meta:
         verbose_name = _("Account")
@@ -20,10 +20,9 @@ class Transaction(BaseModelGeneric):
     transaction_date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)
-    # Add any other fields specific to your transaction model
 
     def __str__(self):
-        return f"Transaction #{self.id32} - {self.account}"
+        return _("Transaction #{transaction_id} - {transaction_account}").format(transaction_id=self.id32, transaction_account=self.account)
 
     class Meta:
         verbose_name = _("Transaction")
@@ -33,10 +32,9 @@ class Transaction(BaseModelGeneric):
 class JournalEntry(BaseModelGeneric):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     journal = models.CharField(max_length=100)
-    # Add any other fields specific to your journal entry model
 
     def __str__(self):
-        return f"Journal Entry #{self.id32} - {self.transaction}"
+        return _("Journal Entry #{entry_id} - {entry_transaction}").format(entry_id=self.id32, entry_transaction=self.transaction)
 
     class Meta:
         verbose_name = _("Journal Entry")
@@ -46,10 +44,9 @@ class JournalEntry(BaseModelGeneric):
 class GeneralLedger(BaseModelGeneric):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=10, decimal_places=2)
-    # Add any other fields specific to your general ledger model
 
     def __str__(self):
-        return f"General Ledger #{self.id32} - {self.account}"
+        return _("General Ledger #{ledger_id} - {ledger_account}").format(ledger_id=self.id32, ledger_account=self.account)
 
     class Meta:
         verbose_name = _("General Ledger")
@@ -59,10 +56,9 @@ class GeneralLedger(BaseModelGeneric):
 class FinancialStatement(BaseModelGeneric):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    # Add any other fields specific to your financial statement model
 
     def __str__(self):
-        return f"Financial Statement #{self.id32} - {self.name}"
+        return _("Financial Statement #{statement_id} - {statement_name}").format(statement_id=self.id32, statement_name=self.name)
 
     class Meta:
         verbose_name = _("Financial Statement")
@@ -70,13 +66,13 @@ class FinancialStatement(BaseModelGeneric):
 
 
 class FinancialEntry(BaseModelGeneric):
-    financial_statement = models.ForeignKey(FinancialStatement, on_delete=models.CASCADE)
+    financial_statement = models.ForeignKey(
+        FinancialStatement, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    # Add any other fields specific to your financial entry model
 
     def __str__(self):
-        return f"Financial Entry #{self.id32} - {self.financial_statement}"
+        return _("Financial Entry #{entry_id} - {entry_statement}").format(entry_id=self.id32, entry_statement=self.financial_statement)
 
     class Meta:
         verbose_name = _("Financial Entry")

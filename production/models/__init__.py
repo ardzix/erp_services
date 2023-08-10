@@ -10,11 +10,11 @@ from hr.models import Employee
 
 
 class BillOfMaterials(BaseModelGeneric):
-    product = models.OneToOneField(Product, on_delete=models.CASCADE)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, help_text=_("Select the main product for this BOM"))
     components = models.ManyToManyField(Product, related_name='used_in_bom', through='BOMComponent')
 
     def __str__(self):
-        return f"BOM #{self.id32} - {self.product}"
+        return _("BOM #{id32} - {product}").format(id32=self.id32, product=self.product)
 
     class Meta:
         verbose_name = _("Bill of Materials")
@@ -22,12 +22,12 @@ class BillOfMaterials(BaseModelGeneric):
 
 
 class BOMComponent(BaseModelGeneric):
-    bom = models.ForeignKey(BillOfMaterials, on_delete=models.CASCADE)
-    component = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    bom = models.ForeignKey(BillOfMaterials, on_delete=models.CASCADE, help_text=_("Select the associated BOM"))
+    component = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the component product"))
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, help_text=_("Enter the quantity of the component in the BOM"))
 
     def __str__(self):
-        return f"Component #{self.id32} - {self.component} (BOM: {self.bom})"
+        return _("Component #{id32} - {component} (BOM: {bom})").format(id32=self.id32, component=self.component, bom=self.bom)
 
     class Meta:
         verbose_name = _("BOM Component")
@@ -35,14 +35,14 @@ class BOMComponent(BaseModelGeneric):
 
 
 class ProductionOrder(BaseModelGeneric):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-    start_date = models.DateField()
-    end_date = models.DateField()
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the product for this production order"))
+    quantity = models.PositiveIntegerField(help_text=_("Enter the quantity for the production order"))
+    start_date = models.DateField(help_text=_("Enter the start date for the production order"))
+    end_date = models.DateField(help_text=_("Enter the end date for the production order"))
     # Add any other fields specific to your production order model
 
     def __str__(self):
-        return f"Production Order #{self.id32} - {self.product}"
+        return _("Production Order #{id32} - {product}").format(id32=self.id32, product=self.product)
 
     class Meta:
         verbose_name = _("Production Order")
@@ -50,24 +50,25 @@ class ProductionOrder(BaseModelGeneric):
 
 
 class WorkOrder(BaseModelGeneric):
-    production_order = models.ForeignKey(ProductionOrder, on_delete=models.CASCADE)
-    operation_number = models.PositiveIntegerField()
-    work_center = models.CharField(max_length=100)
-    work_center_warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
+    production_order = models.ForeignKey(ProductionOrder, on_delete=models.CASCADE, help_text=_("Select the associated production order"))
+    operation_number = models.PositiveIntegerField(help_text=_("Enter the operation number for the work order"))
+    work_center = models.CharField(max_length=100, help_text=_("Enter the work center for the work order"))
+    work_center_warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, help_text=_("Select the warehouse for the work center"))
     assigned_to = models.ForeignKey(
         Employee,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='assigned_work_orders',
-        verbose_name=_("Assigned to")
+        verbose_name=_("Assigned to"),
+        help_text=_("Select the employee assigned to the work order")
     )
-    start_time = models.DateTimeField(blank=True, null=True)
-    end_time = models.DateTimeField(blank=True, null=True)
+    start_time = models.DateTimeField(blank=True, null=True, help_text=_("Enter the start time for the work order"))
+    end_time = models.DateTimeField(blank=True, null=True, help_text=_("Enter the end time for the work order"))
     # Add any other fields specific to your work order model
 
     def __str__(self):
-        return f"Work Order #{self.id32} - {self.production_order}"
+        return _("Work Order #{id32} - {production_order}").format(id32=self.id32, production_order=self.production_order)
 
     class Meta:
         verbose_name = _("Work Order")
@@ -75,14 +76,14 @@ class WorkOrder(BaseModelGeneric):
 
 
 class ProductionTracking(BaseModelGeneric):
-    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
-    start_time = models.DateTimeField(blank=True, null=True)
-    end_time = models.DateTimeField()
-    produced_quantity = models.PositiveIntegerField()
+    work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE, help_text=_("Select the associated work order"))
+    start_time = models.DateTimeField(blank=True, null=True, help_text=_("Enter the start time for production tracking"))
+    end_time = models.DateTimeField(help_text=_("Enter the end time for production tracking"))
+    produced_quantity = models.PositiveIntegerField(help_text=_("Enter the quantity produced"))
     # Add any other fields specific to your production tracking model
 
     def __str__(self):
-        return f"Production Tracking #{self.id32} - {self.work_order}"
+        return _("Production Tracking #{id32} - {work_order}").format(id32=self.id32, work_order=self.work_order)
 
     class Meta:
         verbose_name = _("Production Tracking")

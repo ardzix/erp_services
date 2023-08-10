@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware'
 ]
 
 ROOT_URLCONF = 'erp_backoffice.urls'
@@ -171,12 +173,36 @@ REST_FRAMEWORK = {
 
 # swagger settings
 SWAGGER_SETTINGS = {
-    "SECURITY_DEFINITIONS": {
-        "api_key": {"type": "apiKey", "in": "header", "name": "Authorization"}
+    'SECURITY_DEFINITIONS': {
+        'ApiKeyAuth': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': 'Token for authentication. Format: "Token {token}"'
+        },
+        'LangHeader': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Accept-Language',
+            'description': 'Language preference. Example: "en-us"'
+        }
     },
-    "USE_SESSION_AUTH": False,
+    'SECURITY_REQUIREMENTS': [
+        {"ApiKeyAuth": []}, 
+        {"LangHeader": []}
+    ],
+    "USE_SESSION_AUTH": False
 }
 
+LANGUAGES = [
+    ('en', _('English')),
+    ('id', _('Indonesian')),
+    # other languages
+]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
 
 
 # load settings based on env

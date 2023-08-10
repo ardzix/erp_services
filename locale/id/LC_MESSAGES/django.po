@@ -1,0 +1,1300 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-10 10:54+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+#: accounting/models/__init__.py:11 crm/models/__init__.py:51
+#, python-brace-format
+msgid "Account #{account_id} - {account_name}"
+msgstr "Akun #{account_id} - {account_name}"
+
+msgid "Account"
+msgstr "Akun"
+
+msgid "Accounts"
+msgstr "Akun"
+
+msgid "Transaction #{transaction_id} - {transaction_account}"
+msgstr "Transaksi #{transaction_id} - {transaction_account}"
+
+msgid "Transaction"
+msgstr "Transaksi"
+
+msgid "Transactions"
+msgstr "Transaksi"
+
+msgid "Journal Entry #{entry_id} - {entry_transaction}"
+msgstr "Entri Jurnal #{entry_id} - {entry_transaction}"
+
+msgid "Journal Entry"
+msgstr "Entri Jurnal"
+
+msgid "Journal Entries"
+msgstr "Entri Jurnal"
+
+msgid "General Ledger #{ledger_id} - {ledger_account}"
+msgstr "Buku Besar Umum #{ledger_id} - {ledger_account}"
+
+msgid "General Ledger"
+msgstr "Buku Besar Umum"
+
+msgid "General Ledgers"
+msgstr "Buku Besar Umum"
+
+msgid "Financial Statement #{statement_id} - {statement_name}"
+msgstr "Laporan Keuangan #{statement_id} - {statement_name}"
+
+msgid "Financial Statement"
+msgstr "Laporan Keuangan"
+
+msgid "Financial Statements"
+msgstr "Laporan Keuangan"
+
+msgid "Financial Entry #{entry_id} - {entry_statement}"
+msgstr "Entri Keuangan #{entry_id} - {entry_statement}"
+
+msgid "Financial Entry"
+msgstr "Entri Keuangan"
+
+msgid "Financial Entries"
+msgstr "Entri Keuangan"
+
+msgid "File"
+msgstr "Berkas"
+
+msgid "Files"
+msgstr "Berkas"
+
+msgid "The name of the lead"
+msgstr "Nama calon pelanggan"
+
+msgid "The email of the lead"
+msgstr "Email calon pelanggan"
+
+msgid "The phone number of the lead"
+msgstr "Nomor telepon calon pelanggan"
+
+msgid "The source from where the lead originated"
+msgstr "Sumber asal calon pelanggan"
+
+msgid "The status of the lead"
+msgstr "Status calon pelanggan"
+
+msgid "Lead #{lead_id} - {lead_name}"
+msgstr "Calon Pelanggan #{lead_id} - {lead_name}"
+
+msgid "Lead"
+msgstr "Calon Pelanggan"
+
+msgid "Leads"
+msgstr "Calon Pelanggan"
+
+msgid "The first name of the contact"
+msgstr "Nama depan kontak"
+
+msgid "The last name of the contact"
+msgstr "Nama belakang kontak"
+
+msgid "The email of the contact"
+msgstr "Email kontak"
+
+msgid "The phone number of the contact"
+msgstr "Nomor telepon kontak"
+
+msgid "Contact #{contact_id} - {contact_first_name} {contact_last_name}"
+msgstr "Kontak #{contact_id} - {contact_first_name} {contact_last_name}"
+
+msgid "Contact"
+msgstr "Kontak"
+
+msgid "Contacts"
+msgstr "Kontak"
+
+msgid "The name of the account"
+msgstr "Nama akun"
+
+msgid "The email of the account"
+msgstr "Email akun"
+
+msgid "The phone number of the account"
+msgstr "Nomor telepon akun"
+
+msgid "The address of the account"
+msgstr "Alamat akun"
+
+msgid "The name of the opportunity"
+msgstr "Nama peluang"
+
+msgid "The associated account of the opportunity"
+msgstr "Akun terkait peluang"
+
+msgid "The value of the opportunity"
+msgstr "Nilai peluang"
+
+msgid "The probability percentage of closing the opportunity"
+msgstr "Persentase peluang penutupan"
+
+msgid "The stage of the opportunity"
+msgstr "Tahap peluang"
+
+msgid "Opportunity #{opportunity_id} - {opportunity_name}"
+msgstr "Peluang #{opportunity_id} - {opportunity_name}"
+
+msgid "Opportunity"
+msgstr "Peluang"
+
+msgid "Opportunities"
+msgstr "Peluang"
+
+msgid "The type of the activity"
+msgstr "Tipe kegiatan"
+
+msgid "The due date of the activity"
+msgstr "Tanggal jatuh tempo kegiatan"
+
+msgid "The status of the activity"
+msgstr "Status kegiatan"
+
+msgid "Activity #{activity_id} - {activity_type}"
+msgstr "Kegiatan #{activity_id} - {activity_type}"
+
+msgid "Activity"
+msgstr "Kegiatan"
+
+msgid "Activities"
+msgstr "Kegiatan"
+
+msgid "English"
+msgstr "Inggris"
+
+msgid "Indonesian"
+msgstr "Indonesia"
+
+msgid "The name of the department"
+msgstr "Nama departemen"
+
+msgid "Department #{dept_id} - {dept_name}"
+msgstr "Departemen #{dept_id} - {dept_name}"
+
+msgid "Department"
+msgstr "Departemen"
+
+msgid "Departments"
+msgstr "Departemen"
+
+msgid "The associated user of the employee"
+msgstr "Pengguna terkait karyawan"
+
+msgid "The department the employee belongs to"
+msgstr "Departemen tempat karyawan bekerja"
+
+msgid "Employee #{emp_id} - {emp_name}"
+msgstr "Karyawan #{emp_id} - {emp_name}"
+
+msgid "Employee"
+msgstr "Karyawan"
+
+msgid "Employees"
+msgstr "Karyawan"
+
+msgid "The employee who requested the leave"
+msgstr "Karyawan yang mengajukan cuti"
+
+msgid "The type of leave"
+msgstr "Tipe cuti"
+
+msgid "Start date of the leave"
+msgstr "Tanggal mulai cuti"
+
+msgid "End date of the leave"
+msgstr "Tanggal akhir cuti"
+
+msgid "The status of the leave request"
+msgstr "Status permintaan cuti"
+
+msgid "Leave #{leave_id} - {leave_emp}"
+msgstr "Cuti #{leave_id} - {leave_emp}"
+
+msgid "Leave"
+msgstr "Cuti"
+
+msgid "Leaves"
+msgstr "Cuti"
+
+msgid "The employee whose attendance is recorded"
+msgstr "Karyawan yang hadir di catat"
+
+msgid "Date of attendance"
+msgstr "Tanggal kehadiran"
+
+msgid "Clock-in time of the employee"
+msgstr "Jam masuk karyawan"
+
+msgid "Clock-out time of the employee"
+msgstr "Jam keluar karyawan"
+
+msgid "Attendance #{att_id} - {att_emp}"
+msgstr "Kehadiran #{att_id} - {att_emp}"
+
+msgid "Attendance"
+msgstr "Kehadiran"
+
+msgid "Attendances"
+msgstr "Kehadiran"
+
+msgid "The employee being reviewed"
+msgstr "Karyawan yang diulas"
+
+msgid "Poor"
+msgstr "Buruk"
+
+msgid "Fair"
+msgstr "Cukup"
+
+msgid "Good"
+msgstr "Baik"
+
+msgid "Very Good"
+msgstr "Sangat Baik"
+
+msgid "Excellent"
+msgstr "Luar Biasa"
+
+msgid "Rating given to the employee's performance"
+msgstr "Penilaian terhadap kinerja karyawan"
+
+msgid "Additional review notes"
+msgstr "Catatan tambahan ulasan"
+
+msgid "Performance #{perf_id} - {perf_emp}"
+msgstr "Kinerja #{perf_id} - {perf_emp}"
+
+msgid "Performance"
+msgstr "Kinerja"
+
+msgid "Performances"
+msgstr "Kinerja"
+
+msgid "Profile picture for the user"
+msgstr "Foto profil untuk pengguna"
+
+msgid "Biographical information about the user"
+msgstr "Informasi biografi tentang pengguna"
+
+#: identities/models/__init__.py:14
+msgid "User's contact number"
+msgstr "Nomor kontak pengguna"
+
+#: identities/models/__init__.py:22
+msgid "User Profile"
+msgstr "Profil Pengguna"
+
+#: identities/models/__init__.py:23
+msgid "User Profiles"
+msgstr "Profil Pengguna"
+
+#: identities/models/__init__.py:28
+msgid "Name of the company"
+msgstr "Nama perusahaan"
+
+#: identities/models/__init__.py:29
+msgid "Company's address"
+msgstr "Alamat perusahaan"
+
+#: identities/models/__init__.py:31
+msgid "Company's contact number"
+msgstr "Nomor kontak perusahaan"
+
+#: identities/models/__init__.py:38 purchasing/models/__init__.py:31
+#: sales/models/__init__.py:27
+msgid "Company Profile"
+msgstr "Profil Perusahaan"
+
+#: identities/models/__init__.py:39
+msgid "Company Profiles"
+msgstr "Profil Perusahaan"
+
+#: identities/models/__init__.py:44
+msgid "Company to which the brand belongs"
+msgstr "Perusahaan yang dimiliki oleh merek"
+
+#: identities/models/__init__.py:46
+msgid "Enter the brand name"
+msgstr "Masukkan nama merek"
+
+#: identities/models/__init__.py:48
+msgid "Enter the brand description"
+msgstr "Masukkan deskripsi merek"
+
+#: identities/models/__init__.py:51
+#, python-brace-format
+msgid "Brand #{brand_id} - {brand_name}"
+msgstr "Merek #{brand_id} - {brand_name}"
+
+#: identities/models/__init__.py:54
+msgid "Brand"
+msgstr "Merek"
+
+#: identities/models/__init__.py:55
+msgid "Brands"
+msgstr "Merek"
+
+#: inventory/admin/__init__.py:44 inventory/models/__init__.py:216
+msgid "Warehouse"
+msgstr "Gudang"
+
+#: inventory/admin/__init__.py:45 sales/models/__init__.py:35
+msgid "Customer"
+msgstr "Pelanggan"
+
+#: inventory/admin/__init__.py:46 purchasing/models/__init__.py:39
+msgid "Supplier"
+msgstr "Pemasok"
+
+#: inventory/admin/__init__.py:51
+msgid "Origin Filter"
+msgstr "Filter Asal"
+
+#: inventory/admin/__init__.py:61
+msgid "Destination Filter"
+msgstr "Filter Tujuan"
+
+#: inventory/admin/__init__.py:85 inventory/models/__init__.py:341
+msgid "Stock Movement Items"
+msgstr "Item Pergerakan Stok"
+
+#: inventory/admin/__init__.py:111
+msgid "Origin"
+msgstr "Asal"
+
+#: inventory/admin/__init__.py:112
+msgid "Destination"
+msgstr "Tujuan"
+
+#: inventory/models/__init__.py:13
+msgid "Enter the category name"
+msgstr "Masukkan nama kategori"
+
+#: inventory/models/__init__.py:15
+msgid "Enter the category description"
+msgstr "Masukkan deskripsi kategori"
+
+#: inventory/models/__init__.py:18
+#, python-brace-format
+msgid "Category #{category_id} - {category_name}"
+msgstr "Kategori #{category_id} - {category_name}"
+
+#: inventory/models/__init__.py:24
+msgid "Category"
+msgstr "Kategori"
+
+#: inventory/models/__init__.py:25
+msgid "Categories"
+msgstr "Kategori"
+
+#: inventory/models/__init__.py:29
+msgid "Enter the unit name"
+msgstr "Masukkan nama unit"
+
+#: inventory/models/__init__.py:31
+msgid "Enter the unit symbol"
+msgstr "Masukkan simbol unit"
+
+#: inventory/models/__init__.py:33
+msgid "Select the parent unit"
+msgstr "Pilih unit induk"
+
+#: inventory/models/__init__.py:35
+msgid "Conversion factor to parent unit"
+msgstr "Faktor konversi ke unit induk"
+
+#: inventory/models/__init__.py:37
+msgid "Unit depth level"
+msgstr "Tingkat kedalaman unit"
+
+#: inventory/models/__init__.py:43
+msgid "Unit"
+msgstr "Unit"
+
+#: inventory/models/__init__.py:44
+msgid "Units"
+msgstr "Unit"
+
+#: inventory/models/__init__.py:77
+msgid "Raw Material - Digunakan untuk membuat produk lain"
+msgstr "Bahan Baku - Digunakan untuk membuat produk lain"
+
+#: inventory/models/__init__.py:78
+msgid "Finished Goods - Selesai dan siap dijual"
+msgstr "Barang Jadi - Selesai dan siap dijual"
+
+#: inventory/models/__init__.py:79
+msgid "Intermediate Product - Sebagian selesai, digunakan dalam produksi"
+msgstr "Produk Perantara - Sebagian selesai, digunakan dalam produksi"
+
+#: inventory/models/__init__.py:81
+msgid ""
+"Consumable - Digunakan dalam proses produksi tetapi tidak menjadi bagian dari produk akhir"
+msgstr ""
+"Barang Habis Pakai - Digunakan dalam proses produksi tetapi tidak menjadi bagian dari produk akhir"
+
+#: inventory/models/__init__.py:84
+msgid "FIFO - Pertama masuk pertama keluar dari sejarah harga beli"
+msgstr "FIFO - Pertama masuk pertama keluar dari sejarah harga beli"
+
+#: inventory/models/__init__.py:85
+msgid "LIFO - Terakhir masuk pertama keluar dari sejarah harga beli"
+msgstr "LIFO - Terakhir masuk pertama keluar dari sejarah harga beli"
+
+#: inventory/models/__init__.py:86
+msgid "Average - Rata-rata dari sejarah harga beli"
+msgstr "Rata-rata - Rata-rata dari sejarah harga beli"
+
+#: inventory/models/__init__.py:88
+msgid ""
+"Production Cost - Terdiri dari biaya bahan langsung, biaya tenaga kerja, dan overhead manufaktur"
+msgstr ""
+"Biaya Produksi - Terdiri dari biaya bahan langsung, biaya tenaga kerja, dan overhead manufaktur"
+
+#: inventory/models/__init__.py:92 inventory/models/__init__.py:163
+msgid "Enter the product name"
+msgstr "Masukkan nama produk"
+
+#: inventory/models/__init__.py:94
+msgid "Enter the product alias name"
+msgstr "Masukkan nama alias produk"
+
+#: inventory/models/__init__.py:96
+msgid "Enter the product stock keeping unit or barcode"
+msgstr "Masukkan unit simpan stok produk atau kode batang"
+
+#: inventory/models/__init__.py:98
+msgid "Enter the product description"
+msgstr "Masukkan deskripsi produk"
+
+#: inventory/models/__init__.py:100
+msgid "Base price in IDR (Rp)"
+msgstr "Harga dasar dalam IDR (Rp)"
+
+#: inventory/models/__init__.py:102
+msgid "Last buy price in IDR (Rp)"
+msgstr "Harga beli terakhir dalam IDR (Rp)"
+
+#: inventory/models/__init__.py:104
+msgid "Sell price in IDR (Rp)"
+msgstr "Harga jual dalam IDR (Rp)"
+
+#: inventory/models/__init__.py:106
+msgid "Select the product category"
+msgstr "Pilih kategori produk"
+
+#: inventory/models/__init__.py:107
+msgid "Enter the product quantity"
+msgstr "Masukkan jumlah produk"
+
+#: inventory/models/__init__.py:109
+msgid "Select the smallest unit for the product"
+msgstr "Pilih unit terkecil untuk produk"
+
+#: inventory/models/__init__.py:111
+msgid "Select the purchasing unit for the product"
+msgstr "Pilih unit pembelian untuk produk"
+
+#: inventory/models/__init__.py:113
+msgid "Select the sales unit for the product"
+msgstr "Pilih unit penjualan untuk produk"
+
+#: inventory/models/__init__.py:115
+msgid "Select the stock unit for the product"
+msgstr "Pilih unit stok untuk produk"
+
+#: inventory/models/__init__.py:117
+msgid "Select the product type"
+msgstr "Pilih jenis produk"
+
+#: inventory/models/__init__.py:119
+msgid "Select on how the base price will be calculated"
+msgstr "Pilih bagaimana harga dasar akan dihitung"
+
+#: inventory/models/__init__.py:121
+msgid "Select the product brand"
+msgstr "Pilih merek produk"
+
+#: inventory/models/__init__.py:125
+msgid "Enter the minimum quantity at which the product needs to be restocked"
+msgstr "Masukkan jumlah minimum di mana produk perlu diisi ulang"
+
+#: inventory/models/__init__.py:129
+msgid "Check if this product is active"
+msgstr "Centang jika produk ini aktif"
+
+#: inventory/models/__init__.py:133
+#, python-brace-format
+msgid "Product #{product_id} - {product_name}"
+msgstr "Produk #{product_id} - {product_name}"
+
+#: inventory/models/__init__.py:148
+msgid "Product"
+msgstr "Produk"
+
+#: inventory/models/__init__.py:149
+msgid "Products"
+msgstr "Produk"
+
+#: inventory/models/__init__.py:161
+msgid "Select the parent group"
+msgstr "Pilih grup induk"
+
+#: inventory/models/__init__.py:167
+#, python-brace-format
+msgid "Product Group #{product_group_id} - {product_group_name}"
+msgstr "Grup Produk #{product_group_id} - {product_group_name}"
+
+#: inventory/models/__init__.py:173
+msgid "Product Group"
+msgstr "Grup Produk"
+
+#: inventory/models/__init__.py:174
+msgid "Product Groups"
+msgstr "Grup Produk"
+
+#: inventory/models/__init__.py:179
+msgid "Select the product associated with the log"
+msgstr "Pilih produk yang terkait dengan log"
+
+#: inventory/models/__init__.py:181
+msgid "Enter the quantity change"
+msgstr "Masukkan perubahan jumlah"
+
+#: inventory/models/__init__.py:183
+msgid "Specify the creation date"
+msgstr "Tentukan tanggal pembuatan"
+
+#: inventory/models/__init__.py:185
+msgid "Select the user who created the log"
+msgstr "Pilih pengguna yang membuat log"
+
+#: inventory/models/__init__.py:188
+#, python-brace-format
+msgid "{product_name} - Perubahan Jumlah: {quantity_change}"
+msgstr "{product_name} - Perubahan Jumlah: {quantity_change}"
+
+#: inventory/models/__init__.py:194
+msgid "Product Log"
+msgstr "Log Produk"
+
+#: inventory/models/__init__.py:195
+msgid "Product Logs"
+msgstr "Log Produk"
+
+#: inventory/models/__init__.py:200
+msgid "Enter the warehouse name"
+msgstr "Masukkan nama gudang"
+
+#: inventory/models/__init__.py:201
+msgid "Enter the warehouse address"
+msgstr "Masukkan alamat gudang"
+
+#: inventory/models/__init__.py:206
+msgid "Enter the warehouse location coordinates"
+msgstr "Masukkan koordinat lokasi gudang"
+
+#: inventory/models/__init__.py:210
+#, python-brace-format
+msgid "Warehouse #{warehouse_id} - {warehouse_name}"
+msgstr "Gudang #{warehouse_id} - {warehouse_name}"
+
+#: inventory/models/__init__.py:217
+msgid "Warehouses"
+msgstr "Gudang"
+
+#: inventory/models/__init__.py:222 inventory/models/__init__.py:244
+msgid "Select the warehouse"
+msgstr "Pilih gudang"
+
+#: inventory/models/__init__.py:224 inventory/models/__init__.py:252
+#: inventory/models/__init__.py:331 inventory/models/__init__.py:346
+#: inventory/models/__init__.py:363
+msgid "Select the product"
+msgstr "Pilih produk"
+
+#: inventory/models/__init__.py:226
+msgid "Enter the product quantity in the warehouse"
+msgstr "Masukkan jumlah produk di gudang"
+
+#: inventory/models/__init__.py:230
+#, python-brace-format
+msgid ""
+"Warehouse Stock: {warehouse_name} - Product: {product_name} - Quantity: "
+"{quantity}"
+msgstr ""
+"Stok Gudang: {warehouse_name} - Produk: {product_name} - Jumlah: "
+"{quantity}"
+
+#: inventory/models/__init__.py:238
+msgid "Warehouse Stock"
+msgstr "Stok Gudang"
+
+#: inventory/models/__init__.py:239
+msgid "Warehouse Stocks"
+msgstr "Stok-Stok Gudang"
+
+#: inventory/models/__init__.py:246
+msgid "Enter the area within the warehouse"
+msgstr "Masukkan area dalam gudang"
+
+#: inventory/models/__init__.py:248
+msgid "Enter the shelving within the area"
+msgstr "Masukkan rak dalam area tersebut"
+
+#: inventory/models/__init__.py:250
+msgid "Enter the specific position on the shelving"
+msgstr "Masukkan posisi spesifik di rak"
+
+#: inventory/models/__init__.py:254
+msgid "Enter the product quantity in this location"
+msgstr "Masukkan jumlah produk di lokasi ini"
+
+#: inventory/models/__init__.py:258
+#, python-brace-format
+msgid ""
+"Warehouse: {warehouse_name} - Area: {area} - Shelving: {shelving} - "
+"Position: {position} - Product: {product_name} - Quantity: {quantity}"
+msgstr ""
+"Gudang: {warehouse_name} - Area: {area} - Rak: {shelving} - "
+"Posisi: {position} - Produk: {product_name} - Jumlah: {quantity}"
+
+#: inventory/models/__init__.py:270
+msgid "Product Location"
+msgstr "Lokasi Produk"
+
+#: inventory/models/__init__.py:271
+msgid "Product Locations"
+msgstr "Lokasi-lokasi Produk"
+
+#: inventory/models/__init__.py:275
+msgid "Requested"
+msgstr "Diminta"
+
+#: inventory/models/__init__.py:276
+msgid "Canceled"
+msgstr "Dibatalkan"
+
+#: inventory/models/__init__.py:277
+msgid "Preparing"
+msgstr "Sedang disiapkan"
+
+#: inventory/models/__init__.py:278
+msgid "Ready to pickup"
+msgstr "Siap diambil"
+
+#: inventory/models/__init__.py:279
+msgid "On Delivery"
+msgstr "Dalam pengiriman"
+
+#: inventory/models/__init__.py:280
+msgid "Delivered"
+msgstr "Terkirim"
+
+#: inventory/models/__init__.py:281
+msgid "Returned"
+msgstr "Dikembalikan"
+
+#: inventory/models/__init__.py:292
+msgid "Select the content type of the source warehouse"
+msgstr "Pilih tipe konten dari gudang sumber"
+
+#: inventory/models/__init__.py:295
+msgid "Enter the ID of the source warehouse"
+msgstr "Masukkan ID dari gudang sumber"
+
+#: inventory/models/__init__.py:303
+msgid "Select the content type of the destination warehouse"
+msgstr "Pilih tipe konten dari gudang tujuan"
+
+#: inventory/models/__init__.py:306
+msgid "Enter the ID of the destination warehouse"
+msgstr "Masukkan ID dari gudang tujuan"
+
+#: inventory/models/__init__.py:309
+msgid "Specify the movement date"
+msgstr "Tentukan tanggal perpindahan"
+
+#: inventory/models/__init__.py:314
+#, python-brace-format
+msgid "Stock Movement #{movement_id}"
+msgstr "Perpindahan Stok #{movement_id}"
+
+#: inventory/models/__init__.py:317
+msgid "Stock Movement"
+msgstr "Perpindahan Stok"
+
+#: inventory/models/__init__.py:318
+msgid "Stock Movements"
+msgstr "Perpindahan-perpindahan Stok"
+
+#: inventory/models/__init__.py:326
+msgid "Select the stock movement"
+msgstr "Pilih perpindahan stok"
+
+#: inventory/models/__init__.py:334 inventory/models/__init__.py:347
+#: inventory/models/__init__.py:364
+msgid "Enter the quantity"
+msgstr "Masukkan jumlahnya"
+
+#: inventory/models/__init__.py:337
+#, python-brace-format
+msgid "Stock Movement Item #{movement_item_id} - {product_name}"
+msgstr "Item Perpindahan Stok #{movement_item_id} - {product_name}"
+
+#: inventory/models/__init__.py:340
+msgid "Stock Movement Item"
+msgstr "Item Perpindahan Stok"
+
+#: inventory/models/__init__.py:349
+msgid "Specify the adjustment date"
+msgstr "Tentukan tanggal penyesuaian"
+
+#: inventory/models/__init__.py:351
+msgid "Enter the reason for the adjustment"
+msgstr "Masukkan alasan untuk penyesuaian"
+
+#: inventory/models/__init__.py:354
+#, python-brace-format
+msgid "Stock Adjustment #{adjustment_id}"
+msgstr "Penyesuaian Stok #{adjustment_id}"
+
+#: inventory/models/__init__.py:357
+msgid "Stock Adjustment"
+msgstr "Penyesuaian Stok"
+
+#: inventory/models/__init__.py:358
+msgid "Stock Adjustments"
+msgstr "Penyesuaian-penyesuaian Stok"
+
+#: inventory/models/__init__.py:365
+msgid "Specify the order date"
+msgstr "Tentukan tanggal pemesanan"
+
+#: inventory/models/__init__.py:368
+#, python-brace-format
+msgid "Replenishment Order #{order_id}"
+msgstr "Pesanan Pelengkap #{order_id}"
+
+#: inventory/models/__init__.py:371
+msgid "Replenishment Order"
+msgstr "Pesanan Pelengkap"
+
+#: inventory/models/__init__.py:372
+msgid "Replenishment Orders"
+msgstr "Pesanan-pesanan Pelengkap"
+
+#: inventory/models/__init__.py:377
+msgid "Select the replenishment order"
+msgstr "Pilih pesanan pelengkap"
+
+#: inventory/models/__init__.py:378
+msgid "Specify the received date"
+msgstr "Tentukan tanggal penerimaan"
+
+#: inventory/models/__init__.py:381
+#, python-brace-format
+msgid "Replenishment Received #{order_received_id}"
+msgstr "Pelengkap Diterima #{order_received_id}"
+
+#: inventory/models/__init__.py:384 inventory/models/__init__.py:385
+msgid "Replenishment Received"
+msgstr "Pelengkap Diterima"
+
+#: logistics/models/__init__.py:11
+msgid "Enter the vehicle name"
+msgstr "Masukkan nama kendaraan"
+
+#: logistics/models/__init__.py:12
+msgid "Select the driver for this vehicle"
+msgstr "Pilih pengemudi untuk kendaraan ini"
+
+#: logistics/models/__init__.py:13
+msgid "Enter the license plate"
+msgstr "Masukkan plat nomor"
+
+#: logistics/models/__init__.py:16
+#, python-brace-format
+msgid "Vehicle #{vehicle_id} - {vehicle_name}"
+msgstr "Kendaraan #{vehicle_id} - {vehicle_name}"
+
+#: logistics/models/__init__.py:19
+msgid "Vehicle"
+msgstr "Kendaraan"
+
+#: logistics/models/__init__.py:20
+msgid "Vehicles"
+msgstr "Kendaraan-kendaraan"
+
+#: logistics/models/__init__.py:24
+msgid "Enter the driver's name"
+msgstr "Masukkan nama pengemudi"
+
+#: logistics/models/__init__.py:25
+msgid "Enter the driver's phone number"
+msgstr "Masukkan nomor telepon pengemudi"
+
+#: logistics/models/__init__.py:26
+msgid "Enter the device GPS information"
+msgstr "Masukkan informasi GPS perangkat"
+
+#: logistics/models/__init__.py:29
+#, python-brace-format
+msgid "Driver #{driver_id} - {driver_name}"
+msgstr "Pengemudi #{driver_id} - {driver_name}"
+
+#: logistics/models/__init__.py:32
+msgid "Driver"
+msgstr "Pengemudi"
+
+#: logistics/models/__init__.py:33
+msgid "Drivers"
+msgstr "Pengemudi-pengemudi"
+
+#: logistics/models/__init__.py:37
+msgid "Select the vehicle for this job"
+msgstr "Pilih kendaraan untuk pekerjaan ini"
+
+#: logistics/models/__init__.py:38
+msgid "Select the stock movement for this job"
+msgstr "Pilih perpindahan stok untuk pekerjaan ini"
+
+#: logistics/models/__init__.py:39
+msgid "Select the assigned driver for this job"
+msgstr "Pilih pengemudi yang ditugaskan untuk pekerjaan ini"
+
+#: logistics/models/__init__.py:44
+#, python-brace-format
+msgid "Job #{job_id} - {stock_movement}"
+msgstr "Pekerjaan #{job_id} - {stock_movement}"
+
+#: logistics/models/__init__.py:47
+msgid "Job"
+msgstr "Pekerjaan"
+
+#: logistics/models/__init__.py:48
+msgid "Jobs"
+msgstr "Pekerjaan-pekerjaan"
+
+#: logistics/models/__init__.py:52
+msgid "Select the driver for this movement"
+msgstr "Pilih pengemudi untuk perpindahan ini"
+
+#: logistics/models/__init__.py:53 purchasing/models/__init__.py:25
+#: sales/models/__init__.py:21
+msgid "Enter the location coordinates"
+msgstr "Masukkan koordinat lokasi"
+
+#: logistics/models/__init__.py:54
+msgid "Specify the movement timestamp"
+msgstr "Tentukan waktu perpindahan"
+msgid "Driver Movement #{movement_id} - {driver_name} at {timestamp}"
+msgstr "Pergerakan Pengemudi #{movement_id} - {driver_name} pada {timestamp}"
+
+msgid "Driver Movement"
+msgstr "Pergerakan Pengemudi"
+
+msgid "Driver Movements"
+msgstr "Pergerakan-pergerakan Pengemudi"
+
+msgid "Components per quantity"
+msgstr "Komponen per kuantitas"
+
+msgid "Ordered"
+msgstr "Dipesan"
+
+msgid "Started"
+msgstr "Dimulai"
+
+msgid "Finished"
+msgstr "Selesai"
+
+msgid "Work Order Status Filter"
+msgstr "Filter Status Perintah Kerja"
+
+msgid "Select the main product for this BOM"
+msgstr "Pilih produk utama untuk BOM ini"
+
+msgid "BOM #{id32} - {product}"
+msgstr "BOM #{id32} - {product}"
+
+msgid "Bill of Materials"
+msgstr "Daftar Bahan"
+
+msgid "Bills of Materials"
+msgstr "Daftar-daftar Bahan"
+
+msgid "Select the associated BOM"
+msgstr "Pilih BOM yang terkait"
+
+msgid "Select the component product"
+msgstr "Pilih produk komponen"
+
+msgid "Enter the quantity of the component in the BOM"
+msgstr "Masukkan jumlah komponen di BOM"
+
+msgid "Component #{id32} - {component} (BOM: {bom})"
+msgstr "Komponen #{id32} - {component} (BOM: {bom})"
+
+msgid "BOM Component"
+msgstr "Komponen BOM"
+
+msgid "BOM Components"
+msgstr "Komponen-komponen BOM"
+
+msgid "Select the product for this production order"
+msgstr "Pilih produk untuk perintah produksi ini"
+
+msgid "Enter the quantity for the production order"
+msgstr "Masukkan jumlah untuk perintah produksi ini"
+
+msgid "Enter the start date for the production order"
+msgstr "Masukkan tanggal mulai untuk perintah produksi ini"
+
+msgid "Enter the end date for the production order"
+msgstr "Masukkan tanggal akhir untuk perintah produksi ini"
+
+msgid "Production Order #{id32} - {product}"
+msgstr "Perintah Produksi #{id32} - {product}"
+
+msgid "Production Order"
+msgstr "Perintah Produksi"
+
+msgid "Production Orders"
+msgstr "Perintah-perintah Produksi"
+
+msgid "Select the associated production order"
+msgstr "Pilih perintah produksi yang terkait"
+
+msgid "Enter the operation number for the work order"
+msgstr "Masukkan nomor operasi untuk perintah kerja"
+
+msgid "Enter the work center for the work order"
+msgstr "Masukkan pusat kerja untuk perintah kerja"
+
+msgid "Select the warehouse for the work center"
+msgstr "Pilih gudang untuk pusat kerja"
+
+msgid "Assigned to"
+msgstr "Ditugaskan kepada"
+
+msgid "Select the employee assigned to the work order"
+msgstr "Pilih karyawan yang ditugaskan untuk perintah kerja"
+
+msgid "Enter the start time for the work order"
+msgstr "Masukkan waktu mulai untuk perintah kerja"
+
+msgid "Enter the end time for the work order"
+msgstr "Masukkan waktu selesai untuk perintah kerja"
+
+msgid "Work Order #{id32} - {production_order}"
+msgstr "Perintah Kerja #{id32} - {production_order}"
+
+msgid "Work Order"
+msgstr "Perintah Kerja"
+
+msgid "Work Orders"
+msgstr "Perintah-perintah Kerja"
+
+msgid "Select the associated work order"
+msgstr "Pilih perintah kerja yang terkait"
+
+msgid "Enter the start time for production tracking"
+msgstr "Masukkan waktu mulai untuk pelacakan produksi"
+
+msgid "Enter the end time for production tracking"
+msgstr "Masukkan waktu selesai untuk pelacakan produksi"
+
+msgid "Enter the quantity produced"
+msgstr "Masukkan jumlah yang diproduksi"
+
+msgid "Production Tracking #{id32} - {work_order}"
+msgstr "Pelacakan Produksi #{id32} - {work_order}"
+
+msgid "Production Tracking"
+msgstr "Pelacakan Produksi"
+
+msgid "Stock {component.component} is lower than quantity needed to produce {product}"
+msgstr "Stok {component.component} lebih rendah dari jumlah yang diperlukan untuk memproduksi {product}"
+
+msgid "Work order has not been started"
+msgstr "Perintah kerja belum dimulai"
+
+msgid "Work order has been finished"
+msgstr "Perintah kerja telah selesai"
+
+msgid "Enter the supplier's name"
+msgstr "Masukkan nama pemasok"
+
+msgid "Enter the contact number"
+msgstr "Masukkan nomor kontak"
+
+msgid "Enter the address"
+msgstr "Masukkan alamat"
+
+msgid "Select the company profile for this supplier"
+msgstr "Pilih profil perusahaan untuk pemasok ini"
+
+msgid "Supplier #{id32} - {name}"
+msgstr "Pemasok #{id32} - {name}"
+
+msgid "Suppliers"
+msgstr "Pemasok-pemasok"
+
+msgid "Select the supplier for this product"
+msgstr "Pilih pemasok untuk produk ini"
+
+msgid "Select the product provided by the supplier"
+msgstr "Pilih produk yang disediakan oleh pemasok"
+
+msgid "Check if this supplier is the default supplier for the product"
+msgstr "Periksa apakah pemasok ini adalah pemasok utama untuk produk"
+
+msgid "{supplier} - {product}"
+msgstr "{supplier} - {product}"
+
+msgid "Supplier Product"
+msgstr "Produk Pemasok"
+
+msgid "Supplier Products"
+msgstr "Produk-produk Pemasok"
+
+msgid "Select the supplier associated with the order"
+msgstr "Pilih pemasok yang terkait dengan pesanan"
+
+msgid "Enter the order date"
+msgstr "Masukkan tanggal pesanan"
+
+msgid "Approved by"
+msgstr "Disetujui oleh"
+
+msgid "Select the user who approved the purchase order"
+msgstr "Pilih pengguna yang menyetujui pesanan pembelian"
+
+msgid "Approved at"
+msgstr "Disetujui pada"
+
+#: purchasing/models/__init__.py:87
+msgid "Specify the date and time when the order was approved"
+msgstr "Tentukan tanggal dan waktu ketika pesanan disetujui"
+
+#: purchasing/models/__init__.py:92
+#, python-brace-format
+msgid "Purchase Order #{id32}"
+msgstr "Pesanan Pembelian #{id32}"
+
+#: purchasing/models/__init__.py:95
+msgid "Purchase Order"
+msgstr "Pesanan Pembelian"
+
+#: purchasing/models/__init__.py:96
+msgid "Purchase Orders"
+msgstr "Pesanan-pesanan Pembelian"
+
+#: purchasing/models/__init__.py:102
+msgid "Select the purchase order associated with the item"
+msgstr "Pilih pesanan pembelian yang terkait dengan item tersebut"
+
+#: purchasing/models/__init__.py:107 sales/models/__init__.py:84
+msgid "Select the product associated with the item"
+msgstr "Pilih produk yang terkait dengan item tersebut"
+
+#: purchasing/models/__init__.py:110 sales/models/__init__.py:87
+msgid "Enter the item quantity"
+msgstr "Masukkan jumlah item"
+
+#: purchasing/models/__init__.py:115 sales/models/__init__.py:91
+msgid "Enter the item price in IDR (Rp)"
+msgstr "Masukkan harga item dalam IDR (Rp)"
+
+#: purchasing/models/__init__.py:120
+#, python-brace-format
+msgid "Purchase Order Item #{id32} - {product}"
+msgstr "Item Pesanan Pembelian #{id32} - {product}"
+
+#: purchasing/models/__init__.py:123
+msgid "Purchase Order Item"
+msgstr "Item Pesanan Pembelian"
+
+#: purchasing/models/__init__.py:124
+msgid "Purchase Order Items"
+msgstr "Item-item Pesanan Pembelian"
+
+#: purchasing/models/__init__.py:130
+msgid "Select the purchase order associated with the shipment"
+msgstr "Pilih pesanan pembelian yang terkait dengan pengiriman"
+
+#: purchasing/models/__init__.py:133
+msgid "Enter the shipment date"
+msgstr "Masukkan tanggal pengiriman"
+
+#: purchasing/models/__init__.py:138
+#, python-brace-format
+msgid "Shipment #{id32} - {purchase_order}"
+msgstr "Pengiriman #{id32} - {purchase_order}"
+
+#: purchasing/models/__init__.py:141
+msgid "Shipment"
+msgstr "Pengiriman"
+
+#: purchasing/models/__init__.py:142
+msgid "Shipments"
+msgstr "Pengiriman-pengiriman"
+
+#: purchasing/models/__init__.py:148
+msgid "Select the supplier associated with the vendor performance"
+msgstr "Pilih pemasok yang terkait dengan kinerja vendor"
+
+#: purchasing/models/__init__.py:152
+msgid "Select the rating for the vendor performance"
+msgstr "Pilih penilaian untuk kinerja vendor"
+
+#: purchasing/models/__init__.py:156
+msgid "Enter any comments or additional information"
+msgstr "Masukkan komentar atau informasi tambahan"
+
+#: purchasing/models/__init__.py:161
+#, python-brace-format
+msgid "Vendor Performance #{id32} - {supplier}"
+msgstr "Kinerja Vendor #{id32} - {supplier}"
+
+#: purchasing/models/__init__.py:164
+msgid "Vendor Performance"
+msgstr "Kinerja Vendor"
+
+#: purchasing/models/__init__.py:165
+msgid "Vendor Performances"
+msgstr "Kinerja-kinerja Vendor"
+
+#: sales/models/__init__.py:13
+msgid "Enter the customer's name"
+msgstr "Masukkan nama pelanggan"
+
+#: sales/models/__init__.py:28
+msgid "Select the company profile associated with the customer"
+msgstr "Pilih profil perusahaan yang terkait dengan pelanggan"
+
+#: sales/models/__init__.py:32
+#, python-brace-format
+msgid "Customer #{id32} - {name}"
+msgstr "Pelanggan #{id32} - {name}"
+
+#: sales/models/__init__.py:36
+msgid "Customers"
+msgstr "Pelanggan-pelanggan"
+
+#: sales/models/__init__.py:43
+msgid "Select the customer associated with the order"
+msgstr "Pilih pelanggan yang terkait dengan pesanan"
+
+#: sales/models/__init__.py:53
+msgid "Select the user who approved the order"
+msgstr "Pilih pengguna yang menyetujui pesanan"
+
+#: sales/models/__init__.py:59 sales/models/__init__.py:123
+#: sales/models/__init__.py:160
+msgid "Specify the date and time of approval"
+msgstr "Tentukan tanggal dan waktu persetujuan"
+
+#: sales/models/__init__.py:66
+#, python-brace-format
+msgid "Order #{id32} - {customer}"
+msgstr "Pesanan #{id32} - {customer}"
+
+#: sales/models/__init__.py:69
+msgid "Order"
+msgstr "Pesanan"
+
+#: sales/models/__init__.py:70
+msgid "Orders"
+msgstr "Pesanan-pesanan"
+
+#: sales/models/__init__.py:79
+msgid "Select the order associated with the item"
+msgstr "Pilih pesanan yang terkait dengan item tersebut"
+
+#: sales/models/__init__.py:96
+#, python-brace-format
+msgid "Order Item #{id32} - {product}"
+msgstr "Item Pesanan #{id32} - {product}"
+
+#: sales/models/__init__.py:99
+msgid "Order Item"
+msgstr "Item Pesanan"
+
+#: sales/models/__init__.py:100
+msgid "Order Items"
+msgstr "Item-item Pesanan"
+
+#: sales/models/__init__.py:107
+msgid "Select the order associated with the invoice"
+msgstr "Pilih pesanan yang terkait dengan faktur"
+
+#: sales/models/__init__.py:109
+msgid "Enter the invoice date"
+msgstr "Masukkan tanggal faktur"
+
+#: sales/models/__init__.py:117
+msgid "Select the user who approved the invoice"
+msgstr "Pilih pengguna yang menyetujui faktur"
+
+#: sales/models/__init__.py:128
+#, python-brace-format
+msgid "Invoice #{id32} - {order}"
+msgstr "Faktur #{id32} - {order}"
+
+#: sales/models/__init__.py:131
+msgid "Invoice"
+msgstr "Faktur"
+
+#: sales/models/__init__.py:132
+msgid "Invoices"
+msgstr "Faktur-faktur"
+
+#: sales/models/__init__.py:139
+msgid "Select the invoice associated with the payment"
+msgstr "Pilih faktur yang terkait dengan pembayaran"
+
+#: sales/models/__init__.py:144
+msgid "Enter the payment amount"
+msgstr "Masukkan jumlah pembayaran"
+
+#: sales/models/__init__.py:146
+msgid "Enter the payment date"
+msgstr "Masukkan tanggal pembayaran"
+
+#: sales/models/__init__.py:154
+msgid "Select the user who approved the payment"
+msgstr "Pilih pengguna yang menyetujui pembayaran"
+
+#: sales/models/__init__.py:165
+#, python-brace-format
+msgid "Payment #{id32} - {invoice}"
+msgstr "Pembayaran #{id32} - {invoice}"
+
+#: sales/models/__init__.py:168
+msgid "Payment"
+msgstr "Pembayaran"
+
+#: sales/models/__init__.py:169
+msgid "Payments"
+msgstr "Pembayaran-pembayaran"
