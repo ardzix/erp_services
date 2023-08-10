@@ -8,21 +8,12 @@ from inventory.models import StockMovement
 
 
 class Vehicle(BaseModelGeneric):
-    name = models.CharField(
-        max_length=100, help_text=_("Enter the vehicle name"))
-    driver = models.ForeignKey(
-        'Driver',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='vehicles',
-        help_text=_("Select the driver for this vehicle")
-    )
-    license_plate = models.CharField(
-        max_length=20, help_text=_("Enter the license plate"))
+    name = models.CharField(max_length=100, help_text=_("Enter the vehicle name"))
+    driver = models.ForeignKey('Driver', on_delete=models.SET_NULL, null=True, blank=True, related_name='vehicles', help_text=_("Select the driver for this vehicle"))
+    license_plate = models.CharField(max_length=20, help_text=_("Enter the license plate"))
 
     def __str__(self):
-        return f"Vehicle #{self.id32} - {self.name}"
+        return _("Vehicle #{vehicle_id} - {vehicle_name}").format(vehicle_id=self.id32, vehicle_name=self.name)
 
     class Meta:
         verbose_name = _("Vehicle")
@@ -30,15 +21,12 @@ class Vehicle(BaseModelGeneric):
 
 
 class Driver(BaseModelGeneric):
-    name = models.CharField(
-        max_length=100, help_text=_("Enter the driver's name"))
-    phone_number = models.CharField(
-        max_length=15, help_text=_("Enter the driver's phone number"))
-    device_gps = models.CharField(max_length=100, blank=True, null=True, help_text=_(
-        "Enter the device GPS information"))
+    name = models.CharField(max_length=100, help_text=_("Enter the driver's name"))
+    phone_number = models.CharField(max_length=15, help_text=_("Enter the driver's phone number"))
+    device_gps = models.CharField(max_length=100, blank=True, null=True, help_text=_("Enter the device GPS information"))
 
     def __str__(self):
-        return f"Driver #{self.id32} - {self.name}"
+        return _("Driver #{driver_id} - {driver_name}").format(driver_id=self.id32, driver_name=self.name)
 
     class Meta:
         verbose_name = _("Driver")
@@ -46,31 +34,14 @@ class Driver(BaseModelGeneric):
 
 
 class Job(BaseModelGeneric):
-    vehicle = models.ForeignKey(
-        'Vehicle',
-        on_delete=models.CASCADE,
-        related_name='jobs',
-        help_text=_("Select the vehicle for this job")
-    )
-    stock_movement = models.ForeignKey(
-        StockMovement,
-        on_delete=models.CASCADE,
-        related_name='jobs',
-        help_text=_("Select the stock movement for this job")
-    )
-    assigned_driver = models.ForeignKey(
-        Driver,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='assigned_jobs',
-        help_text=_("Select the assigned driver for this job")
-    )
+    vehicle = models.ForeignKey('Vehicle', on_delete=models.CASCADE, related_name='jobs', help_text=_("Select the vehicle for this job"))
+    stock_movement = models.ForeignKey(StockMovement, on_delete=models.CASCADE, related_name='jobs', help_text=_("Select the stock movement for this job"))
+    assigned_driver = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_jobs', help_text=_("Select the assigned driver for this job"))
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"Job #{self.id32} - {self.stock_movement}"
+        return _("Job #{job_id} - {stock_movement}").format(job_id=self.id32, stock_movement=self.stock_movement)
 
     class Meta:
         verbose_name = _("Job")
@@ -78,23 +49,12 @@ class Job(BaseModelGeneric):
 
 
 class DriverMovement(BaseModelGeneric):
-    driver = models.ForeignKey(
-        'Driver',
-        on_delete=models.CASCADE,
-        related_name='movements',
-        help_text=_("Select the driver for this movement")
-    )
-    location = gis_models.PointField(
-        geography=True,
-        null=True,
-        blank=True,
-        help_text=_("Enter the location coordinates")
-    )
-    timestamp = models.DateTimeField(
-        auto_now_add=True, help_text=_("Specify the movement timestamp"))
+    driver = models.ForeignKey('Driver', on_delete=models.CASCADE, related_name='movements', help_text=_("Select the driver for this movement"))
+    location = gis_models.PointField(geography=True, null=True, blank=True, help_text=_("Enter the location coordinates"))
+    timestamp = models.DateTimeField(auto_now_add=True, help_text=_("Specify the movement timestamp"))
 
     def __str__(self):
-        return f"Driver Movement #{self.id32} - {self.driver} at {self.timestamp}"
+        return _("Driver Movement #{movement_id} - {driver_name} at {timestamp}").format(movement_id=self.id32, driver_name=self.driver, timestamp=self.timestamp)
 
     class Meta:
         verbose_name = _("Driver Movement")
@@ -108,7 +68,6 @@ def update_stock_movement_status(sender, instance, **kwargs):
         # Job has started but not ended
         # Update status to 5 (or any other desired value)
         stock_movement.status = 5
-
     elif instance.start_time and instance.end_time:
         # Job has ended
         # Update status to 6 (or any other desired value)

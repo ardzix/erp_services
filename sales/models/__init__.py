@@ -1,4 +1,3 @@
-# models.py in the "sales" app
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import pre_save, post_save, pre_delete
@@ -30,7 +29,7 @@ class Customer(BaseModelGeneric):
     )
 
     def __str__(self):
-        return f"Customer #{self.id32} - {self.name}"
+        return _("Customer #{id32} - {name}").format(id32=self.id32, name=self.name)
 
     class Meta:
         verbose_name = _("Customer")
@@ -64,7 +63,7 @@ class SalesOrder(BaseModelGeneric):
     # Add any other fields specific to your order model
 
     def __str__(self):
-        return f"Order #{self.id32} - {self.customer}"
+        return _("Order #{id32} - {customer}").format(id32=self.id32, customer=self.customer)
 
     class Meta:
         verbose_name = _("Order")
@@ -94,7 +93,7 @@ class OrderItem(BaseModelGeneric):
     # Add any other fields specific to your order item model
 
     def __str__(self):
-        return f"Order Item #{self.id32} - {self.product}"
+        return _("Order Item #{id32} - {product}").format(id32=self.id32, product=self.product)
 
     class Meta:
         verbose_name = _("Order Item")
@@ -126,7 +125,7 @@ class Invoice(BaseModelGeneric):
     # Add any other fields specific to your invoice model
 
     def __str__(self):
-        return f"Invoice #{self.id32} - {self.order}"
+        return _("Invoice #{id32} - {order}").format(id32=self.id32, order=self.order)
 
     class Meta:
         verbose_name = _("Invoice")
@@ -163,11 +162,12 @@ class SalesPayment(BaseModelGeneric):
     # Add any other fields specific to your payment model
 
     def __str__(self):
-        return f"Payment #{self.id32} - {self.invoice}"
+        return _("Payment #{id32} - {invoice}").format(id32=self.id32, invoice=self.invoice)
 
     class Meta:
         verbose_name = _("Payment")
         verbose_name_plural = _("Payments")
+
 
 
 @receiver(pre_save, sender=OrderItem)

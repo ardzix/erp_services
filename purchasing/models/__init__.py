@@ -28,11 +28,12 @@ class Supplier(BaseModelGeneric):
         'identities.CompanyProfile',
         on_delete=models.CASCADE,
         related_name='suppliers_profile',
-        verbose_name=_("Company Profile")
+        verbose_name=_("Company Profile"),
+        help_text=_("Select the company profile for this supplier")
     )
 
     def __str__(self):
-        return f"Supplier #{self.id32} - {self.name}"
+        return _("Supplier #{id32} - {name}").format(id32=self.id32, name=self.name)
 
     class Meta:
         verbose_name = _("Supplier")
@@ -55,7 +56,7 @@ class SupplierProduct(BaseModelGeneric):
     )
 
     def __str__(self):
-        return f"{self.supplier} - {self.product}"
+        return _("{supplier} - {product}").format(supplier=self.supplier, product=self.product)
 
     class Meta:
         verbose_name = _("Supplier Product")
@@ -77,21 +78,22 @@ class PurchaseOrder(BaseModelGeneric):
         blank=True,
         related_name='approved_purchase_orders',
         verbose_name=_("Approved by"),
+        help_text=_("Select the user who approved the purchase order")
     )
     approved_at = models.DateTimeField(
         null=True,
         blank=True,
         verbose_name=_("Approved at"),
+        help_text=_("Specify the date and time when the order was approved")
     )
     # Add any other fields specific to your purchase order model
 
     def __str__(self):
-        return f"Purchase Order #{self.id32}"
+        return _("Purchase Order #{id32}").format(id32=self.id32)
 
     class Meta:
         verbose_name = _("Purchase Order")
         verbose_name_plural = _("Purchase Orders")
-
 
 class PurchaseOrderItem(BaseModelGeneric):
     purchase_order = models.ForeignKey(
@@ -115,12 +117,11 @@ class PurchaseOrderItem(BaseModelGeneric):
     # Add any other fields specific to your purchase order item model
 
     def __str__(self):
-        return f"Purchase Order Item #{self.id32} - {self.product}"
+        return _("Purchase Order Item #{id32} - {product}").format(id32=self.id32, product=self.product)
 
     class Meta:
         verbose_name = _("Purchase Order Item")
         verbose_name_plural = _("Purchase Order Items")
-
 
 class Shipment(BaseModelGeneric):
     purchase_order = models.ForeignKey(
@@ -134,12 +135,11 @@ class Shipment(BaseModelGeneric):
     # Add any other fields specific to your shipment model
 
     def __str__(self):
-        return f"Shipment #{self.id32} - {self.purchase_order}"
+        return _("Shipment #{id32} - {purchase_order}").format(id32=self.id32, purchase_order=self.purchase_order)
 
     class Meta:
         verbose_name = _("Shipment")
         verbose_name_plural = _("Shipments")
-
 
 class VendorPerformance(BaseModelGeneric):
     supplier = models.ForeignKey(
@@ -158,11 +158,12 @@ class VendorPerformance(BaseModelGeneric):
     # Add any other fields specific to vendor performance tracking
 
     def __str__(self):
-        return f"Vendor Performance #{self.id32} - {self.supplier}"
+        return _("Vendor Performance #{id32} - {supplier}").format(id32=self.id32, supplier=self.supplier)
 
     class Meta:
         verbose_name = _("Vendor Performance")
         verbose_name_plural = _("Vendor Performances")
+
 
 @receiver(pre_save, sender=PurchaseOrderItem)
 def update_product_quantity(sender, instance, **kwargs):
