@@ -86,6 +86,10 @@ class Product(BaseModelGeneric):
         ('production_cost', _(
             "Production Cost - Form direct material cost, labour cost, and manufacturing overhead")),
     ]
+    MARGIN_TYPE = [
+        ('percentage', _("Percentage margin value from base price")),
+        ('fixed', _("Fixed margin value")),
+    ]
 
     name = models.CharField(
         max_length=100, help_text=_("Enter the product name"))
@@ -101,13 +105,9 @@ class Product(BaseModelGeneric):
         max_digits=10, decimal_places=2, help_text=_("Base price in IDR (Rp)"))
     last_buy_price = models.DecimalField(
         default=0,
-        blank=True,
-        null=True,
         max_digits=10, decimal_places=2, help_text=_("Last buy price in IDR (Rp)"))
     sell_price = models.DecimalField(
         default=0,
-        blank=True,
-        null=True,
         max_digits=10, decimal_places=2, help_text=_("Sell price in IDR (Rp)"))
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, help_text=_("Select the product category"))
@@ -131,6 +131,14 @@ class Product(BaseModelGeneric):
         help_text=_(
             "Enter the minimum quantity at which the product needs to be restocked")
     )
+    margin_type = models.CharField(max_length=20, choices=MARGIN_TYPE, help_text=_(
+        "Select on how the margin will be calculated"))
+    margin_value = models.DecimalField(
+        default=0,
+        max_digits=10, decimal_places=2,
+        help_text=_(
+            "Enter the value for margin (0-1 for percentage, >0 for fixed)")
+    )
     is_active = models.BooleanField(
         default=False,
         help_text=_("Check if this product is active")
@@ -153,8 +161,10 @@ class Product(BaseModelGeneric):
             self.stock_unit = self.smallest_unit
         super().save(*args, **kwargs)
 
-    def get_purchase_item_history(self):
-        stocks = WarehouseStock.objects.filter(product=self).exclude(quantity=0)
+    def get_purchase_item_history(self, exclude_zero_stock=True):
+        stocks = WarehouseStock.objects.filter(product=self)
+        if exclude_zero_stock:
+            stocks = stocks.exclude(quantity=0)
         items = StockMovementItem.objects.filter(id__in=stocks.values_list('inbound_movement_item', flat=True)).order_by('-created_at')
         return items
 
@@ -171,7 +181,7 @@ class Product(BaseModelGeneric):
 
     @property
     def previous_buy_price(self):
-        buy_price_history = self.get_purchase_item_history().values('buy_price')
+        buy_price_history = self.get_purchase_item_history(exclude_zero_stock=False).values('buy_price')
         return buy_price_history[1]['buy_price'] if buy_price_history.count()>1 else None
 
 class ProductGroup(BaseModelGeneric):

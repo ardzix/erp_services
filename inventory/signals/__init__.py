@@ -10,13 +10,27 @@ def commit_base_price(product, base_price):
         product.base_price = base_price
         product.save()
 
+
 @receiver(post_save, sender=Product)
 def calculate_product_base_price(sender, instance, created, **kwargs):
     if not created:
         items = instance.get_purchase_item_history()
         if instance.price_calculation in ['fifo', 'lifo']:
-            base_price = items.aggregate(max_price=models.Max('buy_price'))['max_price']
+            base_price = items.aggregate(
+                max_price=models.Max('buy_price'))['max_price']
             commit_base_price(instance, base_price)
+
+
+@receiver(post_save, sender=Product)
+def calculate_product_sell_price(sender, instance, created, **kwargs):
+    if not created:
+        if instance.margin_type == 'percentage':
+            sell_price = instance.base_price * (instance.margin_value + 1)
+        else:
+            sell_price = instance.base_price + instance.margin_value
+        if sell_price != instance.sell_price:
+            instance.sell_price = sell_price
+            instance.save()
 
 
 @receiver(pre_save, sender=Product)
@@ -36,49 +50,56 @@ def calculate_product_log(sender, instance, **kwargs):
     instance.previous_base_price = previous_base_price
     instance.previous_sell_price = previous_sell_price
 
+
 @receiver(post_save, sender=Product)
 def create_product_log(sender, instance, **kwargs):
     quantity_change = instance.quantity - instance.previous_quantity
     buy_price_change = instance.last_buy_price - instance._previous_buy_price
     base_price_change = instance.base_price - instance.previous_base_price
     sell_price_change = instance.sell_price - instance.previous_sell_price
-    if quantity_change !=0 or buy_price_change !=0 or base_price_change !=0 or sell_price_change !=0:
+    if quantity_change != 0 or buy_price_change != 0 or base_price_change != 0 or sell_price_change != 0:
         ProductLog.objects.create(product=instance,
-                              quantity_change=quantity_change,
-                              buy_price_change=buy_price_change,
-                              base_price_change=base_price_change,
-                              sell_price_change=sell_price_change,
-                              created_by=instance.updated_by if instance.updated_by else instance.created_by)
+                                  quantity_change=quantity_change,
+                                  buy_price_change=buy_price_change,
+                                  base_price_change=base_price_change,
+                                  sell_price_change=sell_price_change,
+                                  created_by=instance.updated_by if instance.updated_by else instance.created_by)
+
 
 @receiver(pre_save, sender=StockMovement)
 def check_sm_status_before(sender, instance, **kwargs):
     sm = StockMovement.objects.filter(pk=instance.pk).last()
     instance.status_before = sm.status if sm else 0
 
+
 def get_stock(stock_movement, item, get_from='destination'):
-    imi = item if get_from=='destination' else None
+    imi = item if get_from == 'destination' else None
     stock, created = WarehouseStock.objects.get_or_create(
         warehouse=stock_movement.destination if get_from == 'destination' else stock_movement.origin,
         product=item.product,
         inbound_movement_item=imi,
         created_by=stock_movement.created_by
     )
-    if get_from=='origin':
+    if get_from == 'origin':
         stock.dispatch_movement_items.add(item)
     return stock
+
 
 def deduct_stock(stock, item):
     stock.quantity -= item.quantity
     stock.save()
 
+
 def add_stock(stock, item):
     stock.quantity += item.quantity
     stock.save()
+
 
 def calculate_buy_price(item):
     product = item.product
     product.last_buy_price = item.buy_price
     product.save()
+
 
 @receiver(post_save, sender=StockMovement)
 def update_warehouse_stock(sender, instance, **kwargs):
