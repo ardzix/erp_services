@@ -21,7 +21,7 @@ class UnitAdmin(BaseAdmin):
 
 @admin.register(Product)
 class ProductAdmin(BaseAdmin):
-    list_display = ['sku', 'name', 'description', 'base_price', 'quantity', 'phsycal_quantity', 'category']
+    list_display = ['id32', 'name', 'description', 'base_price', 'quantity', 'phsycal_quantity', 'category']
     list_filter = ['category']
     fields = ['name', 'alias', 'sku', 'description', 'base_price', 'last_buy_price', 'previous_buy_price', 'margin_type', 'margin_value', 'sell_price', 'quantity', 'minimum_quantity', 'phsycal_quantity', 'category', 'smallest_unit', 'purchasing_unit', 'sales_unit', 'stock_unit', 'product_type', 'price_calculation', 'brand', 'picture']
     readonly_fields = ['phsycal_quantity', 'previous_buy_price']

@@ -102,6 +102,7 @@ class Product(BaseModelGeneric):
         null=True,
         help_text=_("Enter the product description"))
     base_price = models.DecimalField(
+        default=0,
         max_digits=10, decimal_places=2, help_text=_("Base price in IDR (Rp)"))
     last_buy_price = models.DecimalField(
         default=0,
@@ -111,7 +112,7 @@ class Product(BaseModelGeneric):
         max_digits=10, decimal_places=2, help_text=_("Sell price in IDR (Rp)"))
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, help_text=_("Select the product category"))
-    quantity = models.IntegerField(help_text=_("Enter the product quantity"))
+    quantity = models.IntegerField(default=0, help_text=_("Enter the product quantity"))
     smallest_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_smallest',
                                       default=None, null=True, blank=True, help_text=_("Select the smallest unit for the product"))
     purchasing_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_purchasing',
