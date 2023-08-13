@@ -15,7 +15,6 @@ def ensure_single_default_supplier(sender, instance, **kwargs):
             .exclude(pk=instance.pk)\
             .update(is_default_supplier=False)
 
-
 @receiver(pre_save, sender=PurchaseOrderItem)
 def update_product_quantity(sender, instance, **kwargs):
     if instance.pk:  # Only for existing OrderItem instances
