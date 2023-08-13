@@ -22,7 +22,7 @@ class OrderItemInline(admin.TabularInline):
     model = PurchaseOrderItem
     extra = 0
     raw_id_fields = ['product']
-    fields = ['product', 'quantity', 'price']
+    fields = ['product', 'quantity', 'po_price', 'actual_price']
 
 
 @admin.register(PurchaseOrder)
@@ -35,9 +35,9 @@ class PurchaseOrderAdmin(ApproveRejectMixin, BaseAdmin):
 
 @admin.register(PurchaseOrderItem)
 class PurchaseOrderItemAdmin(BaseAdmin):
-    list_display = ['id32', 'purchase_order', 'product', 'quantity', 'price']
+    list_display = ['id32', 'purchase_order', 'product', 'quantity', 'po_price']
     list_filter = ['purchase_order', 'product']
-    fields = ['purchase_order', 'product', 'quantity', 'price']
+    fields = ['purchase_order', 'product', 'quantity', 'po_price']
 
 
 @admin.register(Shipment)

@@ -1,9 +1,6 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
-from django.db.models.signals import pre_save, post_save, pre_delete
-from django.contrib.contenttypes.models import ContentType
-from django.dispatch import receiver
-from inventory.models import Product, StockMovement, StockMovementItem
+from inventory.models import Product, StockMovement
 from libs.base_model import BaseModelGeneric, User
 from identities.models import CompanyProfile
 
@@ -167,86 +164,3 @@ class SalesPayment(BaseModelGeneric):
     class Meta:
         verbose_name = _("Payment")
         verbose_name_plural = _("Payments")
-
-
-
-@receiver(pre_save, sender=OrderItem)
-def update_product_quantity(sender, instance, **kwargs):
-    if instance.pk:  # Only for existing OrderItem instances
-        order_item = OrderItem.objects.get(pk=instance.pk)
-        old_quantity = order_item.quantity
-        quantity_diff = instance.quantity - old_quantity
-        Product.objects.filter(pk=instance.product.pk).update(quantity=models.F(
-            'quantity') - quantity_diff, updated_by_id=instance.updated_by_id)
-        if quantity_diff != 0 and instance.order.stock_movement:
-            smi, created = StockMovementItem.objects.get_or_create(
-                product_id=instance.product.pk,
-                stock_movement=instance.order.stock_movement,
-                created_by= order_item.created_by
-            )
-            smi.quantity = abs(quantity_diff)
-            smi.save()
-
-
-@receiver(pre_save, sender=SalesOrder)
-def check_salesorder_before_approved(sender, instance, **kwargs):
-    instance.approved_before = False
-    instance.unapproved_before = False
-    so_before = SalesOrder.objects.filter(pk=instance.pk).last()
-    if so_before:
-        instance.approved_before = True if so_before.approved_at and so_before.approved_by else False
-        instance.unapproved_before = True if so_before.unapproved_at and so_before.unapproved_by else False
-
-
-@receiver(post_save, sender=SalesOrder)
-def create_stock_movement(sender, instance, **kwargs):
-    if not instance.approved_before and instance.approved_at:
-        sm = StockMovement.objects.create(
-            destination_type=ContentType.objects.get_for_model(Customer),
-            destination_id=instance.customer.id,
-            created_by=instance.updated_by if instance.updated_by else instance.created_by
-        )
-        instance.stock_movement = sm
-        instance.save()
-        for item in OrderItem.objects.filter(order=instance).all():
-            smi, created = StockMovementItem.objects.get_or_create(
-                    product_id=item.product.pk,
-                    stock_movement=instance.stock_movement,
-                    created_by= item.created_by
-                )
-            smi.quantity = abs(item.quantity)
-            smi.save()
-    if not instance.unapproved_before and instance.unapproved_at:
-        sm = instance.stock_movement
-        if sm.status <= 4:
-            sm.delete()
-
-
-@receiver(post_save, sender=OrderItem)
-def update_product_quantity(sender, instance, created, **kwargs):
-    if created:
-        product = instance.product
-        quantity = instance.quantity
-        product.quantity -= quantity
-        product.updated_by = instance.created_by
-        product.save()
-
-
-@receiver(post_save, sender=OrderItem)
-def create_stock_movement(sender, instance, created, **kwargs):
-    if created and instance.order.stock_movement:
-        product = instance.product
-        quantity = instance.quantity
-        smi, created = StockMovementItem.objects.get_or_create(
-            product=product,
-            stock_movement=instance.order.stock_movement,
-            created_by=instance.created_by
-        )
-        smi.quantity = quantity
-        smi.save()
-
-
-@receiver(pre_delete, sender=OrderItem)
-def restore_product_quantity(sender, instance, **kwargs):
-    Product.objects.filter(pk=instance.product.pk).update(
-        quantity=models.F('quantity') + instance.quantity)

@@ -2,8 +2,6 @@ from django.contrib.gis.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
-from django.db.models.signals import pre_save, post_save
-from django.dispatch import receiver
 from libs.base_model import BaseModelGeneric, User
 from common.models import File
 from identities.models import Brand
@@ -96,12 +94,20 @@ class Product(BaseModelGeneric):
     sku = models.CharField(max_length=100, help_text=_(
         "Enter the product stock keeping unit or barcode"))
     description = models.TextField(
+        blank=True,
+        null=True,
         help_text=_("Enter the product description"))
     base_price = models.DecimalField(
         max_digits=10, decimal_places=2, help_text=_("Base price in IDR (Rp)"))
     last_buy_price = models.DecimalField(
+        default=0,
+        blank=True,
+        null=True,
         max_digits=10, decimal_places=2, help_text=_("Last buy price in IDR (Rp)"))
     sell_price = models.DecimalField(
+        default=0,
+        blank=True,
+        null=True,
         max_digits=10, decimal_places=2, help_text=_("Sell price in IDR (Rp)"))
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, help_text=_("Select the product category"))
@@ -147,6 +153,11 @@ class Product(BaseModelGeneric):
             self.stock_unit = self.smallest_unit
         super().save(*args, **kwargs)
 
+    def get_purchase_item_history(self):
+        stocks = WarehouseStock.objects.filter(product=self).exclude(quantity=0)
+        items = StockMovementItem.objects.filter(id__in=stocks.values_list('inbound_movement_item', flat=True)).order_by('-created_at')
+        return items
+
     class Meta:
         verbose_name = _("Product")
         verbose_name_plural = _("Products")
@@ -158,6 +169,10 @@ class Product(BaseModelGeneric):
             models.Sum('quantity'))['quantity__sum']
         return total_quantity or 0
 
+    @property
+    def previous_buy_price(self):
+        buy_price_history = self.get_purchase_item_history().values('buy_price')
+        return buy_price_history[1]['buy_price'] if buy_price_history.count()>1 else None
 
 class ProductGroup(BaseModelGeneric):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,
@@ -181,7 +196,27 @@ class ProductLog(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='logs', help_text=_(
         "Select the product associated with the log"))
     quantity_change = models.IntegerField(
+        blank=True,
+        null=True,
         help_text=_("Enter the quantity change"))
+    buy_price_change = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_("Enter the buy price change"))
+    base_price_change = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_("Enter the base price change"))
+    sell_price_change = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_("Enter the base price change"))
     created_at = models.DateTimeField(
         auto_now_add=True, help_text=_("Specify the creation date"))
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_updated_by", help_text=_(
@@ -218,28 +253,6 @@ class Warehouse(BaseModelGeneric):
     class Meta:
         verbose_name = _("Warehouse")
         verbose_name_plural = _("Warehouses")
-
-
-class WarehouseStock(BaseModelGeneric):
-    warehouse = models.ForeignKey(
-        Warehouse, on_delete=models.CASCADE, help_text=_("Select the warehouse"))
-    product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, help_text=_("Select the product"))
-    quantity = models.PositiveIntegerField(default=0, help_text=_(
-        "Enter the product quantity in the warehouse"))
-
-    def __str__(self):
-        return _(
-            "Warehouse Stock: {warehouse_name} - Product: {product_name} - Quantity: {quantity}"
-        ).format(
-            warehouse_name=self.warehouse.name,
-            product_name=self.product.name,
-            quantity=self.quantity
-        )
-
-    class Meta:
-        verbose_name = _("Warehouse Stock")
-        verbose_name_plural = _("Warehouse Stocks")
 
 
 class ProductLocation(BaseModelGeneric):
@@ -335,6 +348,9 @@ class StockMovementItem(BaseModelGeneric):
     )
     quantity = models.IntegerField(
         default=0, help_text=_("Enter the quantity"))
+    buy_price = models.DecimalField(
+        blank=True, null=True,
+        max_digits=10, decimal_places=2, help_text=_("Buy price"))
 
     def __str__(self):
         return _("Stock Movement Item #{movement_item_id} - {product_name}").format(movement_item_id=self.id32, product_name=self.product)
@@ -342,6 +358,31 @@ class StockMovementItem(BaseModelGeneric):
     class Meta:
         verbose_name = _("Stock Movement Item")
         verbose_name_plural = _("Stock Movement Items")
+
+
+class WarehouseStock(BaseModelGeneric):
+    warehouse = models.ForeignKey(
+        Warehouse, on_delete=models.CASCADE, help_text=_("Select the warehouse"))
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, help_text=_("Select the product"))
+    quantity = models.PositiveIntegerField(default=0, help_text=_(
+        "Enter the product quantity in the warehouse"))
+    expire_date = models.DateField(blank=True, null=True)
+    inbound_movement_item = models.ForeignKey(StockMovementItem, blank=True, null=True, on_delete=models.SET_NULL, related_name='inbound_stock_item')
+    dispatch_movement_items = models.ManyToManyField(StockMovementItem, blank=True, related_name='dispatch_stock_items')
+
+    def __str__(self):
+        return _(
+            "Warehouse Stock: {warehouse_name} - Product: {product_name} - Quantity: {quantity}"
+        ).format(
+            warehouse_name=self.warehouse.name,
+            product_name=self.product.name,
+            quantity=self.quantity
+        )
+
+    class Meta:
+        verbose_name = _("Warehouse Stock")
+        verbose_name_plural = _("Warehouse Stocks")
 
 
 class StockAdjustment(BaseModelGeneric):
@@ -386,42 +427,3 @@ class ReplenishmentReceived(BaseModelGeneric):
     class Meta:
         verbose_name = _("Replenishment Received")
         verbose_name_plural = _("Replenishment Received")
-
-
-@receiver(pre_save, sender=Product)
-def calculate_product_log(sender, instance, **kwargs):
-    previous_quantity = 0
-    prev_obj = sender.objects.filter(pk=instance.pk).last()
-    if prev_obj:
-        previous_quantity = prev_obj.quantity
-    instance.previous_quantity = previous_quantity
-
-
-@receiver(post_save, sender=Product)
-def create_product_log(sender, instance, **kwargs):
-    quantity_change = instance.quantity - instance.previous_quantity
-    ProductLog.objects.create(product=instance, quantity_change=quantity_change,
-                              created_by=instance.updated_by if instance.updated_by else instance.created_by)
-
-
-@receiver(post_save, sender=StockMovement)
-def update_warehouse_stock(sender, instance, **kwargs):
-    # Deduct the quantity from the source warehouse
-    if instance.status == 5 and instance.origin_type == ContentType.objects.get_for_model(Warehouse):
-        origin_stock, _ = WarehouseStock.objects.get_or_create(
-            warehouse=instance.origin,
-            product=instance.product,
-            created_by=instance.created_by
-        )
-        origin_stock.quantity -= instance.quantity
-        origin_stock.save()
-
-    # Add the quantity to the destination warehouse
-    if instance.status == 6 and instance.destination_type == ContentType.objects.get_for_model(Warehouse):
-        destination_stock, _ = WarehouseStock.objects.get_or_create(
-            warehouse=instance.destination,
-            product=instance.product,
-            created_by=instance.created_by
-        )
-        destination_stock.quantity += instance.quantity
-        destination_stock.save()

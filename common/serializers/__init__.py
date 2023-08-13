@@ -19,9 +19,9 @@ class SetFileSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         encoded_file = validated_data['file_base64']
-        format, imgstr = encoded_file.split(';base64,') 
+        file_format, imgstr = encoded_file.split(';base64,') 
         user = self.context.get('request').user
-        ext = format.split('/')[-1]
+        ext = file_format.split('/')[-1]
         
         # Add padding if required
         missing_padding = len(imgstr) % 4

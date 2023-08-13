@@ -23,8 +23,8 @@ class UnitAdmin(BaseAdmin):
 class ProductAdmin(BaseAdmin):
     list_display = ['sku', 'name', 'description', 'base_price', 'quantity', 'phsycal_quantity', 'category']
     list_filter = ['category']
-    fields = ['name', 'alias', 'sku', 'description', 'base_price', 'last_buy_price', 'sell_price', 'quantity', 'minimum_quantity', 'phsycal_quantity', 'category', 'smallest_unit', 'purchasing_unit', 'sales_unit', 'stock_unit', 'product_type', 'price_calculation', 'brand', 'picture']
-    readonly_fields = ['phsycal_quantity']
+    fields = ['name', 'alias', 'sku', 'description', 'base_price', 'last_buy_price', 'previous_buy_price', 'sell_price', 'quantity', 'minimum_quantity', 'phsycal_quantity', 'category', 'smallest_unit', 'purchasing_unit', 'sales_unit', 'stock_unit', 'product_type', 'price_calculation', 'brand', 'picture']
+    readonly_fields = ['phsycal_quantity', 'previous_buy_price']
 
     def phsycal_quantity(self, obj):
         return obj.phsycal_quantity
@@ -80,7 +80,7 @@ class WarehouseTypeForm(forms.ModelForm):
 class StockMovementItemInline(admin.TabularInline):
     model = StockMovementItem
     extra = 1
-    fields = ['product', 'quantity']
+    fields = ['product', 'quantity', 'buy_price']
     raw_id_fields = ['product']
     verbose_name_plural = _("Stock Movement Items")
 
@@ -135,9 +135,9 @@ class ReplenishmentReceivedAdmin(BaseAdmin):
 
 @admin.register(ProductLog)
 class ProductLogAdmin(BaseAdmin):
-    list_display = ['product', 'quantity_change', 'created_at', 'created_by']
+    list_display = ['product', 'quantity_change', 'buy_price_change', 'base_price_change', 'sell_price_change', 'created_at', 'created_by']
     list_filter = ['product']
-    readonly_fields = ['product', 'quantity_change', 'created_at', 'created_by']
+    readonly_fields = ['product', 'quantity_change', 'buy_price_change', 'base_price_change', 'sell_price_change', 'created_at', 'created_by']
     ordering = ['-created_at']
     search_fields = ['product__name']
 
