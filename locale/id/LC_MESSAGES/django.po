@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-10 23:25+0700\n"
+"POT-Creation-Date: 2023-08-11 00:17+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -352,23 +352,23 @@ msgstr "Kehadiran"
 msgid "The employee being reviewed"
 msgstr "Karyawan yang diulas"
 
-#: hr/models/__init__.py:64 purchasing/models/__init__.py:152
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:157
 msgid "Poor"
 msgstr "Buruk"
 
-#: hr/models/__init__.py:64 purchasing/models/__init__.py:152
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:157
 msgid "Fair"
 msgstr "Cukup"
 
-#: hr/models/__init__.py:64 purchasing/models/__init__.py:152
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:157
 msgid "Good"
 msgstr "Baik"
 
-#: hr/models/__init__.py:64 purchasing/models/__init__.py:152
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:157
 msgid "Very Good"
 msgstr "Sangat Baik"
 
-#: hr/models/__init__.py:64 purchasing/models/__init__.py:152
+#: hr/models/__init__.py:64 purchasing/models/__init__.py:157
 msgid "Excellent"
 msgstr "Luar Biasa"
 
@@ -1312,89 +1312,92 @@ msgstr "Pilih produk yang terkait dengan item tersebut"
 msgid "Enter the item quantity"
 msgstr "Masukkan jumlah item"
 
-#: purchasing/models/__init__.py:116 sales/models/__init__.py:91
-msgid "Enter the item price in IDR (Rp)"
-msgstr "Masukkan harga item dalam IDR (Rp)"
+#: purchasing/models/__init__.py:116
+msgid "Enter the purchase order item price"
+msgstr "Masukkan harga item pesanan pembelian"
 
 #: purchasing/models/__init__.py:121
+msgid "Enter the actual item price"
+msgstr "Masukkan harga item sesungguhnya"
+
+#: purchasing/models/__init__.py:126
 #, python-brace-format
 msgid "Purchase Order Item #{id32} - {product}"
 msgstr "Item Pesanan Pembelian #{id32} - {product}"
 
-#: purchasing/models/__init__.py:124
+#: purchasing/models/__init__.py:129
 msgid "Purchase Order Item"
 msgstr "Item Pesanan Pembelian"
 
-#: purchasing/models/__init__.py:125
+#: purchasing/models/__init__.py:130
 msgid "Purchase Order Items"
 msgstr "Item-item Pesanan Pembelian"
 
-#: purchasing/models/__init__.py:131
+#: purchasing/models/__init__.py:136
 msgid "Select the purchase order associated with the shipment"
 msgstr "Pilih pesanan pembelian yang terkait dengan pengiriman"
 
-#: purchasing/models/__init__.py:134
+#: purchasing/models/__init__.py:139
 msgid "Enter the shipment date"
 msgstr "Masukkan tanggal pengiriman"
 
-#: purchasing/models/__init__.py:139
+#: purchasing/models/__init__.py:144
 #, python-brace-format
 msgid "Shipment #{id32} - {purchase_order}"
 msgstr "Pengiriman #{id32} - {purchase_order}"
 
-#: purchasing/models/__init__.py:142
+#: purchasing/models/__init__.py:147
 msgid "Shipment"
 msgstr "Pengiriman"
 
-#: purchasing/models/__init__.py:143
+#: purchasing/models/__init__.py:148
 msgid "Shipments"
 msgstr "Pengiriman-pengiriman"
 
-#: purchasing/models/__init__.py:149
+#: purchasing/models/__init__.py:154
 msgid "Select the supplier associated with the vendor performance"
 msgstr "Pilih pemasok yang terkait dengan kinerja vendor"
 
-#: purchasing/models/__init__.py:153
+#: purchasing/models/__init__.py:158
 msgid "Select the rating for the vendor performance"
 msgstr "Pilih penilaian untuk kinerja vendor"
 
-#: purchasing/models/__init__.py:157
+#: purchasing/models/__init__.py:162
 msgid "Enter any comments or additional information"
 msgstr "Masukkan komentar atau informasi tambahan"
 
-#: purchasing/models/__init__.py:162
+#: purchasing/models/__init__.py:167
 #, python-brace-format
 msgid "Vendor Performance #{id32} - {supplier}"
 msgstr "Kinerja Vendor #{id32} - {supplier}"
 
-#: purchasing/models/__init__.py:165
+#: purchasing/models/__init__.py:170
 msgid "Vendor Performance"
 msgstr "Kinerja Vendor"
 
-#: purchasing/models/__init__.py:166
+#: purchasing/models/__init__.py:171
 msgid "Vendor Performances"
 msgstr "Kinerja-kinerja Vendor"
 
-#: purchasing/serializers/supplier.py:64 purchasing/serializers/supplier.py:92
+#: purchasing/serializers/supplier.py:66 purchasing/serializers/supplier.py:94
 msgid "Supplier with this id32 does not exist."
 msgstr "Pemasok dengan id32 ini tidak ada."
 
-#: purchasing/serializers/supplier.py:70
+#: purchasing/serializers/supplier.py:72
 msgid "Product with this id32 does not exist."
 msgstr "Produk dengan id32 ini tidak ada."
 
-#: purchasing/serializers/supplier.py:74
+#: purchasing/serializers/supplier.py:76
 msgid "A product with this supplier already exists."
 msgstr "Produk dengan supplier sudah ada."
 
-#: purchasing/serializers/supplier.py:97
+#: purchasing/serializers/supplier.py:99
 msgid "The product list contains duplicate entries."
 msgstr "Daftar produk mengandung entri duplikat."
 
-#: purchasing/serializers/supplier.py:111
+#: purchasing/serializers/supplier.py:113
 msgid "The supplier already has associations with product(s): {}"
 msgstr "Pemasok sudah memiliki asosiasi dengan produk: {}"
-
 
 #: sales/models/__init__.py:13
 msgid "Enter the customer's name"
@@ -1442,6 +1445,10 @@ msgstr "Pesanan-pesanan"
 #: sales/models/__init__.py:79
 msgid "Select the order associated with the item"
 msgstr "Pilih pesanan yang terkait dengan item tersebut"
+
+#: sales/models/__init__.py:91
+msgid "Enter the item price in IDR (Rp)"
+msgstr "Masukkan harga item dalam IDR (Rp)"
 
 #: sales/models/__init__.py:96
 #, python-brace-format

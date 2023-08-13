@@ -1,8 +1,5 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
-from django.db.models.signals import pre_save, post_save, pre_delete
-from django.dispatch import receiver
-from django.contrib.contenttypes.models import ContentType
 from libs.base_model import BaseModelGeneric, User
 from inventory.models import Product, StockMovement
 
@@ -87,7 +84,8 @@ class PurchaseOrder(BaseModelGeneric):
         verbose_name=_("Approved at"),
         help_text=_("Specify the date and time when the order was approved")
     )
-    # Add any other fields specific to your purchase order model
+    stock_movement = models.ForeignKey(
+        StockMovement, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return _("Purchase Order #{id32}").format(id32=self.id32)
@@ -110,11 +108,19 @@ class PurchaseOrderItem(BaseModelGeneric):
     quantity = models.PositiveIntegerField(
         help_text=_("Enter the item quantity")
     )
-    price = models.DecimalField(
+    po_price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        help_text=_("Enter the item price in IDR (Rp)")
+        help_text=_("Enter the purchase order item price")
     )
+    actual_price = models.DecimalField(
+        blank=True,
+        null=True,
+        max_digits=10,
+        decimal_places=2,
+        help_text=_("Enter the actual item price")
+    )
+
     # Add any other fields specific to your purchase order item model
 
     def __str__(self):
@@ -164,70 +170,3 @@ class VendorPerformance(BaseModelGeneric):
     class Meta:
         verbose_name = _("Vendor Performance")
         verbose_name_plural = _("Vendor Performances")
-
-@receiver(pre_save, sender=SupplierProduct)
-def ensure_single_default_supplier(sender, instance, **kwargs):
-    # If the instance is set as default supplier:
-    if instance.is_default_supplier:
-        # Set all other instances where is_default_supplier is True for the same product to False:
-        sender.objects.filter(product=instance.product, is_default_supplier=True)\
-            .exclude(pk=instance.pk)\
-            .update(is_default_supplier=False)
-
-@receiver(pre_save, sender=PurchaseOrderItem)
-def update_product_quantity(sender, instance, **kwargs):
-    if instance.pk:  # Only for existing PurchaseOrderItem instances
-        purchase_order_item = PurchaseOrderItem.objects.get(pk=instance.pk)
-        old_quantity = purchase_order_item.quantity
-        quantity_diff = instance.quantity - old_quantity
-        Product.objects.filter(pk=instance.product.pk).update(quantity=models.F(
-            'quantity') + quantity_diff, updated_by_id=instance.updated_by_id)
-        if quantity_diff > 0:
-            StockMovement.objects.create(
-                product_id=instance.product.pk,
-                quantity=quantity_diff,
-                origin_type=ContentType.objects.get_for_model(
-                    Supplier),
-                origin_id=instance.purchase_order.supplier.id,
-                created_by=instance.updated_by if instance.updated_by else instance.created_by
-            )
-        elif quantity_diff < 0:
-            StockMovement.objects.create(
-                product_id=instance.product.pk,
-                quantity=abs(quantity_diff),
-                destination_type=ContentType.objects.get_for_model(
-                    Supplier),
-                destination_id=instance.purchase_order.supplier.id,
-                created_by=instance.updated_by if instance.updated_by else instance.created_by
-            )
-
-@receiver(post_save, sender=PurchaseOrderItem)
-def update_product_quantity(sender, instance, created, **kwargs):
-    if created:
-        product = instance.product
-        quantity = instance.quantity
-        product.quantity += quantity
-        product.updated_by = instance.created_by
-        product.save()
-
-@receiver(post_save, sender=PurchaseOrderItem)
-def create_stock_movement(sender, instance, created, **kwargs):
-    if created:
-        product = instance.product
-        quantity = instance.quantity
-
-        StockMovement.objects.create(
-            product=product,
-            quantity=quantity,
-            origin_type=ContentType.objects.get_for_model(Supplier),
-            origin_id=instance.purchase_order.supplier.id,
-            created_by=instance.updated_by if instance.updated_by else instance.created_by
-        )
-
-@receiver(pre_delete, sender=PurchaseOrderItem)
-def restore_product_quantity(sender, instance, **kwargs):
-    product = instance.product
-    old_quantity = instance.quantity
-    product.quantity -= old_quantity
-    product.updated_by = instance.updated_by
-    product.save()

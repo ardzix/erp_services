@@ -147,6 +147,19 @@ class Product(BaseModelGeneric):
             self.stock_unit = self.smallest_unit
         super().save(*args, **kwargs)
 
+    def get_purchase_history(self, obj):
+        stock_movement_items = StockMovementItem.objects.filter(
+            stock_movement__origin_type=ContentType.objects.get(
+                model='supplier'),
+            product=obj
+        )
+        stockmovement_ids = stock_movement_items.values_list(
+            'stock_movement', flat=True)
+        stock_movements = StockMovement.objects.filter(
+            id__in=stockmovement_ids, destination_type=ContentType.objects.get(model='warehouse'))
+        warehous_ids = stock_movements.values_list(
+            'destination_ids', flat=True)
+
     class Meta:
         verbose_name = _("Product")
         verbose_name_plural = _("Products")
@@ -335,6 +348,9 @@ class StockMovementItem(BaseModelGeneric):
     )
     quantity = models.IntegerField(
         default=0, help_text=_("Enter the quantity"))
+    buy_price = models.DecimalField(
+        blank=True, null=True,
+        max_digits=10, decimal_places=2, help_text=_("Buy price"))
 
     def __str__(self):
         return _("Stock Movement Item #{movement_item_id} - {product_name}").format(movement_item_id=self.id32, product_name=self.product)
@@ -404,24 +420,48 @@ def create_product_log(sender, instance, **kwargs):
                               created_by=instance.updated_by if instance.updated_by else instance.created_by)
 
 
+@receiver(pre_save, sender=StockMovement)
+def check_sm_status_before(sender, instance, **kwargs):
+    sm = StockMovement.objects.filter(pk=instance.pk).last()
+    instance.status_before = sm.status if sm else 0
+
+
+def get_stock(stock_movement, item, get_from='destination'):
+    stock, created = WarehouseStock.objects.get_or_create(
+        warehouse=stock_movement.destination if get_from == 'destination' else stock_movement.origin,
+        product=item.product,
+        created_by=stock_movement.created_by
+    )
+    return stock
+
+def deduct_stock(stock, item):
+    stock.quantity -= item.quantity
+    stock.save()
+
+def add_stock(stock, item):
+    stock.quantity += item.quantity
+    stock.save()
+
 @receiver(post_save, sender=StockMovement)
 def update_warehouse_stock(sender, instance, **kwargs):
     # Deduct the quantity from the source warehouse
-    if instance.status == 5 and instance.origin_type == ContentType.objects.get_for_model(Warehouse):
-        origin_stock, _ = WarehouseStock.objects.get_or_create(
-            warehouse=instance.origin,
-            product=instance.product,
-            created_by=instance.created_by
-        )
-        origin_stock.quantity -= instance.quantity
-        origin_stock.save()
+    if instance.origin_type == ContentType.objects.get_for_model(Warehouse):
+        if instance.status == 5 and instance.status_before != 5:
+            for item in instance.items.all():
+                origin_stock = get_stock(instance, item, get_from='origin')
+                deduct_stock(origin_stock, item)
+        elif instance.status != 5 and instance.status_before == 5:
+            for item in instance.items.all():
+                origin_stock = get_stock(instance, item, get_from='origin')
+                add_stock(origin_stock, item)
 
     # Add the quantity to the destination warehouse
-    if instance.status == 6 and instance.destination_type == ContentType.objects.get_for_model(Warehouse):
-        destination_stock, _ = WarehouseStock.objects.get_or_create(
-            warehouse=instance.destination,
-            product=instance.product,
-            created_by=instance.created_by
-        )
-        destination_stock.quantity += instance.quantity
-        destination_stock.save()
+    if instance.destination_type == ContentType.objects.get_for_model(Warehouse):
+        if instance.status == 6 and instance.status_before != 6:
+            for item in instance.items.all():
+                destination_stock = get_stock(instance, item)
+                add_stock(destination_stock, item)
+        if instance.status != 6 and instance.status_before == 6:
+            for item in instance.items.all():
+                destination_stock = get_stock(instance, item)
+                deduct_stock(destination_stock, item)
