@@ -6,6 +6,8 @@ from libs.base_model import BaseModelGeneric, User
 from common.models import File
 from identities.models import Brand
 
+SELECT_PRODUCT = _("Select the product")
+ENTER_THE_QUANTITY = _("Enter the quantity")
 
 class Category(BaseModelGeneric):
     name = models.CharField(
@@ -79,14 +81,14 @@ class Product(BaseModelGeneric):
         ('consumable', _(
             "Consumable - Used in the production process but not part of the final product")),
     ]
-    PRICE_CALCULATION = [
+    PRICE_CALCULATION_CHOICES = [
         ('fifo', _("FIFO - First in first out of buy price history")),
         ('lifo', _("LIFO - Last in first out of buy price history")),
         ('average', _("Average - Average of buy price history")),
         ('production_cost', _(
             "Production Cost - Form direct material cost, labour cost, and manufacturing overhead")),
     ]
-    MARGIN_TYPE = [
+    MARGIN_TYPE_CHOICES = [
         ('percentage', _("Percentage margin value from base price")),
         ('fixed', _("Fixed margin value")),
     ]
@@ -123,7 +125,7 @@ class Product(BaseModelGeneric):
                                    default=None, null=True, blank=True, help_text=_("Select the stock unit for the product"))
     product_type = models.CharField(
         max_length=20, choices=PRODUCT_TYPE_CHOICES, help_text=_("Select the product type"))
-    price_calculation = models.CharField(max_length=20, choices=PRICE_CALCULATION, help_text=_(
+    price_calculation = models.CharField(max_length=20, choices=PRICE_CALCULATION_CHOICES, help_text=_(
         "Select on how the base price will be calculated"))
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL,
                               null=True, blank=True, help_text=_("Select the product brand"))
@@ -132,7 +134,7 @@ class Product(BaseModelGeneric):
         help_text=_(
             "Enter the minimum quantity at which the product needs to be restocked")
     )
-    margin_type = models.CharField(max_length=20, choices=MARGIN_TYPE, help_text=_(
+    margin_type = models.CharField(max_length=20, choices=MARGIN_TYPE_CHOICES, help_text=_(
         "Select on how the margin will be calculated"))
     margin_value = models.DecimalField(
         default=0,
@@ -276,7 +278,7 @@ class ProductLocation(BaseModelGeneric):
     position = models.CharField(max_length=100, help_text=_(
         "Enter the specific position on the shelving"))
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, help_text=_("Select the product"))
+        Product, on_delete=models.CASCADE, help_text=SELECT_PRODUCT)
     quantity = models.PositiveIntegerField(default=0, help_text=_(
         "Enter the product quantity in this location"))
 
@@ -354,10 +356,10 @@ class StockMovementItem(BaseModelGeneric):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        help_text=_("Select the product")
+        help_text=SELECT_PRODUCT
     )
     quantity = models.IntegerField(
-        default=0, help_text=_("Enter the quantity"))
+        default=0, help_text=ENTER_THE_QUANTITY)
     buy_price = models.DecimalField(
         blank=True, null=True,
         max_digits=10, decimal_places=2, help_text=_("Buy price"))
@@ -374,7 +376,7 @@ class WarehouseStock(BaseModelGeneric):
     warehouse = models.ForeignKey(
         Warehouse, on_delete=models.CASCADE, help_text=_("Select the warehouse"))
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, help_text=_("Select the product"))
+        Product, on_delete=models.CASCADE, help_text=SELECT_PRODUCT)
     quantity = models.PositiveIntegerField(default=0, help_text=_(
         "Enter the product quantity in the warehouse"))
     expire_date = models.DateField(blank=True, null=True)
@@ -397,8 +399,8 @@ class WarehouseStock(BaseModelGeneric):
 
 class StockAdjustment(BaseModelGeneric):
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, help_text=_("Select the product"))
-    quantity = models.IntegerField(help_text=_("Enter the quantity"))
+        Product, on_delete=models.CASCADE, help_text=SELECT_PRODUCT)
+    quantity = models.IntegerField(help_text=ENTER_THE_QUANTITY)
     adjustment_date = models.DateField(
         help_text=_("Specify the adjustment date"))
     reason = models.TextField(blank=True, help_text=_(
@@ -414,8 +416,8 @@ class StockAdjustment(BaseModelGeneric):
 
 class ReplenishmentOrder(BaseModelGeneric):
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, help_text=_("Select the product"))
-    quantity = models.PositiveIntegerField(help_text=_("Enter the quantity"))
+        Product, on_delete=models.CASCADE, help_text=SELECT_PRODUCT)
+    quantity = models.PositiveIntegerField(help_text=ENTER_THE_QUANTITY)
     order_date = models.DateField(help_text=_("Specify the order date"))
 
     def __str__(self):
