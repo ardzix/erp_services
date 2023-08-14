@@ -299,13 +299,13 @@ class ProductLocation(BaseModelGeneric):
 
 
 MOVEMENT_STATUS = (
-    (1, _('Requested')),
-    (2, _('Canceled')),
-    (3, _('Preparing')),
-    (4, _('Ready to pickup')),
-    (5, _('On Delivery')),
-    (6, _('Delivered')),
-    (7, _('Returned')),
+    ('requested', _('Requested')),
+    ('canceled', _('Canceled')),
+    ('preparing', _('Preparing')),
+    ('ready', _('Ready to pickup')),
+    ('on_delivery', _('On Delivery')),
+    ('delivered', _('Delivered')),
+    ('returned', _('Returned')),
 )
 
 
@@ -334,8 +334,7 @@ class StockMovement(BaseModelGeneric):
     destination = GenericForeignKey('destination_type', 'destination_id')
     movement_date = models.DateTimeField(
         blank=True, null=True, help_text=_("Specify the movement date"))
-    status = models.PositiveSmallIntegerField(
-        default=1, choices=MOVEMENT_STATUS)
+    status = models.CharField(max_length=20, choices=MOVEMENT_STATUS)
 
     def __str__(self):
         return _("Stock Movement #{movement_id}").format(movement_id=self.id32)

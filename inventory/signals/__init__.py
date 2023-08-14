@@ -105,23 +105,23 @@ def calculate_buy_price(item):
 def update_warehouse_stock(sender, instance, **kwargs):
     # Deduct the quantity from the source warehouse
     if instance.origin_type == ContentType.objects.get_for_model(Warehouse):
-        if instance.status == 5 and instance.status_before != 5:
+        if instance.status == 'on_delivery' and instance.status_before != 'on_delivery':
             for item in instance.items.all():
                 origin_stock = get_stock(instance, item, get_from='origin')
                 deduct_stock(origin_stock, item)
-        elif instance.status != 5 and instance.status_before == 5:
+        elif instance.status != 'on_delivery' and instance.status_before == 'on_delivery':
             for item in instance.items.all():
                 origin_stock = get_stock(instance, item, get_from='origin')
                 add_stock(origin_stock, item)
 
     # Add the quantity to the destination warehouse
     if instance.destination_type == ContentType.objects.get_for_model(Warehouse):
-        if instance.status == 6 and instance.status_before != 6:
+        if instance.status == 'delivered' and instance.status_before != 'delivered':
             for item in instance.items.all():
                 destination_stock = get_stock(instance, item)
                 add_stock(destination_stock, item)
                 calculate_buy_price(item)
-        if instance.status != 6 and instance.status_before == 6:
+        if instance.status != 'delivered' and instance.status_before == 'delivered':
             for item in instance.items.all():
                 destination_stock = get_stock(instance, item)
                 deduct_stock(destination_stock, item)

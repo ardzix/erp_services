@@ -70,6 +70,9 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+    
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 class SalesOrderViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
@@ -81,5 +84,8 @@ class SalesOrderViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+    
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 # e920477217b35578fa1e71f7aa5b280771987b13
