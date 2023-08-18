@@ -56,7 +56,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
 
         product_type_dict = dict(Product.PRODUCT_TYPE_CHOICES)
-        price_calculation_dict = dict(Product.PRICE_CALCULATION)
+        price_calculation_dict = dict(Product.PRICE_CALCULATION_CHOICES)
 
         representation['product_type'] = product_type_dict.get(
             instance.product_type, "")
