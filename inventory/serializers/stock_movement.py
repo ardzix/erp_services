@@ -4,32 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from ..models import StockMovement, StockMovementItem
 
-class StockMovementItemSerializer(serializers.ModelSerializer):
-    product_id32 = serializers.CharField(source='product.id32', read_only=True)
-    
-    class Meta:
-        model = StockMovementItem
-        fields = ['id32', 'product', 'product_id32', 'quantity', 'buy_price']
-
-class StockMovementListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StockMovement
-        fields = ['id32', 'origin', 'destination', 'movement_date', 'status']
-
-class ContentTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContentType
-        fields = ['model', 'app_label']
-
-class StockMovementDetailSerializer(serializers.ModelSerializer):
-    items = StockMovementItemSerializer(many=True, read_only=True)
-    origin_type = ContentTypeSerializer(read_only=True)
-    destination_type = ContentTypeSerializer(read_only=True)
-    
-    class Meta:
-        model = StockMovement
-        fields = ['id', 'origin', 'destination', 'origin_type', 'destination_type', 'movement_date', 'status', 'items']
-
+class StockMovementSerializerMixin:
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
@@ -48,6 +23,32 @@ class StockMovementDetailSerializer(serializers.ModelSerializer):
             "id32": obj.id32,
             "name": str(obj)
         }
+
+class StockMovementItemSerializer(serializers.ModelSerializer):
+    product_id32 = serializers.CharField(source='product.id32', read_only=True)
+    
+    class Meta:
+        model = StockMovementItem
+        fields = ['id32', 'product', 'product_id32', 'quantity', 'buy_price']
+
+class StockMovementListSerializer(StockMovementSerializerMixin, serializers.ModelSerializer):
+    class Meta:
+        model = StockMovement
+        fields = ['id32', 'origin', 'destination', 'movement_date', 'status']
+
+class ContentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentType
+        fields = ['model', 'app_label']
+
+class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.ModelSerializer):
+    items = StockMovementItemSerializer(many=True, read_only=True)
+    origin_type = ContentTypeSerializer(read_only=True)
+    destination_type = ContentTypeSerializer(read_only=True)
+    
+    class Meta:
+        model = StockMovement
+        fields = ['id', 'origin', 'destination', 'origin_type', 'destination_type', 'movement_date', 'status', 'items']
 
 
 class StockMovementUpdateSerializer(serializers.ModelSerializer):
