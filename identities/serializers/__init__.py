@@ -31,3 +31,9 @@ class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
         fields = ['id32', 'company', 'name', 'description']
+
+class BrandLiteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Brand
+        fields = ['id32', 'name']

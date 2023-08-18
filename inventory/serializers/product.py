@@ -3,6 +3,10 @@ from rest_framework import serializers
 from common.serializers import FileSerializer
 from purchasing.serializers.supplier import SupplierProductSerializer
 from purchasing.models import SupplierProduct
+from identities.serializers import BrandLiteSerializer
+from identities.models import Brand
+from .category import CategoryListSerializer
+from .unit import UnitListSerializer
 from ..models import Product, Category, Unit
 
 
@@ -29,6 +33,11 @@ class ProductValidator:
             return self._validate_id32(value, 'stock_unit_id32', Unit)
         return None
 
+    def validate_brand_id32(self, value):
+        if value:
+            return self._validate_id32(value, 'brand_id32', Brand)
+        return None
+
     def _validate_id32(self, value, field_name, model_class):
         try:
             return model_class.objects.get(id32=value).id
@@ -46,6 +55,7 @@ class ProductValidator:
         instance.purchasing_unit_id = validated_data.pop('purchasing_unit_id32', instance.purchasing_unit_id)
         instance.sales_unit_id = validated_data.pop('sales_unit_id32', instance.sales_unit_id)
         instance.stock_unit_id = validated_data.pop('stock_unit_id32', instance.stock_unit_id)
+        instance.brand_id = validated_data.pop('brand_id32', instance.brand_id)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -86,12 +96,12 @@ class SupplierSerializer(SupplierProductSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     picture = FileSerializer(read_only=True)
-    category = serializers.StringRelatedField()
-    smallest_unit = serializers.StringRelatedField()
-    purchasing_unit = serializers.StringRelatedField()
-    sales_unit = serializers.StringRelatedField()
-    stock_unit = serializers.StringRelatedField()
-    brand = serializers.StringRelatedField()
+    category = CategoryListSerializer()
+    smallest_unit = UnitListSerializer()
+    purchasing_unit = UnitListSerializer()
+    sales_unit = UnitListSerializer()
+    stock_unit = UnitListSerializer()
+    brand = BrandLiteSerializer()
     suppliers = SupplierSerializer(source='supplierproduct_set', many=True)
 
     class Meta:
@@ -135,6 +145,7 @@ class ProductEditSerializer(ProductValidator, serializers.ModelSerializer):
     purchasing_unit_id32 = serializers.CharField(write_only=True, required=False, allow_null=True, default=None)
     sales_unit_id32 = serializers.CharField(write_only=True, required=False, allow_null=True, default=None)
     stock_unit_id32 = serializers.CharField(write_only=True, required=False, allow_null=True, default=None)
+    brand_id32 = serializers.CharField(write_only=True, required=False, allow_null=True, default=None)
 
     class Meta:
         model = Product
@@ -142,7 +153,7 @@ class ProductEditSerializer(ProductValidator, serializers.ModelSerializer):
             'name', 'sku', 'description', 'base_price', 'sell_price',
             'margin_type', 'margin_value',
             'category_id32', 'quantity', 'smallest_unit_id32', 'purchasing_unit_id32', 'sales_unit_id32',
-            'stock_unit_id32', 'product_type', 'price_calculation', 'brand', 'minimum_quantity',
+            'stock_unit_id32', 'product_type', 'price_calculation', 'brand_id32', 'minimum_quantity',
             'is_active'
             # add or remove fields as needed
         ]
