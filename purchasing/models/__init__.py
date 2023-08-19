@@ -1,7 +1,7 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
-from inventory.models import Product, StockMovement
+from inventory.models import Product, StockMovement, Unit
 
 class Supplier(BaseModelGeneric):
     name = models.CharField(
@@ -109,7 +109,7 @@ class PurchaseOrderItem(BaseModelGeneric):
         help_text=_("Enter the item quantity")
     )
     po_price = models.DecimalField(
-        max_digits=10,
+        max_digits=19,
         decimal_places=2,
         help_text=_("Enter the purchase order item price")
     )
@@ -120,6 +120,7 @@ class PurchaseOrderItem(BaseModelGeneric):
         decimal_places=2,
         help_text=_("Enter the actual item price")
     )
+    unit = models.ForeignKey(Unit, blank=True, null=True, on_delete=models.SET_NULL)
 
     # Add any other fields specific to your purchase order item model
 

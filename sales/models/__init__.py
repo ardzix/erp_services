@@ -1,6 +1,6 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
-from inventory.models import Product, StockMovement
+from inventory.models import Product, StockMovement, Unit
 from libs.base_model import BaseModelGeneric, User
 from identities.models import CompanyProfile
 
@@ -87,6 +87,7 @@ class OrderItem(BaseModelGeneric):
         decimal_places=2,
         help_text=_("Enter the item price in IDR (Rp)")
     )
+    unit = models.ForeignKey(Unit, blank=True, null=True, on_delete=models.SET_NULL)
     # Add any other fields specific to your order item model
 
     def __str__(self):

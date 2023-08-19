@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from django.db import transaction
 from inventory.models import Product
@@ -12,6 +13,13 @@ class PurchaseOrderItemSerializer(serializers.ModelSerializer):
         model = PurchaseOrderItem
         fields = ['id32', 'product', 'product_name', 'quantity', 'po_price']
         read_only_fields = ['id32']
+
+    def validate_product(self, product):
+        if product.purchasing_unit is None:
+            raise serializers.ValidationError({
+                "product": _("The product's purchasing unit has not been set.")
+            })
+        return product
 
 
 # PurchaseOrder Serializer

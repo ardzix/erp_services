@@ -5,10 +5,29 @@ from django.contrib.contenttypes.models import ContentType
 from ..models import Product, ProductLog, StockMovement, WarehouseStock, Warehouse, StockMovementItem
 
 
-def commit_base_price(product, base_price):
-    if base_price and base_price != product.base_price:
+def commit_base_price(product, buy_price):
+    if not buy_price or not product.purchasing_unit or not product.stock_unit:
+        pass
+    base_price = buy_price * product.stock_unit.conversion_to_top_level() / \
+        product.purchasing_unit.conversion_to_top_level()
+    if base_price != product.base_price:
         product.base_price = base_price
         product.save()
+
+
+@receiver(post_save, sender=Product)
+def change_global_stock(sender, instance, created, **kwargs):
+    if not created:
+        if instance.previous_smallest_unit and instance.previous_smallest_unit != instance.smallest_unit:
+            smallest_conversion = instance.previous_smallest_unit.conversion_to_top_level() / instance.smallest_unit.conversion_to_top_level()
+            instance.quantity = instance.quantity * smallest_conversion
+            instance.save()
+        if instance.previous_stock_unit and instance.previous_stock_unit != instance.stock_unit:
+            stock_conversion = instance.previous_stock_unit.conversion_to_top_level() / instance.stock_unit.conversion_to_top_level()
+            for stock in WarehouseStock.objects.filter(product=instance):
+                stock.quantity = stock.quantity * stock_conversion
+                stock.updated_by = instance.updated_by
+                stock.save()
 
 
 @receiver(post_save, sender=Product)
@@ -16,9 +35,9 @@ def calculate_product_base_price(sender, instance, created, **kwargs):
     if not created:
         items = instance.get_purchase_item_history()
         if instance.price_calculation in ['fifo', 'lifo']:
-            base_price = items.aggregate(
+            buy_price = items.aggregate(
                 max_price=models.Max('buy_price'))['max_price']
-            commit_base_price(instance, base_price)
+            commit_base_price(instance, buy_price)
 
 
 @receiver(post_save, sender=Product)
@@ -35,20 +54,15 @@ def calculate_product_sell_price(sender, instance, created, **kwargs):
 
 @receiver(pre_save, sender=Product)
 def calculate_product_log(sender, instance, **kwargs):
-    previous_quantity = 0
-    previous_buy_price = 0
-    previous_base_price = 0
-    previous_sell_price = 0
     prev_obj = sender.objects.filter(pk=instance.pk).last()
-    if prev_obj:
-        previous_quantity = prev_obj.quantity
-        previous_buy_price = prev_obj.last_buy_price
-        previous_base_price = prev_obj.base_price
-        previous_sell_price = prev_obj.sell_price
-    instance.previous_quantity = previous_quantity
-    instance._previous_buy_price = previous_buy_price
-    instance.previous_base_price = previous_base_price
-    instance.previous_sell_price = previous_sell_price
+    instance.previous_quantity = prev_obj.quantity if prev_obj else 0
+    instance._previous_buy_price = prev_obj.last_buy_price if prev_obj else 0
+    instance.previous_base_price = prev_obj.base_price if prev_obj else 0
+    instance.previous_sell_price = prev_obj.sell_price if prev_obj else 0
+    instance.previous_smallest_unit = prev_obj.smallest_unit if prev_obj else None
+    instance.previous_purchasing_unit = prev_obj.purchasing_unit if prev_obj else None
+    instance.previous_sales_unit = prev_obj.sales_unit if prev_obj else None
+    instance.previous_stock_unit = prev_obj.stock_unit if prev_obj else None
 
 
 @receiver(post_save, sender=Product)
@@ -97,7 +111,7 @@ def add_stock(stock, item):
 
 def calculate_buy_price(item):
     product = item.product
-    product.last_buy_price = item.buy_price
+    product.last_buy_price = item.buy_price / item.unit.conversion_to_top_level()
     product.save()
 
 

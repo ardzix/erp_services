@@ -51,6 +51,43 @@ class Unit(BaseModelGeneric):
             self.level = 0
         super().save(*args, **kwargs)
 
+    def conversion_to_top_level(self):
+        """
+        Calculates the conversion factor to the top-level ancestor.
+        """
+        conversion = self.conversion_factor
+        current_unit = self.parent
+
+        while current_unit:
+            conversion *= current_unit.conversion_factor
+            current_unit = current_unit.parent
+
+        return conversion
+    
+    def conversion_to_ancestor(self, ancestor_id):
+        """
+        Calculates the conversion factor to a specified ancestor.
+
+        Parameters:
+        - ancestor_id: The ID of the ancestor unit to which the conversion factor is required.
+
+        Returns:
+        - The conversion factor to the specified ancestor. 
+        - None if the provided ID is not an ancestor of the current unit.
+        """
+        conversion = 1  # Starting conversion factor is 1
+        current_unit = self
+
+        while current_unit and current_unit.id != ancestor_id:
+            conversion *= current_unit.conversion_factor
+            current_unit = current_unit.parent
+
+        if current_unit and current_unit.id == ancestor_id:
+            return conversion
+        else:
+            # The provided ID is not an ancestor of the current unit.
+            return None
+
     def get_ancestors(self):
         """
         Returns a queryset of all parent units (ancestors) recursively.
@@ -180,6 +217,8 @@ class Product(BaseModelGeneric):
         warehouse_stocks = WarehouseStock.objects.filter(product=self)
         total_quantity = warehouse_stocks.aggregate(
             models.Sum('quantity'))['quantity__sum']
+        if total_quantity and self.stock_unit:
+            total_quantity = total_quantity * int(self.stock_unit.conversion_to_top_level() / self.smallest_unit.conversion_to_top_level())
         return total_quantity or 0
 
     @property
@@ -362,7 +401,8 @@ class StockMovementItem(BaseModelGeneric):
         default=0, help_text=ENTER_THE_QUANTITY)
     buy_price = models.DecimalField(
         blank=True, null=True,
-        max_digits=10, decimal_places=2, help_text=_("Buy price"))
+        max_digits=19, decimal_places=2, help_text=_("Buy price"))
+    unit = models.ForeignKey(Unit, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return _("Stock Movement Item #{movement_item_id} - {product_name}").format(movement_item_id=self.id32, product_name=self.product)

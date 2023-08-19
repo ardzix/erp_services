@@ -15,10 +15,10 @@ class UserProfileAdmin(BaseAdmin):
 
 @admin.register(CompanyProfile)
 class CompanyProfileAdmin(BaseAdmin):
-    list_display = ['company_name', 'address', 'contact_number', 'owned_by_email']
+    list_display = ['id32', 'company_name', 'address', 'contact_number']
     list_filter = []
     search_fields = ['owned_by__email']
-    fields = ['owned_by', 'company_name', 'address', 'contact_number']
+    fields = ['id32', 'owned_by', 'company_name', 'address', 'contact_number']
 
     def owned_by_email(self, obj):
         return obj.owned_by.email
