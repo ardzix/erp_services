@@ -6,13 +6,12 @@ from ..models import Product, ProductLog, StockMovement, WarehouseStock, Warehou
 
 
 def commit_base_price(product, buy_price):
-    if not buy_price or not product.purchasing_unit or not product.stock_unit:
-        pass
-    base_price = buy_price * product.stock_unit.conversion_to_top_level() / \
-        product.purchasing_unit.conversion_to_top_level()
-    if base_price != product.base_price:
-        product.base_price = base_price
-        product.save()
+    if buy_price and product.purchasing_unit and product.stock_unit:
+        base_price = buy_price * product.stock_unit.conversion_to_top_level() / \
+            product.purchasing_unit.conversion_to_top_level()
+        if base_price != product.base_price:
+            product.base_price = base_price
+            product.save()
 
 
 @receiver(post_save, sender=Product)
