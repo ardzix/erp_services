@@ -4,8 +4,9 @@ from inventory.models import Product, StockMovement, Unit
 from libs.base_model import BaseModelGeneric, User
 from identities.models import CompanyProfile
 
-APPROVED_BY = 'Approved by'
-APPROVED_AT = 'Approved at'
+APPROVED_BY = "Approved by"
+APPROVED_AT = "Approved at"
+APPROVED_AT_HELP_TEXT = "Specify the date and time of approval"
 
 class Customer(BaseModelGeneric):
     name = models.CharField(
@@ -55,7 +56,7 @@ class SalesOrder(BaseModelGeneric):
         null=True,
         blank=True,
         verbose_name=_(APPROVED_AT),
-        help_text=_("Specify the date and time of approval")
+        help_text=_(APPROVED_AT_HELP_TEXT)
     )
     stock_movement = models.ForeignKey(
         StockMovement, blank=True, null=True, on_delete=models.SET_NULL)
@@ -120,7 +121,7 @@ class Invoice(BaseModelGeneric):
         null=True,
         blank=True,
         verbose_name=_(APPROVED_AT),
-        help_text=_("Specify the date and time of approval")
+        help_text=_(APPROVED_AT_HELP_TEXT)
     )
     # Add any other fields specific to your invoice model
 
@@ -157,7 +158,7 @@ class SalesPayment(BaseModelGeneric):
         null=True,
         blank=True,
         verbose_name=_(APPROVED_AT),
-        help_text=_("Specify the date and time of approval")
+        help_text=_(APPROVED_AT_HELP_TEXT)
     )
     # Add any other fields specific to your payment model
 
