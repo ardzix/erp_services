@@ -34,9 +34,6 @@ RACKSPACE_BASE_URL = getattr(settings, "RACKSPACE_BASE_URL", "")
 USE_DEFAULT_LOCATION = getattr(settings, "USE_DEFAULT_LOCATION", False)
 DO_SPACE_LOCATION = getattr(settings, "DO_SPACE_LOCATION", False)
 
-def generate_name(instance, filename):
-    pass
-
 def get_bucket_location(storage_type):
     if USE_DEFAULT_LOCATION and DO_SPACE_LOCATION:
         return ROOT_URL+storage_type

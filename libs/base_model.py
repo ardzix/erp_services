@@ -17,6 +17,7 @@ from .base32 import base32_encode
 
 User = settings.AUTH_USER_MODEL
 
+CREATED_BY_RELATED_NAME = '%(app_label)s_%(class)s_created_by'
 
 class _BaseAbstract(models.Model):
     site = models.ForeignKey(Site, related_name="%(app_label)s_%(class)s_site",
@@ -31,7 +32,7 @@ class _BaseAbstract(models.Model):
     created_at = models.DateTimeField(db_index=True)
     created_at_timestamp = models.PositiveIntegerField(db_index=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE,
-                                   related_name="%(app_label)s_%(class)s_created_by")
+                                   related_name=CREATED_BY_RELATED_NAME)
 
     owned_at = models.DateTimeField(db_index=True, blank=True, null=True)
     owned_at_timestamp = models.PositiveIntegerField(db_index=True, blank=True, null=True)
@@ -256,7 +257,7 @@ class _BaseAbstract(models.Model):
 
 class BaseModelGeneric(_BaseAbstract):
     created_by = models.ForeignKey(User, db_index=True, on_delete=models.CASCADE,
-                                   related_name="%(app_label)s_%(class)s_created_by")
+                                   related_name=CREATED_BY_RELATED_NAME)
 
     class Meta:
         abstract = True
@@ -264,7 +265,7 @@ class BaseModelGeneric(_BaseAbstract):
 
 class BaseModelUnique(_BaseAbstract):
     created_by = models.OneToOneField(User, db_index=True, on_delete=models.CASCADE,
-                                      related_name="%(app_label)s_%(class)s_created_by")
+                                      related_name=CREATED_BY_RELATED_NAME)
 
     class Meta:
         abstract = True
