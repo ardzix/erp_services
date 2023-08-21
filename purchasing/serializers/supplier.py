@@ -98,9 +98,9 @@ class SupplierProductSerializer(serializers.ModelSerializer):
             except Product.DoesNotExist:
                 raise serializers.ValidationError({'product':_("Product with this id32 does not exist.")})
 
-        if data.get('product') and data.get('supplier'):
-            if SupplierProduct.objects.filter(supplier__id32=data['supplier'], product__id32=data['product']).exists():
-                raise serializers.ValidationError({'product':_("A product with this supplier already exists.")})
+        if data.get('product') and data.get('supplier') and SupplierProduct.objects.filter(supplier__id32=data['supplier'], product__id32=data['product']).exists():
+            raise serializers.ValidationError({'product': _("A product with this supplier already exists.")})
+
         return data
 
     def create(self, validated_data):

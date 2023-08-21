@@ -114,27 +114,30 @@ def calculate_buy_price(item):
     product.save()
 
 
+def handle_origin_warehouse(instance):
+    for item in instance.items.all():
+        origin_stock = get_stock(instance, item, get_from='origin')
+        if instance.status == 'on_delivery' and instance.status_before != 'on_delivery':
+            deduct_stock(origin_stock, item)
+        elif instance.status != 'on_delivery' and instance.status_before == 'on_delivery':
+            add_stock(origin_stock, item)
+
+
+def handle_destination_warehouse(instance):
+    for item in instance.items.all():
+        destination_stock = get_stock(instance, item)
+        if instance.status == 'delivered' and instance.status_before != 'delivered':
+            add_stock(destination_stock, item)
+            calculate_buy_price(item)
+        elif instance.status != 'delivered' and instance.status_before == 'delivered':
+            deduct_stock(destination_stock, item)
+
+
 @receiver(post_save, sender=StockMovement)
 def update_warehouse_stock(sender, instance, **kwargs):
-    # Deduct the quantity from the source warehouse
     if instance.origin_type == ContentType.objects.get_for_model(Warehouse):
-        if instance.status == 'on_delivery' and instance.status_before != 'on_delivery':
-            for item in instance.items.all():
-                origin_stock = get_stock(instance, item, get_from='origin')
-                deduct_stock(origin_stock, item)
-        elif instance.status != 'on_delivery' and instance.status_before == 'on_delivery':
-            for item in instance.items.all():
-                origin_stock = get_stock(instance, item, get_from='origin')
-                add_stock(origin_stock, item)
+        handle_origin_warehouse(instance)
 
-    # Add the quantity to the destination warehouse
     if instance.destination_type == ContentType.objects.get_for_model(Warehouse):
-        if instance.status == 'delivered' and instance.status_before != 'delivered':
-            for item in instance.items.all():
-                destination_stock = get_stock(instance, item)
-                add_stock(destination_stock, item)
-                calculate_buy_price(item)
-        if instance.status != 'delivered' and instance.status_before == 'delivered':
-            for item in instance.items.all():
-                destination_stock = get_stock(instance, item)
-                deduct_stock(destination_stock, item)
+        handle_destination_warehouse(instance)
+

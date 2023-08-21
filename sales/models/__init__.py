@@ -5,6 +5,7 @@ from libs.base_model import BaseModelGeneric, User
 from identities.models import CompanyProfile
 
 APPROVED_BY = 'Approved by'
+APPROVED_AT = 'Approved at'
 
 class Customer(BaseModelGeneric):
     name = models.CharField(
@@ -53,7 +54,7 @@ class SalesOrder(BaseModelGeneric):
     approved_at = models.DateTimeField(
         null=True,
         blank=True,
-        verbose_name=_("Approved at"),
+        verbose_name=_(APPROVED_AT),
         help_text=_("Specify the date and time of approval")
     )
     stock_movement = models.ForeignKey(
@@ -118,7 +119,7 @@ class Invoice(BaseModelGeneric):
     approved_at = models.DateTimeField(
         null=True,
         blank=True,
-        verbose_name=_("Approved at"),
+        verbose_name=_(APPROVED_AT),
         help_text=_("Specify the date and time of approval")
     )
     # Add any other fields specific to your invoice model
@@ -155,7 +156,7 @@ class SalesPayment(BaseModelGeneric):
     approved_at = models.DateTimeField(
         null=True,
         blank=True,
-        verbose_name=_("Approved at"),
+        verbose_name=_(APPROVED_AT),
         help_text=_("Specify the date and time of approval")
     )
     # Add any other fields specific to your payment model
