@@ -38,7 +38,6 @@ def update_product_quantity(sender, instance, **kwargs):
 def update_product_quantity(sender, instance, created, **kwargs):
     if created:
         product = instance.product
-        product = instance.product
         quantity = instance.quantity * product.purchasing_unit.conversion_to_top_level()
         product.quantity -= quantity
         product.updated_by = instance.created_by

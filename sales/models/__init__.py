@@ -4,6 +4,7 @@ from inventory.models import Product, StockMovement, Unit
 from libs.base_model import BaseModelGeneric, User
 from identities.models import CompanyProfile
 
+APPROVED_BY = 'Approved by'
 
 class Customer(BaseModelGeneric):
     name = models.CharField(
@@ -46,7 +47,7 @@ class SalesOrder(BaseModelGeneric):
         null=True,
         blank=True,
         related_name='approved_sales_orders',
-        verbose_name=_("Approved by"),
+        verbose_name=_(APPROVED_BY),
         help_text=_("Select the user who approved the order")
     )
     approved_at = models.DateTimeField(
@@ -111,7 +112,7 @@ class Invoice(BaseModelGeneric):
         null=True,
         blank=True,
         related_name='approved_sales_invoices',
-        verbose_name=_("Approved by"),
+        verbose_name=_(APPROVED_BY),
         help_text=_("Select the user who approved the invoice")
     )
     approved_at = models.DateTimeField(
@@ -148,7 +149,7 @@ class SalesPayment(BaseModelGeneric):
         null=True,
         blank=True,
         related_name='approved_sales_payments',
-        verbose_name=_("Approved by"),
+        verbose_name=_(APPROVED_BY),
         help_text=_("Select the user who approved the payment")
     )
     approved_at = models.DateTimeField(
