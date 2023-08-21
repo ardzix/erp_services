@@ -107,6 +107,8 @@ def create_stock_movement_item(sender, instance, created, **kwargs):
     if created and instance.purchase_order.stock_movement:
         product = instance.product
         quantity = instance.quantity
+        purchasing_unit = product.purchasing_unit
+        stock_unit = product.stock_unit
         item_price = instance.actual_price if instance.actual_price else instance.po_price
         item_price = item_price * stock_unit.conversion_to_top_level() / \
             purchasing_unit.conversion_to_top_level()
@@ -116,8 +118,6 @@ def create_stock_movement_item(sender, instance, created, **kwargs):
             created_by=instance.created_by
         )
         smi.buy_price = item_price
-        purchasing_unit = product.purchasing_unit
-        stock_unit = product.stock_unit
         quantity = abs(quantity) * purchasing_unit.conversion_to_top_level() / \
             stock_unit.conversion_to_top_level()
         smi.quantity = quantity
