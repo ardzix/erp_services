@@ -1,9 +1,10 @@
 from django.db.models.signals import pre_save, post_save, pre_delete
 from django.db import models
+from django.utils import timezone
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
-from inventory.models import StockMovement, Product, StockMovementItem, Warehouse
-from ..models import OrderItem, SalesOrder, Customer
+from inventory.models import StockMovement, Product, StockMovementItem
+from ..models import OrderItem, SalesOrder, Customer, CanvasingTrip, CanvasingCustomerVisit, CanvasingReport
 
 
 @receiver(pre_save, sender=OrderItem)
@@ -106,3 +107,78 @@ def create_stock_movement_item(sender, instance, created, **kwargs):
 def restore_product_quantity(sender, instance, **kwargs):
     Product.objects.filter(pk=instance.product.pk).update(
         quantity=models.F('quantity') + instance.quantity)
+
+
+@receiver(post_save, sender=CanvasingTrip)
+def populate_canvasing_trip_from_template(sender, instance, created, **kwargs):
+    if created:
+        for canvasing_customer in instance.template.customers.all():
+            CanvasingCustomerVisit.objects.create(
+                trip=instance,
+                customer=canvasing_customer.customer,
+                status=CanvasingTrip.WAITING
+            )
+
+
+@receiver(post_save, sender=CanvasingCustomerVisit)
+def generate_canvasing_report(sender, instance, **kwargs):
+    if instance.status in [CanvasingCustomerVisit.COMPLETED, CanvasingCustomerVisit.SKIPPED]:
+        # Logic to compile and send/save a report
+        # For instance:
+        report_data = {
+            "trip": instance.trip,
+            "customer": instance.customer,
+            "status": instance.status,
+            "sold_products": instance.get_sold_products(),
+        }
+        # You can either save this data to a database model, send it as an email, save as a file, etc.
+
+
+@receiver(post_save, sender=CanvasingCustomerVisit)
+def handle_customer_visit(sender, instance, created, **kwargs):
+    if instance.status == CanvasingCustomerVisit.ARRIVED:
+        # Logic to handle 'arrived' status (if needed)
+        pass
+
+    # ... Handle other status changes similarly
+
+@receiver(pre_save, sender=CanvasingCustomerVisit)
+def generate_sales_order(sender, instance, **kwargs):
+    if instance.status == CanvasingCustomerVisit.ARRIVED:
+        old_instance = CanvasingCustomerVisit.objects.get(pk=instance.pk)
+        if instance.sales_occurred() and not old_instance.sales_occurred():
+            sales_order = SalesOrder.objects.create(
+                customer=instance.customer,
+                order_date=timezone.now(),
+                # add other required fields
+            )
+            for sold_product in instance.get_sold_products():
+                OrderItem.objects.create(
+                    order=sales_order,
+                    product=sold_product.product,
+                    quantity=sold_product.quantity,
+                    price=sold_product.price,
+                    # ... other fields ...
+                )
+            instance.sales_order = sales_order
+
+
+@receiver(post_save, sender=CanvasingCustomerVisit)
+def generate_canvasing_report(sender, instance, **kwargs):
+    if instance.status in [CanvasingCustomerVisit.COMPLETED, CanvasingCustomerVisit.SKIPPED]:
+        # If there's an existing report, just update. Else, create a new one.
+        report, created = CanvasingReport.objects.get_or_create(
+            customer_visit=instance,
+            defaults={
+                "trip": instance.trip,
+                "customer": instance.customer,
+                "status": instance.status,
+            }
+        )
+        if not created:
+            report.status = instance.status
+            report.save()
+
+        # Add sold products if a SalesOrder is generated
+        if instance.sales_order:
+            report.sold_products.set(instance.sales_order.order_items.all())

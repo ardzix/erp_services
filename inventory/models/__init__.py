@@ -217,7 +217,7 @@ class Product(BaseModelGeneric):
         warehouse_stocks = WarehouseStock.objects.filter(product=self)
         total_quantity = warehouse_stocks.aggregate(
             models.Sum('quantity'))['quantity__sum']
-        if total_quantity and self.stock_unit:
+        if total_quantity and self.stock_unit and self.smallest_unit.conversion_to_top_level():
             total_quantity = total_quantity * int(self.stock_unit.conversion_to_top_level() / self.smallest_unit.conversion_to_top_level())
         return total_quantity or 0
 
