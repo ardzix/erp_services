@@ -269,7 +269,7 @@ class CanvasingReport(BaseModelGeneric):
     trip = models.ForeignKey(CanvasingTrip, on_delete=models.CASCADE, related_name='canvasing_reports')
     customer_visit = models.OneToOneField(CanvasingCustomerVisit, on_delete=models.CASCADE, related_name='report')
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    status = models.CharField(max_length=15, choices=CanvasingCustomerVisit.STATUS_CHOICES)
+    status = models.CharField(max_length=15, choices=CanvasingTrip.STATUS_CHOICES)
     sold_products = models.ManyToManyField(OrderItem, blank=True)
 
     def __str__(self):
