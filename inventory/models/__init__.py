@@ -2,6 +2,7 @@ from django.contrib.gis.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator
 from libs.base_model import BaseModelGeneric, User
 from common.models import File
 from identities.models import Brand
@@ -33,7 +34,10 @@ class Unit(BaseModelGeneric):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,
                                blank=True, related_name='subunits', help_text=_("Select the parent unit"))
     conversion_factor = models.DecimalField(
-        max_digits=10, decimal_places=4, default=1, help_text=_("Conversion factor to parent unit"))
+        max_digits=10, decimal_places=4, default=1,
+        validators=[MinValueValidator(0.0001)],  # Ensure it's greater than 0
+        help_text=_("Conversion factor to parent unit")
+    )
     level = models.PositiveIntegerField(
         help_text=_("Unit depth level"), default=0)
 
