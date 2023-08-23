@@ -4,7 +4,15 @@ from django.utils import timezone
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from inventory.models import StockMovement, Product, StockMovementItem
-from ..models import OrderItem, SalesOrder, Customer, CanvasingTrip, CanvasingCustomerVisit, CanvasingReport
+from ..models import (
+    OrderItem,
+    SalesOrder,
+    Customer,
+    CanvasingTrip,
+    CanvasingCustomerVisit,
+    CanvasingReport,
+    CanvasingCustomer
+)
 
 
 @receiver(pre_save, sender=OrderItem)
@@ -112,63 +120,32 @@ def restore_product_quantity(sender, instance, **kwargs):
 @receiver(post_save, sender=CanvasingTrip)
 def populate_canvasing_trip_from_template(sender, instance, created, **kwargs):
     if created:
-        for canvasing_customer in instance.template.customers.all():
+        for canvasing_customer in CanvasingCustomer.objects.filter(template=instance.template):
             CanvasingCustomerVisit.objects.create(
                 trip=instance,
                 customer=canvasing_customer.customer,
-                status=CanvasingTrip.WAITING
+                status=CanvasingTrip.WAITING,
+                order=canvasing_customer.order,
+                created_by=instance.created_by
             )
 
 
 @receiver(post_save, sender=CanvasingCustomerVisit)
-def generate_canvasing_report(sender, instance, **kwargs):
-    if instance.status in [CanvasingCustomerVisit.COMPLETED, CanvasingCustomerVisit.SKIPPED]:
-        # Logic to compile and send/save a report
-        # For instance:
-        report_data = {
-            "trip": instance.trip,
-            "customer": instance.customer,
-            "status": instance.status,
-            "sold_products": instance.get_sold_products(),
-        }
-        # You can either save this data to a database model, send it as an email, save as a file, etc.
-
-
-@receiver(post_save, sender=CanvasingCustomerVisit)
 def handle_customer_visit(sender, instance, created, **kwargs):
-    if instance.status == CanvasingCustomerVisit.ARRIVED:
+    if instance.status == CanvasingTrip.ARRIVED:
         # Logic to handle 'arrived' status (if needed)
         pass
 
     # ... Handle other status changes similarly
 
-@receiver(pre_save, sender=CanvasingCustomerVisit)
-def generate_sales_order(sender, instance, **kwargs):
-    if instance.status == CanvasingCustomerVisit.ARRIVED:
-        old_instance = CanvasingCustomerVisit.objects.get(pk=instance.pk)
-        if instance.sales_occurred() and not old_instance.sales_occurred():
-            sales_order = SalesOrder.objects.create(
-                customer=instance.customer,
-                order_date=timezone.now(),
-                # add other required fields
-            )
-            for sold_product in instance.get_sold_products():
-                OrderItem.objects.create(
-                    order=sales_order,
-                    product=sold_product.product,
-                    quantity=sold_product.quantity,
-                    price=sold_product.price,
-                    # ... other fields ...
-                )
-            instance.sales_order = sales_order
-
 
 @receiver(post_save, sender=CanvasingCustomerVisit)
 def generate_canvasing_report(sender, instance, **kwargs):
-    if instance.status in [CanvasingCustomerVisit.COMPLETED, CanvasingCustomerVisit.SKIPPED]:
+    if instance.status in [CanvasingTrip.COMPLETED, CanvasingTrip.SKIPPED]:
         # If there's an existing report, just update. Else, create a new one.
         report, created = CanvasingReport.objects.get_or_create(
             customer_visit=instance,
+            created_by = instance.created_by,
             defaults={
                 "trip": instance.trip,
                 "customer": instance.customer,
@@ -182,3 +159,15 @@ def generate_canvasing_report(sender, instance, **kwargs):
         # Add sold products if a SalesOrder is generated
         if instance.sales_order:
             report.sold_products.set(instance.sales_order.order_items.all())
+
+
+@receiver(post_save, sender=CanvasingCustomerVisit)
+def update_canvasing_trip_status(sender, instance, **kwargs):
+    visits = CanvasingCustomerVisit.objects.filter(trip=instance.trip)
+    trip_count = visits.count()
+    completed_count = visits.filter(status__in=[CanvasingTrip.COMPLETED, CanvasingTrip.SKIPPED]).count()
+    if trip_count == completed_count:
+        canvasing_trip = instance.trip
+        canvasing_trip.status = CanvasingTrip.COMPLETED
+        canvasing_trip.updated_by = instance.updated_by
+        canvasing_trip.save()

@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from ..serializers import SalesOrderSerializer, CustomerSerializer
+from ..serializers.sales import SalesOrderSerializer, CustomerSerializer
 from ..models import SalesOrder, Customer
 
 

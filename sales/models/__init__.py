@@ -1,3 +1,4 @@
+from datetime import timedelta, date
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from inventory.models import Product, StockMovement, Unit
@@ -7,6 +8,8 @@ from identities.models import CompanyProfile
 APPROVED_BY = "Approved by"
 APPROVED_AT = "Approved at"
 APPROVED_AT_HELP_TEXT = "Specify the date and time of approval"
+ORDER_OF_CUSTOMER_VISIT = "Order of customer visit in the trip"
+
 
 class Customer(BaseModelGeneric):
     name = models.CharField(
@@ -27,6 +30,16 @@ class Customer(BaseModelGeneric):
         verbose_name=_("Company Profile"),
         help_text=_("Select the company profile associated with the customer")
     )
+
+    @property
+    def location_coordinate(self):
+        if self.location:
+            return {
+                'latitude': self.location.y,
+                'longitude': self.location.x
+            }
+        return None
+
 
     def __str__(self):
         return _("Customer #{id32} - {name}").format(id32=self.id32, name=self.name)
@@ -90,7 +103,8 @@ class OrderItem(BaseModelGeneric):
         decimal_places=2,
         help_text=_("Enter the item price in IDR (Rp)")
     )
-    unit = models.ForeignKey(Unit, blank=True, null=True, on_delete=models.SET_NULL)
+    unit = models.ForeignKey(
+        Unit, blank=True, null=True, on_delete=models.SET_NULL)
     # Add any other fields specific to your order item model
 
     def __str__(self):
@@ -170,27 +184,46 @@ class SalesPayment(BaseModelGeneric):
         verbose_name_plural = _("Payments")
 
 
-from django.db import models
-from django.utils.translation import gettext_lazy as _
-
-# ... Your other imports ...
-
-class CanvasingTripTemplate(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("Name"), help_text=_("Enter the name for the canvasing trip template"))
-    customers = models.ManyToManyField(Customer, through='CanvasingCustomer', verbose_name=_("Customers"), help_text=_("Select customers for this trip template"))
+class CanvasingTripTemplate(BaseModelGeneric):
+    name = models.CharField(max_length=255, verbose_name=_(
+        "Name"), help_text=_("Enter the name for the canvasing trip template"))
+    customers = models.ManyToManyField(Customer, through='CanvasingCustomer', verbose_name=_(
+        "Customers"), help_text=_("Select customers for this trip template"))
 
     class Meta:
         verbose_name = _("Canvasing Trip Template")
         verbose_name_plural = _("Canvasing Trip Templates")
 
+    def generate_trips(self, start_date, end_date, salesperson, driver):
+        generated_trips = []
+
+        current_date = start_date
+        while current_date <= end_date:
+            trip = CanvasingTrip.objects.create(
+                template=self,
+                date=current_date,
+                salesperson=salesperson,
+                driver=driver,
+                # Assuming the template has a reference to the user who created it.
+                created_by=self.created_by
+            )
+            generated_trips.append(trip)
+            current_date += timedelta(days=1)
+
+        return generated_trips
+
     def __str__(self):
         return self.name
 
-class CanvasingCustomer(models.Model):
-    template = models.ForeignKey(CanvasingTripTemplate, on_delete=models.CASCADE)
+
+class CanvasingCustomer(BaseModelGeneric):
+    template = models.ForeignKey(
+        CanvasingTripTemplate, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    order = models.PositiveIntegerField(verbose_name=_("Order"), help_text=_("Order of customer visit in the trip"))
-    products = models.ManyToManyField(Product, through='CanvasingCustomerProduct', verbose_name=_("Products"), help_text=_("Select products intended for this customer"))
+    order = models.PositiveIntegerField(verbose_name=_(
+        "Order"), help_text=_(ORDER_OF_CUSTOMER_VISIT))
+    products = models.ManyToManyField(Product, through='CanvasingCustomerProduct', verbose_name=_(
+        "Products"), help_text=_("Select products intended for this customer"))
 
     class Meta:
         verbose_name = _("Canvasing Customer")
@@ -200,10 +233,13 @@ class CanvasingCustomer(models.Model):
     def __str__(self):
         return f"{self.template.name} - {self.customer.name}"
 
-class CanvasingCustomerProduct(models.Model):
-    canvasing_customer = models.ForeignKey(CanvasingCustomer, on_delete=models.CASCADE)
+
+class CanvasingCustomerProduct(BaseModelGeneric):
+    canvasing_customer = models.ForeignKey(
+        CanvasingCustomer, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(verbose_name=_("Intended Quantity"), help_text=_("Intended quantity to sell to the customer"))
+    quantity = models.PositiveIntegerField(verbose_name=_(
+        "Intended Quantity"), help_text=_("Intended quantity to sell to the customer"))
 
     class Meta:
         verbose_name = _("Canvasing Customer Product")
@@ -212,18 +248,23 @@ class CanvasingCustomerProduct(models.Model):
     def __str__(self):
         return f"{self.canvasing_customer} - {self.product.name}"
 
-class CanvasingTrip(models.Model):
-    template = models.ForeignKey(CanvasingTripTemplate, on_delete=models.CASCADE)
-    date = models.DateField(verbose_name=_("Date"), help_text=_("Date for the canvasing trip"))
-    salesperson = models.ForeignKey(User, on_delete=models.CASCADE, related_name="canvasing_salesperson")
-    driver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="canvasing_driver")
+
+class CanvasingTrip(BaseModelGeneric):
+    template = models.ForeignKey(
+        CanvasingTripTemplate, on_delete=models.CASCADE)
+    date = models.DateField(verbose_name=_(
+        "Date"), help_text=_("Date for the canvasing trip"))
+    salesperson = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="canvasing_salesperson")
+    driver = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="canvasing_driver")
 
     WAITING = 'waiting'
     ON_PROGRESS = 'on_progress'
     ARRIVED = 'arrived'
     COMPLETED = 'completed'
     SKIPPED = 'skipped'
-    
+
     STATUS_CHOICES = [
         (WAITING, _("Waiting")),
         (ON_PROGRESS, _("On Progress")),
@@ -231,8 +272,9 @@ class CanvasingTrip(models.Model):
         (COMPLETED, _("Completed")),
         (SKIPPED, _("Skipped"))
     ]
-    
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=WAITING)
+
+    status = models.CharField(
+        max_length=50, choices=STATUS_CHOICES, default=WAITING)
 
     class Meta:
         verbose_name = _("Canvasing Trip")
@@ -241,11 +283,16 @@ class CanvasingTrip(models.Model):
     def __str__(self):
         return f"{self.template.name} on {self.date}"
 
-class CanvasingCustomerVisit(models.Model):
+
+class CanvasingCustomerVisit(BaseModelGeneric):
     trip = models.ForeignKey(CanvasingTrip, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    sales_order = models.ForeignKey(SalesOrder, null=True, blank=True, on_delete=models.SET_NULL)
-    status = models.CharField(max_length=50, choices=CanvasingTrip.STATUS_CHOICES, default=CanvasingTrip.WAITING)
+    sales_order = models.ForeignKey(
+        SalesOrder, null=True, blank=True, on_delete=models.SET_NULL)
+    status = models.CharField(
+        max_length=50, choices=CanvasingTrip.STATUS_CHOICES, default=CanvasingTrip.WAITING)
+    order = models.PositiveIntegerField(verbose_name=_(
+        "Order"), help_text=_(ORDER_OF_CUSTOMER_VISIT))
 
     class Meta:
         verbose_name = _("Canvasing Customer Visit")
@@ -265,11 +312,15 @@ class CanvasingCustomerVisit(models.Model):
             return self.sales_order.order_items.all()
         return []
 
+
 class CanvasingReport(BaseModelGeneric):
-    trip = models.ForeignKey(CanvasingTrip, on_delete=models.CASCADE, related_name='canvasing_reports')
-    customer_visit = models.OneToOneField(CanvasingCustomerVisit, on_delete=models.CASCADE, related_name='report')
+    trip = models.ForeignKey(
+        CanvasingTrip, on_delete=models.CASCADE, related_name='canvasing_reports')
+    customer_visit = models.OneToOneField(
+        CanvasingCustomerVisit, on_delete=models.CASCADE, related_name='report')
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    status = models.CharField(max_length=15, choices=CanvasingTrip.STATUS_CHOICES)
+    status = models.CharField(
+        max_length=15, choices=CanvasingTrip.STATUS_CHOICES)
     sold_products = models.ManyToManyField(OrderItem, blank=True)
 
     def __str__(self):
