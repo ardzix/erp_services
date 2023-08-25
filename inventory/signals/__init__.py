@@ -84,53 +84,74 @@ def check_sm_status_before(sender, instance, **kwargs):
     sm = StockMovement.objects.filter(pk=instance.pk).last()
     instance.status_before = sm.status if sm else 0
 
-
-def get_stock(stock_movement, item, get_from='destination'):
-    imi = item if get_from == 'destination' else None
-    stock, created = WarehouseStock.objects.get_or_create(
-        warehouse=stock_movement.destination if get_from == 'destination' else stock_movement.origin,
-        product=item.product,
-        inbound_movement_item=imi,
-        created_by=stock_movement.created_by
-    )
-    if get_from == 'origin':
-        stock.dispatch_movement_items.add(item)
-    return stock
-
-
-def deduct_stock(stock, item):
-    stock.quantity -= item.quantity
+# Deducts the stock quantity of a given `WarehouseStock` instance by the provided amount.
+def deduct_stock(stock, quantity):
+    stock.quantity -= quantity
     stock.save()
 
-
-def add_stock(stock, item):
-    stock.quantity += item.quantity
+# Adds to the stock quantity of a given `WarehouseStock` instance by the provided amount.
+def add_stock(stock, quantity):
+    stock.quantity += quantity
     stock.save()
 
-
+# Adjusts the last buy price of a product based on an item's buy price and its unit conversion.
 def calculate_buy_price(item):
     product = item.product
     product.last_buy_price = item.buy_price / item.unit.conversion_to_top_level()
     product.save()
 
+# Orders the `WarehouseStock` queryset based on the provided method: either 'lifo' or 'fifo'.
+def filter_stock_by_method(stocks, method):
+    order_field = '-created_at' if method == 'lifo' else 'created_at'
+    return stocks.order_by(order_field)
 
+# Handle items dispatch from a warehouse
+# This will pick wich stocks to deduct when dispatch occurs
 def handle_origin_warehouse(instance):
     for item in instance.items.all():
-        origin_stock = get_stock(instance, item, get_from='origin')
-        if instance.status == 'on_delivery' and instance.status_before != 'on_delivery':
-            deduct_stock(origin_stock, item)
-        elif instance.status != 'on_delivery' and instance.status_before == 'on_delivery':
-            add_stock(origin_stock, item)
+        if instance.status in ['on_delivery', 'delivered'] and instance.status_before not in ['on_delivery', 'delivered']:
+            stocks = WarehouseStock.objects.filter(
+                warehouse=instance.origin,
+                product=item.product,
+                quantity__gt=0
+            )
+            stocks = filter_stock_by_method(stocks, item.product.price_calculation)
+            quantity_remaining = item.quantity
+            for stock in stocks:
+                stock.dispatch_movement_items.add(item)
+                quantity = quantity_remaining if quantity_remaining <= stock.quantity else stock.quantity
+                deduct_stock(stock, quantity)
+                quantity_remaining -= quantity
+                if quantity_remaining <=0:
+                    continue
+
+        # If the status is returned from delivered/delivery we need to put back the stocks
+        elif instance.status not in ['on_delivery', 'delivered'] and instance.status_before in ['on_delivery', 'delivered']:
+            stocks = WarehouseStock.objects.filter(
+                warehouse=instance.origin,
+                product=item.product,
+                dispatch_movement_items=item)
+            stocks = filter_stock_by_method(stocks, item.product.price_calculation)
+            stock=stocks.first()
+            stock.dispatch_movement_items.remove(item)
+            add_stock(stock, item.quantity)
 
 
+# Handle items inbound to a warehouse
+# This will create stocks to inbound occurs
 def handle_destination_warehouse(instance):
     for item in instance.items.all():
-        destination_stock = get_stock(instance, item)
+        stock, created = WarehouseStock.objects.get_or_create(
+            warehouse=instance.destination,
+            product=item.product,
+            inbound_movement_item=item,
+            created_by=instance.created_by
+        )
         if instance.status == 'delivered' and instance.status_before != 'delivered':
-            add_stock(destination_stock, item)
+            add_stock(stock, item.quantity)
             calculate_buy_price(item)
         elif instance.status != 'delivered' and instance.status_before == 'delivered':
-            deduct_stock(destination_stock, item)
+            deduct_stock(stock, item.quantity)
 
 
 @receiver(post_save, sender=StockMovement)

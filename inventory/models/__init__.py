@@ -398,7 +398,9 @@ class StockMovementItem(BaseModelGeneric):
     )
     product = models.ForeignKey(
         Product,
-        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
         help_text=SELECT_PRODUCT
     )
     quantity = models.IntegerField(

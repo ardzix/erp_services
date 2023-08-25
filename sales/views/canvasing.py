@@ -22,7 +22,6 @@ class CanvassingTripTemplateViewSet(viewsets.ModelViewSet):
     serializer_class = CanvassingTripTemplateDetailSerializer
     http_method_names = ['get', 'post', 'delete', 'head', 'options', 'put']
     
-
     def get_serializer_class(self):
         if self.action == 'list':
             return CanvassingTripTemplateListSerializer

@@ -11,7 +11,7 @@ from ..models import (
     CanvasingReport,
     Customer
 )
-from .sales import CustomerSerializer
+from .customer import CustomerSerializer
 
 
 class CanvassingCustomerProductSerializer(serializers.ModelSerializer):
@@ -87,53 +87,79 @@ class CanvassingTripTemplateDetailSerializer(serializers.ModelSerializer):
         return trip_template
 
     def update(self, instance, validated_data):
+        """
+        Update the CanvasingTripTemplate instance and its nested relations.
+        """
         canvasing_customers_data = validated_data.pop('canvasingcustomer_set', [])
 
-        # Update instance fields
+        self._update_instance_fields(instance, validated_data)
+        self._handle_canvasing_customers(instance, canvasing_customers_data)
+
+        return instance
+    
+    def _update_instance_fields(self, instance, validated_data):
+        """
+        Update fields of the main instance.
+        """
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        # Track all IDs for CanvassingCustomer objects to find out which ones to delete
+    def _handle_canvasing_customers(self, instance, canvasing_customers_data):
+        """
+        Handle creation, update, and deletion of CanvasingCustomer related to the CanvasingTripTemplate instance.
+        """
         current_customer_ids = set(instance.canvasingcustomer_set.values_list('id', flat=True))
         provided_customer_ids = {d.get('id') for d in canvasing_customers_data if 'id' in d}
 
-        # Remove CanvassingCustomer objects that are not present in the provided data
+        self._remove_absent_canvasing_customers(current_customer_ids, provided_customer_ids)
+
+        for canvasing_customer_data in canvasing_customers_data:
+            product_data = canvasing_customer_data.pop('canvasingcustomerproduct_set', [])
+            
+            if 'id' in canvasing_customer_data:
+                canvasing_customer = CanvasingCustomer.objects.get(id=canvasing_customer_data.pop('id'))
+                self._update_instance_fields(canvasing_customer, canvasing_customer_data)
+            else:
+                canvasing_customer = CanvasingCustomer.objects.create(
+                    template=instance, created_by=self.context['request'].user, **canvasing_customer_data
+                )
+            
+            self._handle_canvasing_customer_products(canvasing_customer, product_data)
+
+    def _remove_absent_canvasing_customers(self, current_customer_ids, provided_customer_ids):
+        """
+        Remove CanvasingCustomer objects that aren't present in the provided data.
+        """
         for customer_id in current_customer_ids - provided_customer_ids:
             CanvasingCustomer.objects.get(id=customer_id).delete()
 
-        # Create or update nested items
-        for canvasing_customer_data in canvasing_customers_data:
-            product_data = canvasing_customer_data.pop('canvasingcustomerproduct_set', [])
+    def _handle_canvasing_customer_products(self, canvasing_customer, product_data):
+        """
+        Handle creation, update, and deletion of CanvasingCustomerProduct for a given CanvasingCustomer.
+        """
+        current_product_ids = set(canvasing_customer.canvasingcustomerproduct_set.values_list('id', flat=True))
+        provided_product_ids = {d.get('id') for d in product_data if 'id' in d}
 
-            # If an ID is provided, try to update the item
-            if 'id' in canvasing_customer_data:
-                canvasing_customer = CanvasingCustomer.objects.get(id=canvasing_customer_data.pop('id'))
-                for attr, value in canvasing_customer_data.items():
-                    setattr(canvasing_customer, attr, value)
-                canvasing_customer.save()
-            # Otherwise, create a new item
+        self._remove_absent_canvasing_customer_products(current_product_ids, provided_product_ids)
+
+        for pd in product_data:
+            if 'id' in pd:
+                product_instance = CanvasingCustomerProduct.objects.get(id=pd.pop('id'))
+                self._update_instance_fields(product_instance, pd)
             else:
-                canvasing_customer = CanvasingCustomer.objects.create(template=instance, created_by=self.context['request'].user, **canvasing_customer_data)
+                CanvasingCustomerProduct.objects.create(
+                    canvasing_customer=canvasing_customer, created_by=self.context['request'].user, **pd
+                )
 
-            current_product_ids = set(canvasing_customer.canvasingcustomerproduct_set.values_list('id', flat=True))
-            provided_product_ids = {d.get('id') for d in product_data if 'id' in d}
+    def _remove_absent_canvasing_customer_products(self, current_product_ids, provided_product_ids):
+        """
+        Remove CanvasingCustomerProduct objects that aren't present in the provided data.
+        """
+        for product_id in current_product_ids - provided_product_ids:
+            CanvasingCustomerProduct.objects.get(id=product_id).delete()
 
-            # Remove CanvassingCustomerProduct objects not in the provided data
-            for product_id in current_product_ids - provided_product_ids:
-                CanvasingCustomerProduct.objects.get(id=product_id).delete()
 
-            # Create or update CanvassingCustomerProduct items
-            for pd in product_data:
-                if 'id' in pd:
-                    product_instance = CanvasingCustomerProduct.objects.get(id=pd.pop('id'))
-                    for attr, value in pd.items():
-                        setattr(product_instance, attr, value)
-                    product_instance.save()
-                else:
-                    CanvasingCustomerProduct.objects.create(canvasing_customer=canvasing_customer, created_by=self.context['request'].user, **pd)
-
-        return instance
 
 class CanvassingTripListSerializer(serializers.ModelSerializer):
     class Meta:

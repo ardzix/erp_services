@@ -1,5 +1,6 @@
 from rest_framework.routers import DefaultRouter
-from .views import SalesOrderViewSet, CustomerViewSet
+from .views.customer import CustomerViewSet
+from .views.sales import SalesOrderViewSet
 from .views.canvasing import (
     CanvassingTripTemplateViewSet,
     CanvassingTripViewSet,
