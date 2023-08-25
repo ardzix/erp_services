@@ -4,31 +4,31 @@ from rest_framework.response import Response
 from libs.pagination import CustomPagination
 from ..models import CanvasingTripTemplate, CanvasingTrip, CanvasingReport, CanvasingCustomerVisit
 from ..serializers.canvasing import (
-    CanvasingTripTemplateListSerializer,
-    CanvasingTripTemplateDetailSerializer,
-    CanvasingTripListSerializer,
-    CanvasingTripDetailSerializer,
-    CanvasingCustomerVisitSerializer,
-    CanvasingReportSerializer,
+    CanvassingTripTemplateListSerializer,
+    CanvassingTripTemplateDetailSerializer,
+    CanvassingTripListSerializer,
+    CanvassingTripDetailSerializer,
+    CanvassingCustomerVisitSerializer,
+    CanvassingReportSerializer,
     GenerateTripsSerializer,
-    CanvasingCustomerVisitStatusSerializer
+    CanvassingCustomerVisitStatusSerializer
 )
 
-class CanvasingTripTemplateViewSet(viewsets.ModelViewSet):
+class CanvassingTripTemplateViewSet(viewsets.ModelViewSet):
     queryset = CanvasingTripTemplate.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination  # Add your custom pagination class if needed
-    serializer_class = CanvasingTripTemplateDetailSerializer
+    serializer_class = CanvassingTripTemplateDetailSerializer
     http_method_names = ['get', 'post', 'delete', 'head', 'options', 'put']
     
 
     def get_serializer_class(self):
         if self.action == 'list':
-            return CanvasingTripTemplateListSerializer
+            return CanvassingTripTemplateListSerializer
         elif self.action == 'generate_trips':
             return GenerateTripsSerializer
-        return CanvasingTripTemplateDetailSerializer
+        return CanvassingTripTemplateDetailSerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -50,20 +50,20 @@ class CanvasingTripTemplateViewSet(viewsets.ModelViewSet):
         
         trips = trip_template.generate_trips(start_date, end_date, salesperson, driver)
 
-        return Response(CanvasingTripListSerializer(trips, many=True).data)
+        return Response(CanvassingTripListSerializer(trips, many=True).data)
 
-class CanvasingTripViewSet(viewsets.ModelViewSet):
+class CanvassingTripViewSet(viewsets.ModelViewSet):
     queryset = CanvasingTrip.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination  # Add your custom pagination class if needed
-    serializer_class = CanvasingTripDetailSerializer
+    serializer_class = CanvassingTripDetailSerializer
     http_method_names = ['get', 'patch', 'delete', 'head', 'options', 'put']
 
     def get_serializer_class(self):
         if self.action == 'list':
-            return CanvasingTripListSerializer
-        return CanvasingTripDetailSerializer
+            return CanvassingTripListSerializer
+        return CanvassingTripDetailSerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -76,19 +76,19 @@ class CanvasingTripViewSet(viewsets.ModelViewSet):
         trip = self.get_object()
 
         # Your method to generate the report
-        report_data = trip.generate_report()  # Placeholder, define this method on the CanvasingTrip model
+        report_data = trip.generate_report()  # Placeholder, define this method on the CanvassingTrip model
 
-        # Storing report data in CanvasingReport model
+        # Storing report data in CanvassingReport model
         report = CanvasingReport.objects.create(trip=trip, **report_data)
         
-        return Response(CanvasingReportSerializer(report).data)
+        return Response(CanvassingReportSerializer(report).data)
 
-class CanvasingCustomerVisitViewSet(viewsets.ModelViewSet):
+class CanvassingCustomerVisitViewSet(viewsets.ModelViewSet):
     queryset = CanvasingCustomerVisit.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination  # Add your custom pagination class if needed
-    serializer_class = CanvasingCustomerVisitSerializer
+    serializer_class = CanvassingCustomerVisitSerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -96,12 +96,12 @@ class CanvasingCustomerVisitViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
 
-class CanvasingReportViewSet(viewsets.ModelViewSet):
+class CanvassingReportViewSet(viewsets.ModelViewSet):
     queryset = CanvasingReport.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination  # Add your custom pagination class if needed
-    serializer_class = CanvasingReportSerializer
+    serializer_class = CanvassingReportSerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -109,10 +109,10 @@ class CanvasingReportViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
 
-class CanvasingCustomerVisitStatusUpdateViewSet(viewsets.GenericViewSet):
+class CanvassingCustomerVisitStatusUpdateViewSet(viewsets.GenericViewSet):
     queryset = CanvasingCustomerVisit.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
-    serializer_class = CanvasingCustomerVisitStatusSerializer
+    serializer_class = CanvassingCustomerVisitStatusSerializer
     lookup_field = 'id32'
 
     def partial_update(self, request, id32=None):

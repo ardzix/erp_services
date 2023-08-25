@@ -191,8 +191,8 @@ class CanvasingTripTemplate(BaseModelGeneric):
         "Customers"), help_text=_("Select customers for this trip template"))
 
     class Meta:
-        verbose_name = _("Canvasing Trip Template")
-        verbose_name_plural = _("Canvasing Trip Templates")
+        verbose_name = _("Canvassing Trip Template")
+        verbose_name_plural = _("Canvassing Trip Templates")
 
     def generate_trips(self, start_date, end_date, salesperson, driver):
         generated_trips = []
@@ -226,8 +226,8 @@ class CanvasingCustomer(BaseModelGeneric):
         "Products"), help_text=_("Select products intended for this customer"))
 
     class Meta:
-        verbose_name = _("Canvasing Customer")
-        verbose_name_plural = _("Canvasing Customers")
+        verbose_name = _("Canvassing Customer")
+        verbose_name_plural = _("Canvassing Customers")
         ordering = ['order']
 
     def __str__(self):
@@ -242,8 +242,8 @@ class CanvasingCustomerProduct(BaseModelGeneric):
         "Intended Quantity"), help_text=_("Intended quantity to sell to the customer"))
 
     class Meta:
-        verbose_name = _("Canvasing Customer Product")
-        verbose_name_plural = _("Canvasing Customer Products")
+        verbose_name = _("Canvassing Customer Product")
+        verbose_name_plural = _("Canvassing Customer Products")
 
     def __str__(self):
         return f"{self.canvasing_customer} - {self.product.name}"
@@ -277,8 +277,8 @@ class CanvasingTrip(BaseModelGeneric):
         max_length=50, choices=STATUS_CHOICES, default=WAITING)
 
     class Meta:
-        verbose_name = _("Canvasing Trip")
-        verbose_name_plural = _("Canvasing Trips")
+        verbose_name = _("Canvassing Trip")
+        verbose_name_plural = _("Canvassing Trips")
 
     def __str__(self):
         return f"{self.template.name} on {self.date}"
@@ -295,8 +295,8 @@ class CanvasingCustomerVisit(BaseModelGeneric):
         "Order"), help_text=_(ORDER_OF_CUSTOMER_VISIT))
 
     class Meta:
-        verbose_name = _("Canvasing Customer Visit")
-        verbose_name_plural = _("Canvasing Customer Visits")
+        verbose_name = _("Canvassing Customer Visit")
+        verbose_name_plural = _("Canvassing Customer Visits")
 
     def __str__(self):
         return f"{self.trip} - {self.customer.name}"
@@ -327,5 +327,5 @@ class CanvasingReport(BaseModelGeneric):
         return f"Report for {self.customer} - {self.status}"
 
     class Meta:
-        verbose_name = _("Canvasing Report")
-        verbose_name_plural = _("Canvasing Reports")
+        verbose_name = _("Canvassing Report")
+        verbose_name_plural = _("Canvassing Reports")

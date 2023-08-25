@@ -78,19 +78,19 @@ class SalesPaymentAdmin(BaseAdmin):
 
 
 
-class CanvasingCustomerInline(admin.TabularInline):
+class CanvassingCustomerInline(admin.TabularInline):
     model = CanvasingCustomer
     fields = ('template', 'customer', 'order')
     raw_id_fields = ('customer', )
     extra = 0
 
-class CanvasingCustomerProductInline(admin.TabularInline):
+class CanvassingCustomerProductInline(admin.TabularInline):
     model = CanvasingCustomerProduct
     fields = ('canvasing_customer', 'product', 'quantity')
     raw_id_fields = ('product', )
     extra = 0
 
-class CanvasingCustomerVisitInline(admin.TabularInline):
+class CanvassingCustomerVisitInline(admin.TabularInline):
     model = CanvasingCustomerVisit
     fields = ('customer', 'sales_order', 'status')
     raw_id_fields = ('customer', 'sales_order')
@@ -98,44 +98,44 @@ class CanvasingCustomerVisitInline(admin.TabularInline):
 
 
 @admin.register(CanvasingTripTemplate)
-class CanvasingTripTemplateAdmin(BaseAdmin):
+class CanvassingTripTemplateAdmin(BaseAdmin):
     list_display = ('id32', 'name')
     fields = ('name',)
-    inlines = [CanvasingCustomerInline]
+    inlines = [CanvassingCustomerInline]
     search_fields = ('name',)
 
 @admin.register(CanvasingTrip)
-class CanvasingTripAdmin(BaseAdmin):
+class CanvassingTripAdmin(BaseAdmin):
     list_display = ('id32', 'template', 'date', 'salesperson', 'driver', 'status')
     fields = ('template', 'date', 'salesperson', 'driver', 'status')
     list_filter = ('status', 'date')
     search_fields = ('template__name', 'salesperson__username', 'driver__username')
-    inlines = [CanvasingCustomerVisitInline]
+    inlines = [CanvassingCustomerVisitInline]
 
 @admin.register(CanvasingCustomerVisit)
-class CanvasingCustomerVisitAdmin(BaseAdmin):
+class CanvassingCustomerVisitAdmin(BaseAdmin):
     list_display = ('id32', 'trip', 'customer', 'sales_order', 'status')
     fields = ('trip', 'customer', 'sales_order', 'status')
     list_filter = ('status',)
     search_fields = ('trip__template__name', 'customer__name')
 
 @admin.register(CanvasingReport)
-class CanvasingReportAdmin(BaseAdmin):
+class CanvassingReportAdmin(BaseAdmin):
     list_display = ('id32', 'trip', 'customer', 'status')
     fields = ('trip', 'customer_visit', 'customer', 'status', 'sold_products')
     list_filter = ('status',)
     search_fields = ('trip__template__name', 'customer__name')
 
-class CanvasingCustomerProductInline(admin.TabularInline):
+class CanvassingCustomerProductInline(admin.TabularInline):
     model = CanvasingCustomerProduct
     fields = ('product', 'quantity')
     extra = 1
     raw_id_fields = ('product', )
 
 @admin.register(CanvasingCustomer)
-class CanvasingCustomerAdmin(BaseAdmin):
+class CanvassingCustomerAdmin(BaseAdmin):
     list_display = ('id32', 'template', 'customer', 'order')
     fields = ('template', 'customer', 'order')
-    inlines = [CanvasingCustomerProductInline]
+    inlines = [CanvassingCustomerProductInline]
     search_fields = ('template__name', 'customer__name')
     raw_id_fields = ('customer', )

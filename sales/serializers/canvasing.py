@@ -14,7 +14,7 @@ from ..models import (
 from .sales import CustomerSerializer
 
 
-class CanvasingCustomerProductSerializer(serializers.ModelSerializer):
+class CanvassingCustomerProductSerializer(serializers.ModelSerializer):
     product_id32 = serializers.SlugRelatedField(
         slug_field="id32",
         queryset=Product.objects.all(),
@@ -32,8 +32,8 @@ class CanvasingCustomerProductSerializer(serializers.ModelSerializer):
         fields = ('product_id32', 'product_name', 'quantity')
 
 
-class CanvasingCustomerSerializer(serializers.ModelSerializer):
-    products = CanvasingCustomerProductSerializer(source='canvasingcustomerproduct_set', many=True)
+class CanvassingCustomerSerializer(serializers.ModelSerializer):
+    products = CanvassingCustomerProductSerializer(source='canvasingcustomerproduct_set', many=True)
     customer_id32 = serializers.SlugRelatedField(
         slug_field="id32",
         queryset=Customer.objects.all(),
@@ -51,15 +51,15 @@ class CanvasingCustomerSerializer(serializers.ModelSerializer):
         read_only_fields = ('id32',)
 
 
-class CanvasingTripTemplateListSerializer(serializers.ModelSerializer):
+class CanvassingTripTemplateListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CanvasingTripTemplate
         fields = ['id32', 'name']
         read_only_fields = ['id32']
 
 
-class CanvasingTripTemplateDetailSerializer(serializers.ModelSerializer):
-    customers = CanvasingCustomerSerializer(
+class CanvassingTripTemplateDetailSerializer(serializers.ModelSerializer):
+    customers = CanvassingCustomerSerializer(
         many=True, source='canvasingcustomer_set')
 
     class Meta:
@@ -94,11 +94,11 @@ class CanvasingTripTemplateDetailSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
 
-        # Track all IDs for CanvasingCustomer objects to find out which ones to delete
+        # Track all IDs for CanvassingCustomer objects to find out which ones to delete
         current_customer_ids = set(instance.canvasingcustomer_set.values_list('id', flat=True))
         provided_customer_ids = {d.get('id') for d in canvasing_customers_data if 'id' in d}
 
-        # Remove CanvasingCustomer objects that are not present in the provided data
+        # Remove CanvassingCustomer objects that are not present in the provided data
         for customer_id in current_customer_ids - provided_customer_ids:
             CanvasingCustomer.objects.get(id=customer_id).delete()
 
@@ -119,11 +119,11 @@ class CanvasingTripTemplateDetailSerializer(serializers.ModelSerializer):
             current_product_ids = set(canvasing_customer.canvasingcustomerproduct_set.values_list('id', flat=True))
             provided_product_ids = {d.get('id') for d in product_data if 'id' in d}
 
-            # Remove CanvasingCustomerProduct objects not in the provided data
+            # Remove CanvassingCustomerProduct objects not in the provided data
             for product_id in current_product_ids - provided_product_ids:
                 CanvasingCustomerProduct.objects.get(id=product_id).delete()
 
-            # Create or update CanvasingCustomerProduct items
+            # Create or update CanvassingCustomerProduct items
             for pd in product_data:
                 if 'id' in pd:
                     product_instance = CanvasingCustomerProduct.objects.get(id=pd.pop('id'))
@@ -135,7 +135,7 @@ class CanvasingTripTemplateDetailSerializer(serializers.ModelSerializer):
 
         return instance
 
-class CanvasingTripListSerializer(serializers.ModelSerializer):
+class CanvassingTripListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CanvasingTrip
         fields = ['id32', 'template', 'date',
@@ -143,7 +143,7 @@ class CanvasingTripListSerializer(serializers.ModelSerializer):
         read_only_fields = ['id32']
 
 
-class CanvasingCustomerVisitSerializer(serializers.ModelSerializer):
+class CanvassingCustomerVisitSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()
     class Meta:
         model = CanvasingCustomerVisit
@@ -151,9 +151,9 @@ class CanvasingCustomerVisitSerializer(serializers.ModelSerializer):
         read_only_fields = ['id32']
 
 
-class CanvasingTripDetailSerializer(serializers.ModelSerializer):
-    template = CanvasingTripTemplateListSerializer()
-    customer_visits = CanvasingCustomerVisitSerializer(
+class CanvassingTripDetailSerializer(serializers.ModelSerializer):
+    template = CanvassingTripTemplateListSerializer()
+    customer_visits = CanvassingCustomerVisitSerializer(
         many=True, source='canvasingcustomervisit_set')
     class Meta:
         model = CanvasingTrip
@@ -162,7 +162,7 @@ class CanvasingTripDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['id32']
 
 
-class CanvasingReportSerializer(serializers.ModelSerializer):
+class CanvassingReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = CanvasingReport
         fields = ['id32', 'trip', 'customer_visit',
@@ -195,7 +195,7 @@ class GenerateTripsSerializer(serializers.Serializer):
         return user
 
 
-class CanvasingCustomerVisitStatusSerializer(serializers.ModelSerializer):
+class CanvassingCustomerVisitStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = CanvasingCustomerVisit
         fields = ['status']
