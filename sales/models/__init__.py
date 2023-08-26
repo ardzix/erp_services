@@ -40,7 +40,6 @@ class Customer(BaseModelGeneric):
             }
         return None
 
-
     def __str__(self):
         return _("Customer #{id32} - {name}").format(id32=self.id32, name=self.name)
 
@@ -50,6 +49,31 @@ class Customer(BaseModelGeneric):
 
 
 class SalesOrder(BaseModelGeneric):
+    # Order Status Choices with Descriptions
+    DRAFT = 'draft'
+    SUBMITTED = 'submitted'
+    APPROVED = 'approved'
+    REJECTED = 'rejected'
+    PROCESSING = 'processing'
+    SHIPPED = 'shipped'
+    DELIVERED = 'delivered'
+    COMPLETED = 'completed'
+    CANCELED = 'canceled'
+
+    STATUS_CHOICES = [
+        (DRAFT, _('Draft: The initial stage of the order where it\'s still being drafted or created.')),
+        (SUBMITTED, _('Submitted: Order has been completed and sent for review or approval.')),
+        (APPROVED, _('Approved: Order has been accepted for processing after review.')),
+        (REJECTED, _('Rejected: Order has been found unsuitable for processing and needs revision.')),
+        (PROCESSING, _('Processing: Active steps to fulfill the order are underway.')),
+        (SHIPPED, _('Shipped: Order has left the business premises and is en route to the customer.')),
+        (DELIVERED, _(
+            'Delivered: Order has reached its destination and is now with the customer.')),
+        (COMPLETED, _(
+            'Completed: All aspects of the order are done, and it\'s considered closed.')),
+        (CANCELED, _('Canceled: Order was terminated before reaching completion.')),
+    ]
+
     customer = models.ForeignKey(
         Customer,
         on_delete=models.CASCADE,
@@ -75,12 +99,23 @@ class SalesOrder(BaseModelGeneric):
         StockMovement, blank=True, null=True, on_delete=models.SET_NULL)
     # Add any other fields specific to your order model
 
+    status = models.CharField(
+        max_length=255,  # Adjusting for the added descriptions
+        choices=STATUS_CHOICES,
+        default=DRAFT,
+        help_text=_("Current status of the sales order.")
+    )
+
     def __str__(self):
         return _("Order #{id32} - {customer}").format(id32=self.id32, customer=self.customer)
 
     class Meta:
         verbose_name = _("Order")
         verbose_name_plural = _("Orders")
+
+    @property
+    def delivery_status(self):
+        return self.stock_movement.status if self.stock_movement else None
 
 
 class OrderItem(BaseModelGeneric):
@@ -108,7 +143,12 @@ class OrderItem(BaseModelGeneric):
     # Add any other fields specific to your order item model
 
     def __str__(self):
-        return _("Order Item #{id32} - {product}").format(id32=self.id32, product=self.product)
+        return _("Order Item #{id32} - {product} {quantity}({unit})").format(
+            id32=self.id32,
+            product=self.product.name,
+            quantity=self.quantity,
+            unit=self.product.sales_unit.symbol
+        )
 
     class Meta:
         verbose_name = _("Order Item")

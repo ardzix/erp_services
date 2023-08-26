@@ -44,7 +44,7 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
     def get_total_amount(self, obj):
         total_amount = obj.order_items.aggregate(total_price=Sum(F('price') * F('quantity'))).get('total_price')
         total_amount = 0 if not total_amount else total_amount
-        return f'{total_amount:,.0f}'
+        return total_amount
 
 
 class SalesOrderDetailSerializer(SalesOrderListSerializer):
@@ -52,12 +52,15 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
     total_amount = serializers.SerializerMethodField()
     approved_by = UserListSerializer(read_only=True)
     customer = CustomerLiteSerializer(read_only=True)
-
+    delivery_status = serializers.SerializerMethodField()
 
     class Meta:
         model = SalesOrder
-        fields = ['id32', 'customer', 'order_date', 'approved_by', 'total_amount', 'order_items']
-        read_only_fields = ['id32', 'approved_by', 'customer']
+        fields = ['id32', 'customer', 'order_date', 'approved_by', 'total_amount', 'order_items', 'delivery_status']
+        read_only_fields = ['id32', 'approved_by', 'customer', 'delivery_status']
+    
+    def get_delivery_status(self, obj):
+        return obj.delivery_status
 
 
 class SalesOrderSerializer(SalesOrderListSerializer):

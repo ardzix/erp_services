@@ -171,3 +171,25 @@ def update_canvasing_trip_status(sender, instance, **kwargs):
         canvasing_trip.status = CanvasingTrip.COMPLETED
         canvasing_trip.updated_by = instance.updated_by
         canvasing_trip.save()
+
+
+@receiver(pre_save, sender=SalesOrder)
+def update_order_status(sender, instance, **kwargs):
+    # Get the current state of the object from the database
+    try:
+        db_instance = SalesOrder.objects.get(pk=instance.pk)
+    except SalesOrder.DoesNotExist:
+        # The instance is not yet in the database (likely being created)
+        db_instance = None
+
+    # Check if the approved_at field has changed and unapproved_at has not
+    if (not db_instance or instance.approved_at != db_instance.approved_at) and instance.approved_at and not instance.unapproved_at:
+        instance.status = SalesOrder.APPROVED
+    # Check if the unapproved_at field has changed
+    elif not db_instance or instance.unapproved_at != db_instance.unapproved_at and instance.unapproved_at:
+        instance.status = SalesOrder.REJECTED
+
+
+
+
+
