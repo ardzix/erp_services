@@ -1,9 +1,11 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
+from common.models import File
 
 
 class Account(BaseModelGeneric):
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
 
@@ -14,12 +16,49 @@ class Account(BaseModelGeneric):
         verbose_name = _("Account")
         verbose_name_plural = _("Accounts")
 
+class Tax(BaseModelGeneric):
+    name = models.CharField(max_length=100)
+    rate = models.DecimalField(max_digits=5, decimal_places=2)  # As a percentage
+
+    def __str__(self):
+        return _("Tax #{tax_id} - {tax_name}").format(tax_id=self.id32, tax_name=self.name)
+
+    class Meta:
+        verbose_name = _("Tax")
+        verbose_name_plural = _("Taxes")
+
 
 class Transaction(BaseModelGeneric):
+    TRANSACTION_TYPES = [
+        ('SALE', _('Sale')),
+        ('PURCHASE', _('Purchase')),
+        ('TRANSFER', _('Transfer')),  # For transferring funds between accounts
+        ('ADJUSTMENT', _('Adjustment')),  # For corrections or modifications
+        ('EXPENSE', _('Expense')),  # For general expenses
+        ('INCOME', _('Income')),  # For general income, other than sales
+        ('DEPOSIT', _('Deposit')),  # For deposits into accounts
+        ('WITHDRAWAL', _('Withdrawal')),  # For withdrawals from accounts
+        ('REFUND', _('Refund')),  # For processing refunds
+        ('RECONCILIATION', _('Reconciliation')),  # For reconciliation adjustments
+        ('LOAN_PAYMENT', _('Loan Payment')),  # For repaying loans
+        ('LOAN_RECEIPT', _('Loan Receipt')),  # For receiving loan amounts
+        ('TAX_PAYMENT', _('Tax Payment')),  # For specific tax payments
+        ('TAX_REFUND', _('Tax Refund')),  # For receiving tax refunds
+        ('INTEREST_INCOME', _('Interest Income')),  # For interest received
+        ('INTEREST_EXPENSE', _('Interest Expense')),  # For interest paid out
+        ('DIVIDEND', _('Dividend')),  # For dividend income
+        ('FEE', _('Fee')),  # For any fees charged or paid
+        ('COMMISSION', _('Commission')),  # For commissions received or paid
+        ('WRITE_OFF', _('Write Off')),  # For bad debts or uncollectible amounts
+        ('OTHER', _('Other')),  # A generic type for anything that doesn't fit above
+    ]
+
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     transaction_date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES, default='OTHER')
+    attachements = models.ManyToManyField(File, blank=True)
 
     def __str__(self):
         return _("Transaction #{transaction_id} - {transaction_account}").format(transaction_id=self.id32, transaction_account=self.account)
@@ -30,8 +69,14 @@ class Transaction(BaseModelGeneric):
 
 
 class JournalEntry(BaseModelGeneric):
+    DEBIT_CREDIT_CHOICES = [
+        ('DEBIT', _('Debit')),
+        ('CREDIT', _('Credit')),
+    ]
+
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     journal = models.CharField(max_length=100)
+    debit_credit = models.CharField(max_length=10, choices=DEBIT_CREDIT_CHOICES)
 
     def __str__(self):
         return _("Journal Entry #{entry_id} - {entry_transaction}").format(entry_id=self.id32, entry_transaction=self.transaction)

@@ -1,0 +1,205 @@
+[
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Cash and Cash Equivalents",
+            "description": "Cash in hand and demand deposits"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Accounts Receivable",
+            "description": "Amounts owed by customers"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Inventory",
+            "description": "Goods available for sale"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Prepaid Expenses",
+            "description": "Expenses paid in advance for future periods"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Short-Term Investments",
+            "description": "Investments that will be converted to cash within a year"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Property, Plant, and Equipment",
+            "description": "Tangible fixed assets"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Intangible Assets",
+            "description": "Non-physical assets like patents and copyrights"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Long-Term Investments",
+            "description": "Investments held for longer than a year"
+        }
+    },
+
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Accounts Payable",
+            "description": "Amounts owed to suppliers"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Accrued Liabilities",
+            "description": "Liabilities for expenses incurred but not yet paid"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Short-Term Debt",
+            "description": "Debts due within one year"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Long-Term Debt",
+            "description": "Debts due in more than one year"
+        }
+    },
+
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Common Stock",
+            "description": "Value of issued common shares"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Retained Earnings",
+            "description": "Cumulative earnings kept for reinvestment"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Additional Paid-In Capital",
+            "description": "Amount received from the issuance of shares above par value"
+        }
+    },
+
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Sales Revenue",
+            "description": "Income from primary operations"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Cost of Goods Sold",
+            "description": "Cost associated with producing goods"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Operating Expenses",
+            "description": "General and administrative expenses"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Interest Expense",
+            "description": "Cost of borrowing money"
+        }
+    },
+    {
+        "model": "accounting.account",
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "name": "Tax Expense",
+            "description": "Taxes on profits"
+        }
+    }
+]
