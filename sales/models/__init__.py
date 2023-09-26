@@ -224,22 +224,22 @@ class SalesPayment(BaseModelGeneric):
         verbose_name_plural = _("Payments")
 
 
-class CanvasingTripTemplate(BaseModelGeneric):
+class TripTemplate(BaseModelGeneric):
     name = models.CharField(max_length=255, verbose_name=_(
         "Name"), help_text=_("Enter the name for the canvasing trip template"))
-    customers = models.ManyToManyField(Customer, through='CanvasingCustomer', verbose_name=_(
+    customers = models.ManyToManyField(Customer, through='TripCustomer', verbose_name=_(
         "Customers"), help_text=_("Select customers for this trip template"))
 
     class Meta:
-        verbose_name = _("Canvassing Trip Template")
-        verbose_name_plural = _("Canvassing Trip Templates")
+        verbose_name = _("Trip Template")
+        verbose_name_plural = _("Trip Templates")
 
     def generate_trips(self, start_date, end_date, salesperson, driver):
         generated_trips = []
 
         current_date = start_date
         while current_date <= end_date:
-            trip = CanvasingTrip.objects.create(
+            trip = Trip.objects.create(
                 template=self,
                 date=current_date,
                 salesperson=salesperson,
@@ -256,42 +256,25 @@ class CanvasingTripTemplate(BaseModelGeneric):
         return self.name
 
 
-class CanvasingCustomer(BaseModelGeneric):
+class TripCustomer(BaseModelGeneric):
     template = models.ForeignKey(
-        CanvasingTripTemplate, on_delete=models.CASCADE)
+        TripTemplate, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     order = models.PositiveIntegerField(verbose_name=_(
         "Order"), help_text=_(ORDER_OF_CUSTOMER_VISIT))
-    products = models.ManyToManyField(Product, through='CanvasingCustomerProduct', verbose_name=_(
-        "Products"), help_text=_("Select products intended for this customer"))
 
     class Meta:
-        verbose_name = _("Canvassing Customer")
-        verbose_name_plural = _("Canvassing Customers")
+        verbose_name = _("Trip Customer")
+        verbose_name_plural = _("Trip Customers")
         ordering = ['order']
 
     def __str__(self):
         return f"{self.template.name} - {self.customer.name}"
 
 
-class CanvasingCustomerProduct(BaseModelGeneric):
-    canvasing_customer = models.ForeignKey(
-        CanvasingCustomer, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(verbose_name=_(
-        "Intended Quantity"), help_text=_("Intended quantity to sell to the customer"))
-
-    class Meta:
-        verbose_name = _("Canvassing Customer Product")
-        verbose_name_plural = _("Canvassing Customer Products")
-
-    def __str__(self):
-        return f"{self.canvasing_customer} - {self.product.name}"
-
-
-class CanvasingTrip(BaseModelGeneric):
+class Trip(BaseModelGeneric):
     template = models.ForeignKey(
-        CanvasingTripTemplate, on_delete=models.CASCADE)
+        TripTemplate, on_delete=models.CASCADE)
     date = models.DateField(verbose_name=_(
         "Date"), help_text=_("Date for the canvasing trip"))
     salesperson = models.ForeignKey(
@@ -317,26 +300,26 @@ class CanvasingTrip(BaseModelGeneric):
         max_length=50, choices=STATUS_CHOICES, default=WAITING)
 
     class Meta:
-        verbose_name = _("Canvassing Trip")
-        verbose_name_plural = _("Canvassing Trips")
+        verbose_name = _("Trip")
+        verbose_name_plural = _("Trips")
 
     def __str__(self):
         return f"{self.template.name} on {self.date}"
 
 
-class CanvasingCustomerVisit(BaseModelGeneric):
-    trip = models.ForeignKey(CanvasingTrip, on_delete=models.CASCADE)
+class CustomerVisit(BaseModelGeneric):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     sales_order = models.ForeignKey(
         SalesOrder, null=True, blank=True, on_delete=models.SET_NULL)
     status = models.CharField(
-        max_length=50, choices=CanvasingTrip.STATUS_CHOICES, default=CanvasingTrip.WAITING)
+        max_length=50, choices=Trip.STATUS_CHOICES, default=Trip.WAITING)
     order = models.PositiveIntegerField(verbose_name=_(
         "Order"), help_text=_(ORDER_OF_CUSTOMER_VISIT))
 
     class Meta:
-        verbose_name = _("Canvassing Customer Visit")
-        verbose_name_plural = _("Canvassing Customer Visits")
+        verbose_name = _("Customer Visit")
+        verbose_name_plural = _("Customer Visits")
 
     def __str__(self):
         return f"{self.trip} - {self.customer.name}"
@@ -353,19 +336,19 @@ class CanvasingCustomerVisit(BaseModelGeneric):
         return []
 
 
-class CanvasingReport(BaseModelGeneric):
+class CustomerVisitReport(BaseModelGeneric):
     trip = models.ForeignKey(
-        CanvasingTrip, on_delete=models.CASCADE, related_name='canvasing_reports')
+        Trip, on_delete=models.CASCADE, related_name='canvasing_reports')
     customer_visit = models.OneToOneField(
-        CanvasingCustomerVisit, on_delete=models.CASCADE, related_name='report')
+        CustomerVisit, on_delete=models.CASCADE, related_name='report')
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     status = models.CharField(
-        max_length=15, choices=CanvasingTrip.STATUS_CHOICES)
+        max_length=15, choices=Trip.STATUS_CHOICES)
     sold_products = models.ManyToManyField(OrderItem, blank=True)
 
     def __str__(self):
         return f"Report for {self.customer} - {self.status}"
 
     class Meta:
-        verbose_name = _("Canvassing Report")
-        verbose_name_plural = _("Canvassing Reports")
+        verbose_name = _("Customer Visit Report")
+        verbose_name_plural = _("Customer Visit Reports")
