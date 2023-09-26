@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
 
@@ -46,11 +46,14 @@ class Leave(BaseModelGeneric):
         verbose_name = _("Leave")
         verbose_name_plural = _("Leaves")
 
+
+
 class Attendance(BaseModelGeneric):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, help_text=_("The employee whose attendance is recorded"))
-    date = models.DateField(help_text=_("Date of attendance"))
-    clock_in_time = models.TimeField(help_text=_("Clock-in time of the employee"))
-    clock_out_time = models.TimeField(help_text=_("Clock-out time of the employee"))
+    clock_in = models.DateTimeField(help_text=_("Clock-in time and date of the employee"))
+    clock_out = models.DateTimeField(null=True, blank=True, help_text=_("Clock-out time and date of the employee"))
+    clock_in_location = models.PointField(null=True, blank=True, help_text=_("Coordinates where the employee clocked in"))
+    clock_out_location = models.PointField(null=True, blank=True, help_text=_("Coordinates where the employee clocked out"))
 
     def __str__(self):
         return _("Attendance #{att_id} - {att_emp}").format(att_id=self.id32, att_emp=self.employee)
