@@ -35,3 +35,38 @@ class File(BaseModelGeneric):
     class Meta:
         verbose_name = _("File")
         verbose_name_plural = _("Files")
+
+
+class AdministrativeBaseModel(models.Model):
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+class AdministrativeLvl1(AdministrativeBaseModel):
+    name = models.CharField(max_length=40)
+
+    class Meta:
+        verbose_name = _("Administrative Lvl 1")
+
+class AdministrativeLvl2(AdministrativeBaseModel):
+    lvl1 = models.ForeignKey(AdministrativeLvl1, on_delete=models.CASCADE)
+    name = models.CharField(max_length=40)
+
+    class Meta:
+        verbose_name = _("Administrative Lvl 2")
+
+class AdministrativeLvl3(AdministrativeBaseModel):
+    lvl2 = models.ForeignKey(AdministrativeLvl2, on_delete=models.CASCADE)
+    name = models.CharField(max_length=140)
+
+    class Meta:
+        verbose_name = _("Administrative Lvl 3")
+
+class AdministrativeLvl4(AdministrativeBaseModel):
+    lvl3 = models.ForeignKey(AdministrativeLvl3, on_delete=models.CASCADE)
+    name = models.CharField(max_length=40)
+
+    class Meta:
+        verbose_name = _("Administrative Lvl 4")
