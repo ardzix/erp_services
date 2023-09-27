@@ -97,10 +97,14 @@ class TripRepresentationMixin():
         representation = super().to_representation(instance)
 
         status_dict = dict(Trip.STATUS_CHOICES)
-
         representation['status'] = {
             'key': instance.status,
             'value': status_dict.get(instance.status, ""),
+        }
+        representation['driver'] = {
+            'id': instance.driver.pk,
+            'username': instance.driver.username,
+            'full_name': f'{instance.driver.first_name} {instance.driver.last_name}',
         }
 
         return representation
@@ -115,7 +119,7 @@ class CustomerVisitSerializer(serializers.ModelSerializer):
         read_only_fields = ['id32']
 
 
-class TripListSerializer(serializers.ModelSerializer, TripRepresentationMixin):
+class TripListSerializer(TripRepresentationMixin, serializers.ModelSerializer):
     class Meta:
         model = Trip
         fields = ['id32', 'template', 'date',
@@ -123,7 +127,7 @@ class TripListSerializer(serializers.ModelSerializer, TripRepresentationMixin):
         read_only_fields = ['id32']
 
 
-class TripDetailSerializer(serializers.ModelSerializer, TripRepresentationMixin):
+class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer):
     template = TripTemplateListSerializer()
     customer_visits = CustomerVisitSerializer(
         many=True, source='customervisit_set')
