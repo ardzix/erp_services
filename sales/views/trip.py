@@ -3,13 +3,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from libs.pagination import CustomPagination
 from ..models import TripTemplate, Trip, CustomerVisitReport, CustomerVisit
-from ..serializers.canvasing import (
+from ..serializers.trip import (
     TripTemplateListSerializer,
     TripTemplateDetailSerializer,
     TripListSerializer,
     TripDetailSerializer,
     CustomerVisitSerializer,
-    CanvassingReportSerializer,
+    CustomerVisitReportSerializer,
     GenerateTripsSerializer,
     CustomerVisitStatusSerializer
 )
@@ -80,7 +80,7 @@ class TripViewSet(viewsets.ModelViewSet):
         # Storing report data in CanvassingReport model
         report = CustomerVisitReport.objects.create(trip=trip, **report_data)
         
-        return Response(CanvassingReportSerializer(report).data)
+        return Response(CustomerVisitReportSerializer(report).data)
 
 class CustomerVisitViewSet(viewsets.ModelViewSet):
     queryset = CustomerVisit.objects.all()
@@ -100,7 +100,7 @@ class ReportViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination  # Add your custom pagination class if needed
-    serializer_class = CanvassingReportSerializer
+    serializer_class = CustomerVisitReportSerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

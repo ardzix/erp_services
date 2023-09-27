@@ -25,7 +25,9 @@ class Customer(BaseModelGeneric):
     )
     company_profile = models.ForeignKey(
         CompanyProfile,
-        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
         related_name='customers_profile',
         verbose_name=_("Company Profile"),
         help_text=_("Select the company profile associated with the customer")
@@ -281,6 +283,19 @@ class Trip(BaseModelGeneric):
         User, on_delete=models.CASCADE, related_name="canvasing_salesperson")
     driver = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="canvasing_driver")
+    
+    CANVASING = 'canvasing'
+    TAKING_ORDER = 'taking_order'
+    COLLECTING = 'collecting'
+    DELIVERING = 'delivering'
+    TYPE_CHOICES = [
+        (CANVASING, _('Canvasing')),
+        (TAKING_ORDER, _('Taking Order')),
+        (COLLECTING, _('Collecting')),
+        (DELIVERING, _('Delivering'))
+    ]
+    type = models.CharField(
+        max_length=50, choices=TYPE_CHOICES, default=TAKING_ORDER)
 
     WAITING = 'waiting'
     ON_PROGRESS = 'on_progress'

@@ -96,6 +96,7 @@ class TripTemplateAdmin(BaseAdmin):
     list_display = ('id32', 'name')
     fields = ('name',)
     search_fields = ('name',)
+    inlines = [TripCustomerInline]
 
 @admin.register(Trip)
 class TripAdmin(BaseAdmin):
