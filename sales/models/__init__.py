@@ -2,7 +2,7 @@ from datetime import timedelta, date
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
-from common.models import AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
+from common.models import File, AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
 from inventory.models import Product, StockMovement, Unit
 from identities.models import CompanyProfile
 
@@ -67,6 +67,11 @@ class Customer(BaseModelGeneric):
         blank=True,
         null=True
     )
+
+    id_card = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_id_card', blank=True, null=True, on_delete=models.SET_NULL)
+    store_front = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_store_front', blank=True, null=True, on_delete=models.SET_NULL)
+    store_street = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_store_street', blank=True, null=True, on_delete=models.SET_NULL)
+    signature = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
 
     @property
     def location_coordinate(self):

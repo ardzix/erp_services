@@ -5,6 +5,7 @@ from ..models import File
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
+
 class UserListSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
 
@@ -26,22 +27,49 @@ class FileSerializer(serializers.ModelSerializer):
     def get_url(self, instance):
         return instance.file.url if instance.file else '-'
 
+
+def decode_base64_img(encoded_file, name='temp'):
+    file_format, imgstr = encoded_file.split(';base64,')
+    ext = file_format.split('/')[-1]
+
+    # Add padding if required
+    missing_padding = len(imgstr) % 4
+    if missing_padding:
+        imgstr += '=' * (4 - missing_padding)
+
+    data = ContentFile(base64.b64decode(imgstr), name=name+'.'+ ext)
+    return data
+
+
+class FileCreateSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+    file_base64 = serializers.CharField(
+        write_only=True, help_text="Base64 encoded file data")
+
+    class Meta:
+        model = File
+        fields = ('id32', 'name', 'url', 'file_base64', 'description')
+        read_only_fields = ['id32']
+
+    def get_url(self, instance):
+        return instance.file.url if instance.file else '-'
+
+    def validate(self, data):
+        encoded_file = data.pop('file_base64')
+        data['file'] = decode_base64_img(encoded_file, name=data['name'])
+        return data
+
+
 class SetFileSerializer(serializers.Serializer):
-    file_base64 = serializers.CharField(write_only=True, help_text="Base64 encoded file data")
+    file_base64 = serializers.CharField(
+        write_only=True, help_text="Base64 encoded file data")
 
     def create(self, validated_data):
-        encoded_file = validated_data['file_base64']
-        file_format, imgstr = encoded_file.split(';base64,') 
         user = self.context.get('request').user
-        ext = file_format.split('/')[-1]
-        
-        # Add padding if required
-        missing_padding = len(imgstr) % 4
-        if missing_padding:
-            imgstr += '=' * (4 - missing_padding)
-            
-        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+        encoded_file = validated_data['file_base64']
+        data = decode_base64_img(encoded_file)
 
         # Create File instance
-        file_instance = File.objects.create(name=data.name, file=data, created_by=user)
+        file_instance = File.objects.create(
+            name=data.name, file=data, created_by=user)
         return file_instance
