@@ -50,6 +50,28 @@ def get_customer_create_chema():
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
+    """
+    Customer API endpoints.
+
+    retrieve:
+    Return a customer instance based on the given id32.
+
+    list:
+    Return a list of all existing customers.
+
+    create:
+    Create a new customer instance. Ensure that all required fields are provided.
+
+    delete:
+    Remove an existing customer.
+
+    update:
+    Update fields in an existing customer. Ensure that all required fields are provided.
+
+    partial_update:
+    Update certain fields in an existing customer without affecting others.
+
+    """
     lookup_field = 'id32'
     queryset = Customer.objects.all()
     permission_classes = [IsAuthenticated, DjangoModelPermissions]

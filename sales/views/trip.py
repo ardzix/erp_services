@@ -107,20 +107,42 @@ class ReportViewSet(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
-
 class CustomerVisitStatusUpdateViewSet(viewsets.GenericViewSet):
+    """
+    Customer Visit Status API endpoints.
+
+    This ViewSet provides endpoints for updating the status of a Customer Visit. 
+    It allows for partial updates where you can change specific fields without affecting others.
+
+    partial_update:
+    Perform a partial update on an existing Customer Visit's status. Provide the desired fields to be updated in the request data.
+    """
+
     queryset = CustomerVisit.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     serializer_class = CustomerVisitStatusSerializer
     lookup_field = 'id32'
 
     def partial_update(self, request, id32=None):
+        """
+        Handle partial updates to an existing Customer Visit's status.
+        
+        Parameters:
+        - request: The request containing the data to be updated.
+        - id32: The unique identifier for the Customer Visit to be updated.
+
+        Returns:
+        - A Response object with the updated data or errors.
+        """
         obj = self.get_object()
         serializer = self.get_serializer(obj, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-    
+
     def perform_update(self, serializer):
+        """
+        Save the updated Customer Visit instance and associate the update with the authenticated user.
+        """
         serializer.save(updated_by=self.request.user)
