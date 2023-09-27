@@ -59,14 +59,14 @@ class AdministrativeLvl2(AdministrativeBaseModel):
 
 class AdministrativeLvl3(AdministrativeBaseModel):
     lvl2 = models.ForeignKey(AdministrativeLvl2, on_delete=models.CASCADE)
-    name = models.CharField(max_length=140)
+    name = models.CharField(max_length=40)
 
     class Meta:
         verbose_name = _("Administrative Lvl 3")
 
 class AdministrativeLvl4(AdministrativeBaseModel):
     lvl3 = models.ForeignKey(AdministrativeLvl3, on_delete=models.CASCADE)
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=140)
 
     class Meta:
         verbose_name = _("Administrative Lvl 4")
