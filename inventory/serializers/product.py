@@ -121,10 +121,14 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         product_type_dict = dict(Product.PRODUCT_TYPE_CHOICES)
         price_calculation_dict = dict(Product.PRICE_CALCULATION_CHOICES)
 
-        representation['product_type'] = product_type_dict.get(
-            instance.product_type, "")
-        representation['price_calculation'] = price_calculation_dict.get(
-            instance.price_calculation, "")
+        representation['product_type'] = {
+            'key': instance.product_type,
+            'value': product_type_dict.get(instance.product_type, ""),
+        }
+        representation['price_calculation'] = {
+            'key': instance.price_calculation,
+            'value': price_calculation_dict.get(instance.price_calculation, ""),
+        }
 
         return representation
 

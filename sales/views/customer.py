@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from ..serializers.customer import CustomerSerializer
+from ..serializers.customer import CustomerSerializer, CustomerListSerializer
 from ..models import Customer
 
 
@@ -52,9 +52,13 @@ def get_customer_create_chema():
 class CustomerViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
     queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
     pagination_class = CustomPagination  # Add your custom pagination class if needed
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return CustomerListSerializer
+        return CustomerSerializer
 
     @swagger_auto_schema(
         request_body=get_customer_create_chema()

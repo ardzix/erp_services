@@ -42,6 +42,10 @@ def import_villages_from_csv(filename='common/csv/villages.csv'):
             lvl3_instance = AdministrativeLvl3.objects.get(id=row[1])
             
             # Create an AdministrativeLvl4 instance with the fetched lvl2_instance and the name from the CSV
-            AdministrativeLvl4.objects.create(id=row[0], lvl3=lvl3_instance, name=row[2])
+            try:
+                AdministrativeLvl4.objects.get_or_create(id=row[0], lvl3=lvl3_instance, name=row[2])
+            except:
+                AdministrativeLvl4.objects.get_or_create(id=row[0]+"1111", lvl3=lvl3_instance, name=row[2])
+
 
     print("Imported vallages successfully!")
