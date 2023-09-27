@@ -58,7 +58,7 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
                 template=trip_template, created_by=trip_template.created_by, **trip_customer_data)
 
         return trip_template
-    
+
     def update(self, instance, validated_data):
         trip_customers_data = validated_data.pop('tripcustomer_set', [])
 
@@ -68,11 +68,14 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
         instance.save()
 
         # Handle the nested TripCustomers
-        existing_trip_customers = TripCustomer.objects.filter(template=instance)
+        existing_trip_customers = TripCustomer.objects.filter(
+            template=instance)
 
         # Remove TripCustomers not present in the provided data
-        existing_ids = set(existing_trip_customers.values_list('id', flat=True))
-        provided_ids = {item.get('id') for item in trip_customers_data if 'id' in item}
+        existing_ids = set(
+            existing_trip_customers.values_list('id', flat=True))
+        provided_ids = {item.get('id')
+                        for item in trip_customers_data if 'id' in item}
         to_delete_ids = existing_ids - provided_ids
         TripCustomer.objects.filter(id__in=to_delete_ids).delete()
 
@@ -80,19 +83,27 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
         for trip_customer_data in trip_customers_data:
             if 'id' in trip_customer_data:
                 trip_customer_id = trip_customer_data.pop('id')
-                TripCustomer.objects.filter(id=trip_customer_id).update(updated_by=instance.updated_by, **trip_customer_data)
+                TripCustomer.objects.filter(id=trip_customer_id).update(
+                    updated_by=instance.updated_by, **trip_customer_data)
             else:
-                TripCustomer.objects.create(template=instance, created_by=instance.updated_by, **trip_customer_data)
+                TripCustomer.objects.create(
+                    template=instance, created_by=instance.updated_by, **trip_customer_data)
 
         return instance
 
 
-class TripListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Trip
-        fields = ['id32', 'template', 'date',
-                  'salesperson', 'driver', 'status']
-        read_only_fields = ['id32']
+class TripRepresentationMixin():
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        status_dict = dict(Trip.STATUS_CHOICES)
+
+        representation['status'] = {
+            'key': instance.status,
+            'value': status_dict.get(instance.status, ""),
+        }
+
+        return representation
 
 
 class CustomerVisitSerializer(serializers.ModelSerializer):
@@ -104,7 +115,15 @@ class CustomerVisitSerializer(serializers.ModelSerializer):
         read_only_fields = ['id32']
 
 
-class TripDetailSerializer(serializers.ModelSerializer):
+class TripListSerializer(serializers.ModelSerializer, TripRepresentationMixin):
+    class Meta:
+        model = Trip
+        fields = ['id32', 'template', 'date',
+                  'salesperson', 'driver', 'status']
+        read_only_fields = ['id32']
+
+
+class TripDetailSerializer(serializers.ModelSerializer, TripRepresentationMixin):
     template = TripTemplateListSerializer()
     customer_visits = CustomerVisitSerializer(
         many=True, source='customervisit_set')

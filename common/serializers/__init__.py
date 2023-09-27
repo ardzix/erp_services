@@ -1,9 +1,10 @@
 import base64
+from datetime import date
 from django.core.files.base import ContentFile
 from rest_framework import serializers
-from ..models import File
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from ..models import File
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -37,7 +38,7 @@ def decode_base64_img(encoded_file, name='temp'):
     if missing_padding:
         imgstr += '=' * (4 - missing_padding)
 
-    data = ContentFile(base64.b64decode(imgstr), name=name+'.'+ ext)
+    data = ContentFile(base64.b64decode(imgstr), name=name+'.' + ext)
     return data
 
 
@@ -87,7 +88,8 @@ class MeSerializer(serializers.ModelSerializer):
     def get_check_in(self, instance):
         from hr.models import Attendance
 
-        attendance = Attendance.objects.filter(employee__user=instance, clock_out__isnull=True).last()
+        attendance = Attendance.objects.filter(
+            employee__user=instance, clock_out__isnull=True).last()
         return {
             'is_checked_in': True if attendance else False,
             'clock_in': attendance.clock_in if attendance else None,
@@ -98,5 +100,5 @@ class MeSerializer(serializers.ModelSerializer):
         from sales.models import Trip
         from sales.serializers.trip import TripListSerializer
 
-        trips = Trip.objects.filter(salesperson=instance, status__in=[Trip.WAITING, Trip.ON_PROGRESS])
+        trips = Trip.objects.filter(salesperson=instance, date=date.today())
         return TripListSerializer(trips, many=True).data
