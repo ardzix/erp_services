@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from common.views import CustomAuthToken
+from common.views import CustomAuthToken, MeView
 from common.router import router as common_router
 from hr.router import router as hr_router
 from identities.router import router as identities_router
@@ -47,6 +47,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
 
+    path('api/me/', MeView.as_view(), name='me'),
     path('api/auth/login/', CustomAuthToken.as_view(), name='api-login'),
     path('api/common/', include(common_router.urls)),
     path('api/hr/', include(hr_router.urls)),

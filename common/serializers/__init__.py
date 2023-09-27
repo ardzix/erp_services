@@ -73,3 +73,30 @@ class SetFileSerializer(serializers.Serializer):
         file_instance = File.objects.create(
             name=data.name, file=data, created_by=user)
         return file_instance
+
+
+class MeSerializer(serializers.ModelSerializer):
+    groups = serializers.StringRelatedField(many=True)
+    check_in = serializers.SerializerMethodField()
+    sales_trips = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'groups', 'check_in', 'sales_trips']
+
+    def get_check_in(self, instance):
+        from hr.models import Attendance
+
+        attendance = Attendance.objects.filter(employee__user=instance, clock_out__isnull=True).last()
+        return {
+            'is_checked_in': True if attendance else False,
+            'clock_in': attendance.clock_in if attendance else None,
+            'attendance_id32': attendance.id32 if attendance else None,
+        }
+
+    def get_sales_trips(self, instance):
+        from sales.models import Trip
+        from sales.serializers.trip import TripListSerializer
+
+        trips = Trip.objects.filter(salesperson=instance, status__in=[Trip.WAITING, Trip.ON_PROGRESS])
+        return TripListSerializer(trips, many=True).data

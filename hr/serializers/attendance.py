@@ -14,9 +14,11 @@ class BaseAttendanceSerializer(serializers.ModelSerializer):
             }
         return None
 
-
     def validate_location(self, value):
-        longitude, latitude = value.split(',')
+        try:
+            longitude, latitude = value.split(',')
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
         return Point(float(longitude), float(latitude))
 
 
