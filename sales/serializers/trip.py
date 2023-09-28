@@ -1,16 +1,16 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
-from inventory.models import Product
 from ..models import (
     TripTemplate,
     TripCustomer,
     Trip,
     CustomerVisit,
     Customer,
-    CustomerVisitReport
+    CustomerVisitReport,
+    SalesOrder
 )
-from .customer import CustomerSerializer
+from .customer import CustomerLiteSerializer
 
 
 class TripCustomerSerializer(serializers.ModelSerializer):
@@ -101,29 +101,41 @@ class TripRepresentationMixin():
             'key': instance.status,
             'value': status_dict.get(instance.status, ""),
         }
-        representation['driver'] = {
-            'id': instance.driver.pk,
-            'username': instance.driver.username,
-            'full_name': f'{instance.driver.first_name} {instance.driver.last_name}',
-        }
+        if instance.vehicle:
+            representation['vehicle'] = {
+                'name': instance.vehicle.name,
+                'license_plate': instance.vehicle.license_plate,
+                'driver': instance.vehicle.driver.name if instance.vehicle.driver else None,
+            }
 
         return representation
 
 
 class CustomerVisitSerializer(serializers.ModelSerializer):
-    customer = CustomerSerializer()
+    customer = CustomerLiteSerializer()
 
     class Meta:
         model = CustomerVisit
         fields = ['id32', 'customer', 'sales_order', 'status', 'order']
         read_only_fields = ['id32']
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        status_dict = dict(Trip.STATUS_CHOICES)
+        representation['status'] = {
+            'key': instance.status,
+            'value': status_dict.get(instance.status, ""),
+        }
+
+        return representation
 
 
 class TripListSerializer(TripRepresentationMixin, serializers.ModelSerializer):
     class Meta:
         model = Trip
         fields = ['id32', 'template', 'date',
-                  'salesperson', 'driver', 'status']
+                  'salesperson', 'vehicle', 'status']
         read_only_fields = ['id32']
 
 
@@ -135,9 +147,14 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
     class Meta:
         model = Trip
         fields = ['id32', 'template', 'date',
-                  'salesperson', 'driver', 'status', 'customer_visits']
+                  'salesperson', 'vehicle', 'status', 'customer_visits']
         read_only_fields = ['id32']
 
+    def update(self, instance, validated_data):
+        try:
+            return super().update(instance, validated_data)
+        except Exception as e:
+            raise serializers.ValidationError(list(e))
 
 class CustomerVisitReportSerializer(serializers.ModelSerializer):
     class Meta:
@@ -177,6 +194,29 @@ class GenerateTripsSerializer(serializers.Serializer):
 
 
 class CustomerVisitStatusSerializer(serializers.ModelSerializer):
+    sales_order_id32 = serializers.CharField(write_only=True)
     class Meta:
         model = CustomerVisit
-        fields = ['status']
+        fields = ['status', 'sales_order_id32', 'sales_order']
+        read_only_fields = ['sales_order']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        if instance.sales_order:
+            representation['sales_order'] = {
+                'id32': instance.sales_order.id32,
+                'str': instance.sales_order.__str__()
+            }
+
+        return representation
+
+    def update(self, instance, validated_data):
+        if 'sales_order_id32' in validated_data:
+            sales_order_id32 = validated_data.pop('sales_order_id32')
+            sales_order = SalesOrder.objects.get(id32=sales_order_id32)
+            validated_data['sales_order'] = sales_order
+        try:
+            return super().update(instance, validated_data)
+        except Exception as e:
+            raise serializers.ValidationError(list(e))

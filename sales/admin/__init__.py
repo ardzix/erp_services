@@ -100,10 +100,10 @@ class TripTemplateAdmin(BaseAdmin):
 
 @admin.register(Trip)
 class TripAdmin(BaseAdmin):
-    list_display = ('id32', 'template', 'date', 'salesperson', 'driver', 'status')
-    fields = ('template', 'date', 'salesperson', 'driver', 'status')
+    list_display = ('id32', 'template', 'date', 'salesperson', 'vehicle', 'status')
+    fields = ('template', 'date', 'salesperson', 'vehicle', 'status')
     list_filter = ('status', 'date')
-    search_fields = ('template__name', 'salesperson__username', 'driver__username')
+    search_fields = ('template__name', 'salesperson__username', 'vehicle__name')
     inlines = [CustomerVisitInline]
 
 @admin.register(CustomerVisit)

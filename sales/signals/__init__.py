@@ -1,6 +1,7 @@
 from django.db.models.signals import pre_save, post_save, pre_delete
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from django.db import models
-from django.utils import timezone
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from inventory.models import StockMovement, Product, StockMovementItem
@@ -190,6 +191,27 @@ def update_order_status(sender, instance, **kwargs):
         instance.status = SalesOrder.REJECTED
 
 
+# Trip progress rules
 
+# 1. Trip status cannot be changed if its vehicle warehouse is null.
+@receiver(pre_save, sender=Trip)
+def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
+    if instance.status != Trip.WAITING:
+        # If a trip vehicle is not specified
+        if not instance.vehicle:
+            raise ValidationError(_('Trip must have an associated vehicle to start the trip.'))
+        # If a trip vehicle is specified but doesn't have a warehouse
+        if instance.vehicle and not instance.vehicle.warehouse:
+            raise ValidationError(_('Vehicle must have an associated warehouse to start the trip.'))
 
+# 2. CustomerVisit status can only be changed if Trip status is ON_PROGRESS.
+@receiver(pre_save, sender=CustomerVisit)
+def ensure_trip_status_on_progress(sender, instance, **kwargs):
+    if instance.status != Trip.WAITING and instance.trip.status != Trip.ON_PROGRESS:
+        raise ValidationError(_('CustomerVisit status can only be changed if associated Trip status is ON_PROGRESS.'))
 
+# 3. CustomerVisit status cannot be changed to COMPLETED if CustomerVisit sales_order is null.
+@receiver(pre_save, sender=CustomerVisit)
+def ensure_customer_visit_sales_order_for_completion(sender, instance, **kwargs):
+    if instance.status == Trip.COMPLETED and not instance.sales_order:
+        raise ValidationError(_('CustomerVisit status cannot be set to COMPLETED if its sales_order is null.'))

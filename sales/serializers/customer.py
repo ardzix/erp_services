@@ -228,13 +228,13 @@ class CustomerSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class CustomerListSerializer(CustomerSerializer):
+class CustomerListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['id32', 'name', 'store_name', 'contact_number', 'address']
 
 
-class CustomerLiteSerializer(CustomerSerializer):
+class CustomerLiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['id32', 'name', 'store_name',

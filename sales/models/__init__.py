@@ -5,6 +5,7 @@ from libs.base_model import BaseModelGeneric, User
 from common.models import File, AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
 from inventory.models import Product, StockMovement, Unit
 from identities.models import CompanyProfile
+from logistics.models import Vehicle
 
 APPROVED_BY = 'Approved by'
 APPROVED_AT = 'Approved at'
@@ -189,7 +190,7 @@ class OrderItem(BaseModelGeneric):
             id32=self.id32,
             product=self.product.name,
             quantity=self.quantity,
-            unit=self.product.sales_unit.symbol
+            unit=self.product.sales_unit.symbol if self.product.sales_unit else '-'
         )
 
     class Meta:
@@ -321,8 +322,9 @@ class Trip(BaseModelGeneric):
         'Date'), help_text=_('Date for the canvasing trip'))
     salesperson = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='canvasing_salesperson')
-    driver = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='canvasing_driver')
+    vehicle = models.ForeignKey(
+        Vehicle, on_delete=models.SET_NULL, blank=True, null=True
+    )
     
     CANVASING = 'canvasing'
     TAKING_ORDER = 'taking_order'

@@ -10,7 +10,7 @@ class VehicleAdmin(BaseAdmin):
     list_display = ['id32', 'name', 'driver']
     list_filter = ['driver']
     search_fields = ['name']
-    fields = ['name', 'driver', 'license_plate']
+    fields = ['name', 'driver', 'license_plate', 'warehouse']
     raw_id_fields = ['driver']
 
 

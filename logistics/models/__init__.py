@@ -4,13 +4,14 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from libs.base_model import BaseModelGeneric
-from inventory.models import StockMovement
+from inventory.models import StockMovement, Warehouse
 
 
 class Vehicle(BaseModelGeneric):
     name = models.CharField(max_length=100, help_text=_("Enter the vehicle name"))
     driver = models.ForeignKey('Driver', on_delete=models.SET_NULL, null=True, blank=True, related_name='vehicles', help_text=_("Select the driver for this vehicle"))
     license_plate = models.CharField(max_length=20, help_text=_("Enter the license plate"))
+    warehouse = models.ForeignKey(Warehouse, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return _("Vehicle #{vehicle_id} - {vehicle_name}").format(vehicle_id=self.id32, vehicle_name=self.name)

@@ -125,7 +125,7 @@ class CustomerVisitStatusUpdateViewSet(viewsets.GenericViewSet):
 
     def partial_update(self, request, id32=None):
         """
-        Handle partial updates to an existing Customer Visit's status.
+        Handle updates to an existing Customer Visit's status and sales order.
         
         Parameters:
         - request: The request containing the data to be updated.
