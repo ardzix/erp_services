@@ -96,27 +96,3 @@ class BaseAdmin(LeafletGeoAdmin, VersionAdmin):
         if isinstance(message, ValidationError):
             level = messages.ERROR
         super().message_user(request, message, level, extra_tags, fail_silently)
-
-    # def save_model(self, request, obj, form, change):
-    #     if not change:  # Only set the created_by field for new objects
-    #         obj.created_by = request.user
-    #         obj.created_at = timezone.now()
-    #         obj.created_at_timestamp = timezone.now().timestamp()
-    #     obj.updated_by = request.user
-    #     try:
-    #         obj.full_clean()  # Perform model validation before saving
-    #         super().save_model(request, obj, form, change)
-    #     except ValidationError as e:
-    #         self.message_user(request, f"Error: {str(e)}", level='error')
-
-    def save_related(self, request, form, formsets, change):
-        for formset in formsets:
-            self.save_formset(request, form, formset, change=change)
-        form.save_m2m()
-
-    def save_formset(self, request, form, formset, change):
-        instances = formset.save(commit=False)
-        for instance in instances:
-            instance.created_by = request.user
-            instance.save()
-        formset.save_m2m()
