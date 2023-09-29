@@ -47,3 +47,11 @@ class WarehouseSerializer(serializers.ModelSerializer):
         }
 
         return representation
+
+
+class WarehouseListSerializer(WarehouseSerializer):
+
+    class Meta:
+        model = Warehouse
+        fields = ['id32', 'name', 'type']
+        read_only_fields = ['id32']

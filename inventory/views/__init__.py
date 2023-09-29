@@ -9,7 +9,7 @@ from ..serializers.product import ProductListSerializer, ProductDetailSerializer
 from ..serializers.stock_movement import StockMovementListSerializer, StockMovementDetailSerializer, StockMovementCreateSerializer, StockMovementItemSerializer
 from ..serializers.unit import UnitCreateUpdateSerializer, UnitDetailSerializer, UnitListSerializer
 from ..serializers.category import CategoryListSerializer, CategoryDetailSerializer
-from ..serializers.warehouse import WarehouseSerializer
+from ..serializers.warehouse import WarehouseSerializer, WarehouseListSerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -112,12 +112,16 @@ class StockMovementItemViewSet(viewsets.ModelViewSet):
 
 class WarehouseViewSet(viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
-    serializer_class = WarehouseSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination  # Add your custom pagination class if needed
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     search_fields = ['name', 'address']
     filterset_fields = ['type']
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return WarehouseListSerializer
+        return WarehouseSerializer
 
 #0d8f1001b083153bcee525c4a8088211505d8f03
