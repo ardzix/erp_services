@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
+from logistics.models import Vehicle
 from ..models import (
     TripTemplate,
     TripCustomer,
@@ -168,7 +169,7 @@ class GenerateTripsSerializer(serializers.Serializer):
     start_date = serializers.DateField()
     end_date = serializers.DateField()
     salesperson_username = serializers.CharField(write_only=True)
-    driver_username = serializers.CharField(write_only=True)
+    vehicle_id32 = serializers.CharField(write_only=True)
 
     def validate(self, data):
         if data['start_date'] > data['end_date']:
@@ -184,13 +185,13 @@ class GenerateTripsSerializer(serializers.Serializer):
                 _("Salesperson with this username does not exist."))
         return user
 
-    def validate_driver_username(self, value):
+    def validate_vehicle_id32(self, value):
         try:
-            user = User.objects.get(username=value)
-        except User.DoesNotExist:
+            vehicle = Vehicle.objects.get(id32=value)
+        except Vehicle.DoesNotExist:
             raise serializers.ValidationError(
-                _("Driver with this username does not exist."))
-        return user
+                _("Vehicle with this id32 does not exist."))
+        return vehicle
 
 
 class CustomerVisitStatusSerializer(serializers.ModelSerializer):
