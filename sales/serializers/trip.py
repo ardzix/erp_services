@@ -103,6 +103,11 @@ class TripRepresentationMixin():
             'key': instance.status,
             'value': status_dict.get(instance.status, ""),
         }
+        type_dict = dict(Trip.TYPE_CHOICES)
+        representation['type'] = {
+            'key': instance.type,
+            'value': type_dict.get(instance.type, ""),
+        }
         if instance.vehicle:
             representation['vehicle'] = {
                 'name': instance.vehicle.name,
@@ -148,7 +153,7 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
 
     class Meta:
         model = Trip
-        fields = ['id32', 'template', 'date',
+        fields = ['id32', 'template', 'date', 'type',
                   'salesperson', 'vehicle', 'status', 'customer_visits']
         read_only_fields = ['id32']
 
@@ -172,6 +177,7 @@ class GenerateTripsSerializer(serializers.Serializer):
     end_date = serializers.DateField()
     salesperson_username = serializers.CharField(write_only=True)
     vehicle_id32 = serializers.CharField(write_only=True)
+    type = serializers.ChoiceField(choices=Trip.TYPE_CHOICES)
 
     def validate(self, data):
         if data['start_date'] > data['end_date']:

@@ -277,7 +277,7 @@ class TripTemplate(BaseModelGeneric):
         verbose_name = _('Trip Template')
         verbose_name_plural = _('Trip Templates')
 
-    def generate_trips(self, start_date, end_date, salesperson, vehicle):
+    def generate_trips(self, start_date, end_date, salesperson, vehicle, type):
         generated_trips = []
         current_date = start_date
         while current_date <= end_date:
@@ -286,8 +286,7 @@ class TripTemplate(BaseModelGeneric):
                 date=current_date,
                 salesperson=salesperson,
                 vehicle=vehicle,
-                # Assuming the template has a reference to the user who created it.
-                created_by=self.created_by
+                type=type,
             )
             generated_trips.append(trip)
             current_date += timedelta(days=1)

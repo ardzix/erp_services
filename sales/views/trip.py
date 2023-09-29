@@ -44,8 +44,9 @@ class TripTemplateViewSet(viewsets.ModelViewSet):
         end_date = serializer.validated_data['end_date']
         salesperson = serializer.validated_data['salesperson_username']
         vehicle = serializer.validated_data['vehicle_id32']
-        
-        trips = trip_template.generate_trips(start_date, end_date, salesperson, vehicle)
+        type = serializer.validated_data['type']
+
+        trips = trip_template.generate_trips(start_date, end_date, salesperson, vehicle, type)
 
         return Response(TripListSerializer(trips, many=True).data)
 
