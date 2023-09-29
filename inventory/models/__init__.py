@@ -299,6 +299,13 @@ class Warehouse(BaseModelGeneric):
         blank=True,
         help_text=_("Enter the warehouse location coordinates")
     )
+    VEHICLE = 'vehicle'
+    BUILDING = 'building'
+    TYPE_CHOICES = [
+        (VEHICLE, _('Vehicle')),
+        (BUILDING, _('Building')),
+    ]
+    type = models.CharField(choices=TYPE_CHOICES, max_length=20, default=BUILDING)
 
     def __str__(self):
         return _("Warehouse #{warehouse_id} - {warehouse_name}").format(
