@@ -26,12 +26,8 @@ class ProductViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             return ProductEditSerializer
         return super().get_serializer_class()
-
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
     
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+
 
     @action(detail=True, methods=['post'], serializer_class=SetFileSerializer)
     def set_picture(self, request, id32=None):
@@ -67,8 +63,7 @@ class StockMovementViewSet(mixins.RetrieveModelMixin,
             return StockMovementUpdateSerializer
         return super().get_serializer_class()
     
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+
 
 class UnitViewSet(viewsets.ModelViewSet):
     queryset = Unit.objects.all()
@@ -83,11 +78,9 @@ class UnitViewSet(viewsets.ModelViewSet):
             return UnitDetailSerializer
         return UnitCreateUpdateSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+
     
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -100,11 +93,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return CategoryListSerializer
         return CategoryDetailSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+
     
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+
 
 
 #e920477217b35578fa1e71f7aa5b280771987b13

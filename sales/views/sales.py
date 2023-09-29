@@ -21,10 +21,8 @@ class SalesOrderViewSet(viewsets.ModelViewSet):
             return SalesOrderDetailSerializer
         return SalesOrderSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+
     
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+
 
 # e920477217b35578fa1e71f7aa5b280771987b13

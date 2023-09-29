@@ -1,23 +1,42 @@
 from __future__ import unicode_literals
-import timeago
-from datetime import timedelta
-from itertools import chain
+
 from django.db import models
 from django.utils import timezone
-from django.contrib.gis.db import models as geo
-from django.contrib.gis.geos import Point
 from django.contrib.sites.models import Site
-from django.db.models import Manager as GeoManager
-from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
-
-from .moment import to_timestamp
+from django.db import models
 from .base32 import base32_encode
+from .middleware import _thread_locals
+
+
+class SoftDeletableManager(models.Manager):
+    """
+    Manager that filters out soft-deleted records by default.
+    """
+
+    def get_queryset(self):
+        """
+        Override the default queryset to exclude soft-deleted records.
+        """
+        return super().get_queryset().filter(deleted_at__isnull=True)
+
+
+class AllObjectsManager(models.Manager):
+    """
+    Manager that includes soft-deleted records.
+    """
+
+    def get_queryset(self):
+        """
+        Get the default queryset without any additional filtering.
+        """
+        return super().get_queryset()
 
 
 User = settings.AUTH_USER_MODEL
 
 CREATED_BY_RELATED_NAME = '%(app_label)s_%(class)s_created_by'
+
 
 class _BaseAbstract(models.Model):
     site = models.ForeignKey(Site, related_name="%(app_label)s_%(class)s_site",
@@ -35,7 +54,8 @@ class _BaseAbstract(models.Model):
                                    related_name=CREATED_BY_RELATED_NAME)
 
     owned_at = models.DateTimeField(db_index=True, blank=True, null=True)
-    owned_at_timestamp = models.PositiveIntegerField(db_index=True, blank=True, null=True)
+    owned_at_timestamp = models.PositiveIntegerField(
+        db_index=True, blank=True, null=True)
     owned_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
                                  related_name="%(app_label)s_%(class)s_owner")
 
@@ -76,148 +96,114 @@ class _BaseAbstract(models.Model):
                                    null=True, on_delete=models.CASCADE,
                                    related_name="%(app_label)s_%(class)s_deleted_by")
 
+    # Add the custom manager
+    objects = SoftDeletableManager()
+    all_objects = AllObjectsManager()
+
+    @property
+    def _current_user(self):
+        return getattr(_thread_locals, 'user', None)
+
+    # =========================
+    # Helper Methods
+    # =========================
+    def _set_timestamp(self, field_name):
+        now = timezone.now()
+        setattr(self, field_name, now)
+        setattr(self, f"{field_name}_timestamp", int(now.timestamp()))
+
+    def _set_user_action(self, action, user):
+        if user:
+            self._set_timestamp(f"{action}_at")
+            setattr(self, f"{action}_by", user)
+
+    def _nullify_user_action(self, action):
+        setattr(self, f"{action}_at", None)
+        setattr(self, f"{action}_at_timestamp", None)
+        setattr(self, f"{action}_by", None)
+
+    # =========================
+    # Main Methods
+    # =========================
     def save(self, *args, **kwargs):
         now = timezone.now()
 
-        # create first time record
         if self.created_at is None:
-            self.created_at = now
-            self.created_at_timestamp = to_timestamp(self.created_at)
-        
+            self._set_user_action('created', self._current_user)
+
         if not self.site:
             self.site = Site.objects.get_current()
 
-        # always update
-        self.updated_at = now
-        self.updated_at_timestamp = to_timestamp(self.updated_at)
+        self._set_user_action('updated', self._current_user)
 
-        # generate id32
         if not self.id32:
-            prev = self.__class__.objects.last()
+            prev = self.__class__.all_objects.last()
             obj_id = 1
             if prev:
-                obj_id = prev.id +1
+                obj_id = prev.id + 1
             self.id32 = base32_encode(obj_id)
 
-        return super(_BaseAbstract, self).save(*args, **kwargs)
+        super(_BaseAbstract, self).save(*args, **kwargs)
 
-    def approve(self, user=None, *args, **kwargs):
-        if user:
-            # mark when the record deleted
-            self.unapproved_at = None
-            self.unapproved_at_timestamp = None
-            self.unapproved_by = None
-            self.approved_at = timezone.now()
-            self.approved_at_timestamp = to_timestamp(self.approved_at)
-            self.approved_by = user
+    def approve(self, user=None):
+        self._set_user_action('approved', user)
+        self._nullify_user_action('unapproved')
+        self.save()
 
-            # save it
-            return super(_BaseAbstract, self).save(*args, **kwargs)
+    def unapprove(self, user=None):
+        self._set_user_action('unapproved', user)
+        self._nullify_user_action('approved')
+        self.save()
 
-    def unapprove(self, user=None, *args, **kwargs):
-        if user:
-            # mark when the record reovered
-            self.approved_at = None
-            self.approved_at_timestamp = None
-            self.approved_by = None
-            self.unapproved_at = timezone.now()
-            self.unapproved_at_timestamp = to_timestamp(self.unapproved_at)
-            self.unapproved_by = user
+    def reject(self, user=None):
+        self.unapprove(user)
 
-            # save it
-            return super(_BaseAbstract, self).save(*args, **kwargs)
+    def publish(self, user=None):
+        self._set_user_action('published', user if user else self._current_user)
+        self._nullify_user_action('unpublished')
+        self.save()
 
-    def reject(self, user=None, *args, **kwargs):
-        self.unapprove(user, *args, **kwargs)
+    def unpublish(self, user=None):
+        self._set_user_action('unpublished', user if user else self._current_user)
+        self._nullify_user_action('published')
+        self.save()
 
-    def publish(self, user=None, *args, **kwargs):
-        if user:
-            # mark when the record deleted
-            self.unpublished_at = None
-            self.unpublished_at_timestamp = None
-            self.unpublished_by = None
-            self.published_at = timezone.now()
-            self.published_at_timestamp = to_timestamp(self.published_at)
-            self.published_by = user
+        # Soft delete method
+    def delete(self, user=None, *args, **kwargs):
+        """
+        Overridden delete method to perform a soft delete. Instead of removing 
+        the instance from the database, it sets deleted_at and deleted_by fields.
+        """
+        # Mark when the record was deleted
+        self._set_user_action('deleted', user if user else self._current_user)
 
-            # save it
-            return super(_BaseAbstract, self).save(*args, **kwargs)
-
-    def unpublish(self, user=None, *args, **kwargs):
-        if user:
-            # mark when the record reovered
-            self.published_at = None
-            self.published_at_timestamp = None
-            self.published_by = None
-            self.unpublished_at = timezone.now()
-            self.unpublished_at_timestamp = to_timestamp(self.unpublished_at)
-            self.unpublished_by = user
-
-            # save it
-            return super(_BaseAbstract, self).save(*args, **kwargs)
-
-    # def delete(self, user=None, *args, **kwargs):
-    #     if user:
-    #         # mark when the record deleted
-    #         self.deleted_by = user
-
-    #     self.deleted_at = timezone.now()
-    #     self.deleted_at_timestamp = to_timestamp(self.deleted_at)
-
-    #     # save it if there's a deleter
-    #     return super(_BaseAbstract, self).save(*args, **kwargs)
+        # Instead of hard deleting the record, we update the fields
+        self.save()
 
     def permanent_delete(self, *args, **kwargs):
-        return super(_BaseAbstract, self).delete(*args, **kwargs)
+        super(_BaseAbstract, self).delete(*args, **kwargs)
 
-    def undelete(self, user=None, *args, **kwargs):
-        if user:
-            # mark when the record undeleted
-            self.deleted_at = None
-            self.deleted_at_timestamp = None
-            self.deleted_by = user
+    def undelete(self, user=None):
+        self._nullify_user_action('deleted')
+        self._set_user_action('updated', user if user else self._current_user)
+        self.save()
 
-            # save it if there's a deleter
-            return super(_BaseAbstract, self).save(*args, **kwargs)
-
-    # Getter
-    def get_owner(self):
-        return self.owned_by
-
-    def get_creator(self):
+    # =========================
+    # Property Methods
+    # =========================
+    @property
+    def creator(self):
         return self.created_by
 
-    def get_created_at(self):
-        return {
-            'utc': self.created_at,
-            'timestamp': self.created_at_timestamp,
-            'timeago': timeago.format(self.created_at.replace(tzinfo=None) + timedelta(hours=7))
-        }
+    @property
+    def owner(self):
+        return self.owned_by
 
-    def get_deleted_at(self):
-        return {
-            'utc': self.deleted_at,
-            'timestamp': self.deleted_at_timestamp,
-            'timeago': timeago.format(self.deleted_at.replace(tzinfo=None) + timedelta(hours=7))
-        }
+    # ... Add other property methods
 
-    def get_approved_at(self):
-        return {
-            'utc': self.approved_at,
-            'timestamp': self.approved_at_timestamp,
-            'timeago': timeago.format(self.approved_at.replace(tzinfo=None) + timedelta(hours=7))
-        }
-
-    def get_published_at(self):
-        return {
-            'utc': self.published_at,
-            'timestamp': self.published_at_timestamp,
-            'timeago': timeago.format(self.published_at.replace(tzinfo=None) + timedelta(hours=7))
-        }
-
-    def get_content_type(self):
-        return ContentType.objects.get_for_model(self)
-
+    # =========================
+    # Status Method
+    # =========================
     def get_status(self):
         if not self.approved_by and self.unapproved_by:
             approve_message = "REJECTED"
@@ -233,23 +219,7 @@ class _BaseAbstract(models.Model):
         else:
             publish_message = "waiting to be published"
 
-        return "Approval status: (%s), Publish status: (%s)" % (
-            approve_message, publish_message)
-
-    # Backward
-    def get_all_field_names(self):
-        return list(
-            set(
-                chain.from_iterable(
-                    (field.name, field.attname) if hasattr(
-                        field, 'attname') else (field.name,)
-                    for field in self._meta.get_fields()
-                    # For complete backwards compatibility, you may want to exclude
-                    # GenericForeignKey from the results.
-                    if not (field.many_to_one and field.related_model is None)
-                )
-            )
-        )
+        return f"Approval status: ({approve_message}), Publish status: ({publish_message})"
 
     class Meta:
         abstract = True
@@ -269,7 +239,6 @@ class BaseModelUnique(_BaseAbstract):
 
     class Meta:
         abstract = True
-
 
 
 class NonceObject(object):

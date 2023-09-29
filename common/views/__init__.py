@@ -23,8 +23,7 @@ class FileViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['post']
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+
 
 
 class MeView(APIView):

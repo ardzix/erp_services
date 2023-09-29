@@ -29,11 +29,9 @@ class TripTemplateViewSet(viewsets.ModelViewSet):
             return GenerateTripsSerializer
         return TripTemplateDetailSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+
     
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+
 
     @action(detail=True, methods=['post'])
     def generate_trips(self, request, id32=None):    
@@ -64,11 +62,9 @@ class TripViewSet(viewsets.ModelViewSet):
             return TripListSerializer
         return TripDetailSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+
     
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+
 
     @action(detail=True, methods=['post'])
     def generate_report(self, request, pk=None):
@@ -89,11 +85,9 @@ class CustomerVisitViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination  # Add your custom pagination class if needed
     serializer_class = CustomerVisitSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+
     
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+
 
 class ReportViewSet(viewsets.ModelViewSet):
     queryset = CustomerVisitReport.objects.all()
@@ -102,11 +96,9 @@ class ReportViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination  # Add your custom pagination class if needed
     serializer_class = CustomerVisitReportSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+
     
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+
 class CustomerVisitStatusUpdateViewSet(viewsets.GenericViewSet):
     """
     Customer Visit Status API endpoints.
@@ -140,9 +132,3 @@ class CustomerVisitStatusUpdateViewSet(viewsets.GenericViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-
-    def perform_update(self, serializer):
-        """
-        Save the updated Customer Visit instance and associate the update with the authenticated user.
-        """
-        serializer.save(updated_by=self.request.user)
