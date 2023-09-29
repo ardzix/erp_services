@@ -215,3 +215,10 @@ def ensure_trip_status_on_progress(sender, instance, **kwargs):
 def ensure_customer_visit_sales_order_for_completion(sender, instance, **kwargs):
     if instance.status == Trip.COMPLETED and not instance.sales_order:
         raise ValidationError(_('CustomerVisit status cannot be set to COMPLETED if its sales_order is null.'))
+    
+# 4. CustomerVisit status cannot be changed to SKIPPED if notes, visit_evidence, or signature is null.
+@receiver(pre_save, sender=CustomerVisit)
+def ensure_fields_present_when_skipped(sender, instance, **kwargs):
+    if instance.status == Trip.SKIPPED:
+        if not all([instance.notes, instance.visit_evidence, instance.signature]):
+            raise ValidationError(_('CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or signature are null.'))

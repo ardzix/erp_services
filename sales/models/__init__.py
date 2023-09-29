@@ -373,6 +373,10 @@ class CustomerVisit(BaseModelGeneric):
     order = models.PositiveIntegerField(verbose_name=_(
         'Order'), help_text=_(ORDER_OF_CUSTOMER_VISIT))
 
+    visit_evidence = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_visit_evidence', blank=True, null=True, on_delete=models.SET_NULL)
+    signature = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
+    notes = models.TextField(blank=True, null=True)
+
     class Meta:
         verbose_name = _('Customer Visit')
         verbose_name_plural = _('Customer Visits')

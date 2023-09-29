@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
+from common.models import File
 from logistics.models import Vehicle
 from ..models import (
     TripTemplate,
@@ -119,7 +120,7 @@ class CustomerVisitSerializer(serializers.ModelSerializer):
         model = CustomerVisit
         fields = ['id32', 'customer', 'sales_order', 'status', 'order']
         read_only_fields = ['id32']
-    
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
@@ -156,6 +157,7 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
             return super().update(instance, validated_data)
         except Exception as e:
             raise serializers.ValidationError(list(e))
+
 
 class CustomerVisitReportSerializer(serializers.ModelSerializer):
     class Meta:
@@ -196,10 +198,15 @@ class GenerateTripsSerializer(serializers.Serializer):
 
 class CustomerVisitStatusSerializer(serializers.ModelSerializer):
     sales_order_id32 = serializers.CharField(write_only=True)
+    visit_evidence_id32 = serializers.CharField(write_only=True)
+    signature_id32 = serializers.CharField(write_only=True)
+
     class Meta:
         model = CustomerVisit
-        fields = ['status', 'sales_order_id32', 'sales_order']
-        read_only_fields = ['sales_order']
+        fields = ['status', 'sales_order_id32', 'sales_order',
+                  'visit_evidence_id32', 'signature_id32',
+                  'visit_evidence', 'signature', 'notes']
+        read_only_fields = ['sales_order', 'visit_evidence', 'signature']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -210,13 +217,79 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
                 'str': instance.sales_order.__str__()
             }
 
+        # Handle Files
+        # For each file field, if the attribute exists on the instance,
+        # add its 'id32' and 'url' to the representation dictionary.
+        file_fields = ['visit_evidence', 'signature']
+        for field in file_fields:
+            attr_instance = getattr(instance, field)
+            if attr_instance:
+                representation[field] = {
+                    'id32': attr_instance.id32,
+                    'url': attr_instance.file.url
+                }
+
         return representation
+
+
+    def validate_file_by_id32(self, value, error_message):
+        """
+        Helper method to validate file existence by its id32.
+
+        Parameters:
+        - value (str): The id32 of the file to be validated.
+        - error_message (str): The error message template to be returned if validation fails.
+
+        Returns:
+        - File instance: The File instance if found.
+
+        Raises:
+        - serializers.ValidationError: If the file with the given id32 does not exist.
+        """
+        if not value:
+            return value
+
+        try:
+            file = File.objects.get(id32=value)
+            return file
+        except File.DoesNotExist:
+            raise serializers.ValidationError(
+                error_message.format(value=value))
+
+    def validate_visit_evidence_id32(self, value):
+        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the visit evidence.")
+
+    def validate_signature_id32(self, value):
+        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the signature.")
+
+    def handle_file_fields(self, validated_data, fields):
+        """
+        Handle file fields in the validated data.
+
+        Parameters:
+        - validated_data (dict): The data validated by the serializer.
+        - fields (dict): The mapping of the field name in validated data to its model name.
+
+        Returns:
+        - dict: The validated data with file fields mapped to their respective models.
+        """
+        for field_name, model_name in fields.items():
+            if field_name in validated_data:
+                file_object = validated_data.pop(field_name)
+                validated_data[model_name] = file_object
+        return validated_data
 
     def update(self, instance, validated_data):
         if 'sales_order_id32' in validated_data:
             sales_order_id32 = validated_data.pop('sales_order_id32')
             sales_order = SalesOrder.objects.get(id32=sales_order_id32)
             validated_data['sales_order'] = sales_order
+        
+        file_fields = {
+            'visit_evidence_id32': 'visit_evidence',
+            'signature_id32': 'signature'
+        }
+        validated_data = self.handle_file_fields(validated_data, file_fields)
         try:
             return super().update(instance, validated_data)
         except Exception as e:
