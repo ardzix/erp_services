@@ -4,9 +4,11 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.sites.models import Site
 from django.conf import settings
-from django.db import models
 from .base32 import base32_encode
 from .middleware import _thread_locals
+
+User = settings.AUTH_USER_MODEL
+CREATED_BY_RELATED_NAME = '%(app_label)s_%(class)s_created_by'
 
 
 class SoftDeletableManager(models.Manager):
@@ -31,11 +33,6 @@ class AllObjectsManager(models.Manager):
         Get the default queryset without any additional filtering.
         """
         return super().get_queryset()
-
-
-User = settings.AUTH_USER_MODEL
-
-CREATED_BY_RELATED_NAME = '%(app_label)s_%(class)s_created_by'
 
 
 class _BaseAbstract(models.Model):
@@ -102,6 +99,7 @@ class _BaseAbstract(models.Model):
 
     @property
     def _current_user(self):
+        """Retrieve the current user from thread-local storage."""
         return getattr(_thread_locals, 'user', None)
 
     # =========================
@@ -126,8 +124,7 @@ class _BaseAbstract(models.Model):
     # Main Methods
     # =========================
     def save(self, *args, **kwargs):
-        now = timezone.now()
-
+        """Overwrite the save method to incorporate custom logic."""
         if self.created_at is None:
             self._set_user_action('created', self._current_user)
 
@@ -138,9 +135,7 @@ class _BaseAbstract(models.Model):
 
         if not self.id32:
             prev = self.__class__.all_objects.last()
-            obj_id = 1
-            if prev:
-                obj_id = prev.id + 1
+            obj_id = prev.id + 1 if prev else 1
             self.id32 = base32_encode(obj_id)
 
         super(_BaseAbstract, self).save(*args, **kwargs)
@@ -159,12 +154,14 @@ class _BaseAbstract(models.Model):
         self.unapprove(user)
 
     def publish(self, user=None):
-        self._set_user_action('published', user if user else self._current_user)
+        self._set_user_action(
+            'published', user if user else self._current_user)
         self._nullify_user_action('unpublished')
         self.save()
 
     def unpublish(self, user=None):
-        self._set_user_action('unpublished', user if user else self._current_user)
+        self._set_user_action(
+            'unpublished', user if user else self._current_user)
         self._nullify_user_action('published')
         self.save()
 
@@ -242,23 +239,24 @@ class BaseModelUnique(_BaseAbstract):
 
 
 class NonceObject(object):
-    MODEL = None
-    NONCE = None
-    OBJ = None
+    """
+    Utility object for models using nonce for retrieval or creation.
+
+    Initialize with a model and nonce. If an object with that nonce exists,
+    it's retrieved, otherwise a new object (without saving) is created.
+    """
 
     def __init__(self, *args, **kwargs):
         self.MODEL = kwargs.get("model")
         self.NONCE = kwargs.get("nonce")
-        obj = self.MODEL.objects.filter(nonce=self.NONCE).first()
-        if not obj:
-            obj = self.MODEL(nonce=self.NONCE)
+        obj = self.MODEL.objects.filter(
+            nonce=self.NONCE).first() or self.MODEL(nonce=self.NONCE)
         self.OBJ = obj
 
     def get_object(self):
+        """Return the associated model object."""
         return self.OBJ
 
     def is_exist(self):
-        if self.OBJ.id:
-            return True
-        else:
-            return False
+        """Check if the associated model object exists in the database."""
+        return bool(self.OBJ.id)
