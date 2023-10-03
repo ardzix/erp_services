@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status, filters
+from django_filters import rest_framework as django_filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 from libs.pagination import CustomPagination
 from common.serializers import SetFileSerializer
 from ..models import Product, StockMovement, Unit, Category, StockMovementItem, Warehouse
@@ -115,7 +115,7 @@ class WarehouseViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination 
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, django_filters.DjangoFilterBackend]
     search_fields = ['name', 'address']
     filterset_fields = ['type']
 
@@ -123,5 +123,3 @@ class WarehouseViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return WarehouseListSerializer
         return WarehouseSerializer
-
-#0d8f1001b083153bcee525c4a8088211505d8f03

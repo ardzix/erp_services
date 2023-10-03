@@ -435,6 +435,7 @@ class WarehouseStock(BaseModelGeneric):
     expire_date = models.DateField(blank=True, null=True)
     inbound_movement_item = models.ForeignKey(StockMovementItem, blank=True, null=True, on_delete=models.SET_NULL, related_name='inbound_stock_item')
     dispatch_movement_items = models.ManyToManyField(StockMovementItem, blank=True, related_name='dispatch_stock_items')
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
 
     def __str__(self):
         return _(
