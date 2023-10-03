@@ -110,9 +110,15 @@ class TripRepresentationMixin():
         }
         if instance.vehicle:
             representation['vehicle'] = {
+                'id32': instance.vehicle.id32,
                 'name': instance.vehicle.name,
                 'license_plate': instance.vehicle.license_plate,
                 'driver': instance.vehicle.driver.name if instance.vehicle.driver else None,
+            }
+        if instance.salesperson:
+            representation['salesperson'] = {
+                'username': instance.salesperson.username,
+                'full_name': f'{instance.salesperson.first_name} {instance.salesperson.last_name}'
             }
 
         return representation
@@ -150,18 +156,43 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
     template = TripTemplateListSerializer()
     customer_visits = CustomerVisitSerializer(
         many=True, source='customervisit_set')
+    salesperson_username = serializers.CharField(write_only=True)
+    vehicle_id32 = serializers.CharField(write_only=True)
 
     class Meta:
         model = Trip
         fields = ['id32', 'template', 'date', 'type',
-                  'salesperson', 'vehicle', 'status', 'customer_visits']
-        read_only_fields = ['id32']
+                  'salesperson', 'salesperson_username', 'vehicle', 'vehicle_id32',
+                  'status', 'customer_visits']
+        read_only_fields = ['id32', 'vehicle', 'salesperson']
 
     def update(self, instance, validated_data):
+        if 'vehicle_id32' in validated_data:
+            validated_data['vehicle'] = validated_data.pop('vehicle_id32')
+
+        if 'salesperson_username' in validated_data:
+            validated_data['sales_person'] = validated_data.pop('salesperson_username')
+
         try:
             return super().update(instance, validated_data)
         except Exception as e:
             raise serializers.ValidationError(list(e))
+
+    def validate_salesperson_username(self, value):
+        try:
+            user = User.objects.get(username=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                _("Salesperson with this username does not exist."))
+        return user
+
+    def validate_vehicle_id32(self, value):
+        try:
+            vehicle = Vehicle.objects.get(id32=value)
+        except Vehicle.DoesNotExist:
+            raise serializers.ValidationError(
+                _("Vehicle with this id32 does not exist."))
+        return vehicle
 
 
 class CustomerVisitReportSerializer(serializers.ModelSerializer):

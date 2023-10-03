@@ -40,3 +40,6 @@ src/
 # migrations
 core/structures/**/migrations/*
 !core/structures/**/migrations/__init__.py
+
+# personal notes
+tokens.md
