@@ -18,7 +18,7 @@ class TripTemplateViewSet(viewsets.ModelViewSet):
     queryset = TripTemplate.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
     serializer_class = TripTemplateDetailSerializer
     http_method_names = ['get', 'post', 'delete', 'head', 'options', 'put']
     
@@ -54,7 +54,7 @@ class TripViewSet(viewsets.ModelViewSet):
     queryset = Trip.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
     serializer_class = TripDetailSerializer
     http_method_names = ['get', 'patch', 'delete', 'head', 'options', 'put']
 
@@ -83,7 +83,7 @@ class CustomerVisitViewSet(viewsets.ModelViewSet):
     queryset = CustomerVisit.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
     serializer_class = CustomerVisitSerializer
 
 
@@ -94,7 +94,7 @@ class ReportViewSet(viewsets.ModelViewSet):
     queryset = CustomerVisitReport.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
     serializer_class = CustomerVisitReportSerializer
 
 

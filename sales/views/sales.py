@@ -12,7 +12,7 @@ class SalesOrderViewSet(viewsets.ModelViewSet):
     queryset = SalesOrder.objects.all()
     serializer_class = SalesOrderSerializer
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
     def get_serializer_class(self):
         if self.action == 'list':

@@ -24,6 +24,7 @@ from common.router import router as common_router
 from hr.router import router as hr_router
 from identities.router import router as identities_router
 from inventory.router import router as inventory_router
+from logistics.router import router as logistics_router
 from purchasing.router import router as purchasing_router
 from sales.router import router as sales_router
 from django.conf.urls.i18n import i18n_patterns
@@ -53,6 +54,7 @@ urlpatterns = [
     path('api/hr/', include(hr_router.urls)),
     path('api/identities/', include(identities_router.urls)),
     path('api/inventory/', include(inventory_router.urls)),
+    path('api/logistics/', include(logistics_router.urls)),
     path('api/purchasing/', include(purchasing_router.urls)),
     path('api/sales/', include(sales_router.urls)),
 

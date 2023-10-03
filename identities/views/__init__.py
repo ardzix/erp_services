@@ -13,7 +13,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -25,11 +25,11 @@ class CompanyProfileViewSet(viewsets.ModelViewSet):
     serializer_class = CompanyProfileSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
 class BrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 

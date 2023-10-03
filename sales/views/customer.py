@@ -75,7 +75,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
     queryset = Customer.objects.all()
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
     def get_serializer_class(self):
         if self.action == 'list':

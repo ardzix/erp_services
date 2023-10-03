@@ -60,19 +60,3 @@ class DriverMovement(BaseModelGeneric):
     class Meta:
         verbose_name = _("Driver Movement")
         verbose_name_plural = _("Driver Movements")
-
-
-@receiver(post_save, sender=Job)
-def update_stock_movement_status(sender, instance, **kwargs):
-    stock_movement = instance.stock_movement
-    if instance.start_time and not instance.end_time:
-        # Job has started but not ended
-        # Update status to 5 (or any other desired value)
-        stock_movement.status = 5
-    elif instance.start_time and instance.end_time:
-        # Job has ended
-        # Update status to 6 (or any other desired value)
-        stock_movement.status = 6
-        stock_movement.movement_date = instance.end_time
-    stock_movement.updated_by = instance.updated_by
-    stock_movement.save()

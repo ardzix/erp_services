@@ -16,7 +16,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -52,7 +52,7 @@ class StockMovementViewSet(viewsets.ModelViewSet):
     queryset = StockMovement.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
     serializer_class = StockMovementDetailSerializer
 
     def get_serializer_class(self):
@@ -68,7 +68,7 @@ class UnitViewSet(viewsets.ModelViewSet):
     queryset = Unit.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -82,7 +82,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -95,7 +95,7 @@ class StockMovementItemViewSet(viewsets.ModelViewSet):
     serializer_class = StockMovementItemSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['stock_movement__id32']
     ordering_fields = ['id']
@@ -114,7 +114,7 @@ class WarehouseViewSet(viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     search_fields = ['name', 'address']
     filterset_fields = ['type']

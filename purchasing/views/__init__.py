@@ -23,7 +23,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -46,7 +46,7 @@ class SupplierProductViewSet(viewsets.ModelViewSet):
     serializer_class = SupplierProductSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
 
 
@@ -73,7 +73,7 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
     serializer_class = PurchaseOrderDetailSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination  # Add your custom pagination class if needed
+    pagination_class = CustomPagination 
 
     def get_serializer_class(self):
         if self.action == 'list':
