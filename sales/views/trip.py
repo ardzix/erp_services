@@ -8,6 +8,7 @@ from ..serializers.trip import (
     TripTemplateDetailSerializer,
     TripListSerializer,
     TripDetailSerializer,
+    TripUpdateSerializer,
     CustomerVisitSerializer,
     CustomerVisitReportSerializer,
     GenerateTripsSerializer,
@@ -61,6 +62,8 @@ class TripViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'list':
             return TripListSerializer
+        elif self.action in ['update', 'partial_update']:
+            return TripUpdateSerializer
         return TripDetailSerializer
 
 

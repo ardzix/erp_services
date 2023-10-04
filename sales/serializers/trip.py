@@ -153,18 +153,25 @@ class TripListSerializer(TripRepresentationMixin, serializers.ModelSerializer):
 
 
 class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer):
-    template = TripTemplateListSerializer()
+    template = TripTemplateListSerializer(read_only=True)
     customer_visits = CustomerVisitSerializer(
-        many=True, source='customervisit_set')
+        many=True, source='customervisit_set', read_only=True)
+
+    class Meta:
+        model = Trip
+        fields = ['id32', 'template', 'date', 'type',
+                  'salesperson', 'vehicle', 
+                  'status', 'customer_visits']
+        read_only_fields = ['id32', 'vehicle', 'salesperson', 'customer_visits', 'template']
+
+
+class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer):
     salesperson_username = serializers.CharField(write_only=True)
     vehicle_id32 = serializers.CharField(write_only=True)
 
     class Meta:
         model = Trip
-        fields = ['id32', 'template', 'date', 'type',
-                  'salesperson', 'salesperson_username', 'vehicle', 'vehicle_id32',
-                  'status', 'customer_visits']
-        read_only_fields = ['id32', 'vehicle', 'salesperson', 'customer_visits', 'template']
+        fields = ['date', 'type', 'salesperson_username', 'vehicle_id32', 'status']
 
     def update(self, instance, validated_data):
         if 'vehicle_id32' in validated_data:
