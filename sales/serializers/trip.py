@@ -164,7 +164,7 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
         fields = ['id32', 'template', 'date', 'type',
                   'salesperson', 'salesperson_username', 'vehicle', 'vehicle_id32',
                   'status', 'customer_visits']
-        read_only_fields = ['id32', 'vehicle', 'salesperson']
+        read_only_fields = ['id32', 'vehicle', 'salesperson', 'customer_visits', 'template']
 
     def update(self, instance, validated_data):
         if 'vehicle_id32' in validated_data:
