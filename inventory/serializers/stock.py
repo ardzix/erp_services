@@ -121,4 +121,5 @@ class DistinctWarehouseStockSerializer(serializers.Serializer):
     product__name = serializers.CharField()
     unit__id32 = serializers.CharField()
     unit__name = serializers.CharField()
+    unit__symbol = serializers.CharField()
     total_quantity = serializers.IntegerField()

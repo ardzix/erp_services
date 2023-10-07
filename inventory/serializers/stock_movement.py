@@ -50,9 +50,9 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockMovementItem
-        fields = ['id32', 'stock_movement', 'stock_movement_id32', 'product', 'product_id32', 'quantity', 'unit', 'unit_id32']
+        fields = ['id32', 'stock_movement', 'stock_movement_id32',
+                  'product', 'product_id32', 'quantity', 'unit', 'unit_id32']
         read_only_fields = ['id32', 'stock_movement', 'product', 'unit']
-
 
     def create(self, validated_data):
         # `SlugRelatedField` will automatically convert the 'id32' to the actual model instance for us.
@@ -67,7 +67,7 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
         instance.unit = validated_data.get('unit', instance.unit)
         instance.save()
         return instance
-    
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 

@@ -1,6 +1,7 @@
 from django.db.models.signals import pre_save, post_save, pre_delete
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 from django.db import models
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
@@ -12,13 +13,9 @@ from ..models import (
     Trip,
     CustomerVisit,
     CustomerVisitReport,
-    TripCustomer
+    TripCustomer,
+    Invoice
 )
-
-
-@receiver(pre_save, sender=OrderItem)
-def update_unit(sender, instance, **kwargs):
-    instance.unit = instance.product.sales_unit
 
 
 @receiver(pre_save, sender=OrderItem)
@@ -27,10 +24,6 @@ def update_product_quantity(sender, instance, **kwargs):
         order_item = OrderItem.objects.get(pk=instance.pk)
         old_quantity = order_item.quantity
         quantity_diff = instance.quantity - old_quantity
-        sales_unit = instance.product.sales_unit
-        stock_unit = instance.product.stock_unit
-        quantity_diff = abs(quantity_diff) * sales_unit.conversion_to_top_level() / \
-            stock_unit.conversion_to_top_level()
         Product.objects.filter(pk=instance.product.pk).update(quantity=models.F(
             'quantity') - quantity_diff, updated_by_id=instance.updated_by_id)
         if quantity_diff != 0 and instance.order.stock_movement:
@@ -40,7 +33,7 @@ def update_product_quantity(sender, instance, **kwargs):
                 created_by=order_item.created_by
             )
             smi.quantity = quantity_diff
-            smi.unit = stock_unit
+            smi.unit = instance.unit
             smi.save()
 
 
@@ -96,19 +89,13 @@ def create_stock_movement(sender, instance, **kwargs):
 @receiver(post_save, sender=OrderItem)
 def create_stock_movement_item(sender, instance, created, **kwargs):
     if created and instance.order.stock_movement:
-        product = instance.product
-        quantity = instance.quantity
         smi, created = StockMovementItem.objects.get_or_create(
-            product=product,
+            product=instance.product,
             stock_movement=instance.order.stock_movement,
             created_by=instance.created_by
         )
-        sales_unit = product.sales_unit
-        stock_unit = product.stock_unit
-        quantity = abs(quantity) * sales_unit.conversion_to_top_level() / \
-            stock_unit.conversion_to_top_level()
-        smi.quantity = quantity
-        smi.unit = stock_unit
+        smi.quantity = instance.quantity
+        smi.unit = instance.unit
         smi.save()
 
 
@@ -119,25 +106,16 @@ def restore_product_quantity(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Trip)
-def populate_canvasing_trip_from_template(sender, instance, created, **kwargs):
+def populate_trip_customer_from_template(sender, instance, created, **kwargs):
     if created:
-        for canvasing_customer in TripCustomer.objects.filter(template=instance.template):
+        for trip_customer in TripCustomer.objects.filter(template=instance.template):
             CustomerVisit.objects.create(
                 trip=instance,
-                customer=canvasing_customer.customer,
+                customer=trip_customer.customer,
                 status=Trip.WAITING,
-                order=canvasing_customer.order,
+                order=trip_customer.order,
                 created_by=instance.created_by
             )
-
-
-@receiver(post_save, sender=CustomerVisit)
-def handle_customer_visit(sender, instance, created, **kwargs):
-    if instance.status == Trip.ARRIVED:
-        # Logic to handle 'arrived' status (if needed)
-        pass
-
-    # ... Handle other status changes similarly
 
 
 @receiver(post_save, sender=CustomerVisit)
@@ -187,12 +165,11 @@ def update_order_status(sender, instance, **kwargs):
     if (not db_instance or instance.approved_at != db_instance.approved_at) and instance.approved_at and not instance.unapproved_at:
         instance.status = SalesOrder.APPROVED
     # Check if the unapproved_at field has changed
-    elif not db_instance or instance.unapproved_at != db_instance.unapproved_at and instance.unapproved_at:
+    elif (not db_instance or instance.unapproved_at != db_instance.unapproved_at) and instance.unapproved_at and not instance.approved_at:
         instance.status = SalesOrder.REJECTED
 
 
-# Trip progress rules
-
+# Trip progress rules~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 1. Trip status cannot be changed if its vehicle warehouse is null.
 @receiver(pre_save, sender=Trip)
 def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
@@ -222,3 +199,16 @@ def ensure_fields_present_when_skipped(sender, instance, **kwargs):
     if instance.status == Trip.SKIPPED:
         if not all([instance.notes, instance.visit_evidence, instance.signature]):
             raise ValidationError(_('CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or signature are null.'))
+
+# Sales process singnalling ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@receiver(post_save, sender=SalesOrder)
+def create_invoice_on_order_submit(sender, instance, **kwargs):
+    if instance.status == SalesOrder.SUBMITTED:
+        # Check if the SalesOrder doesn't already have an associated Invoice.
+        # This ensures we don't generate duplicate invoices.
+        if not Invoice.objects.filter(order=instance).exists():
+            Invoice.objects.create(
+                order=instance,
+                invoice_date=timezone.now().date(),
+                # Any other necessary fields can be populated here.
+            )

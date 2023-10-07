@@ -52,7 +52,8 @@ class WarehouseStockViewSet(viewsets.ModelViewSet):
             queryset = filter_class(self.request.GET, queryset=queryset).qs
 
         queryset = queryset.values(
-            'warehouse__id32', 'warehouse__name', 'product__id32', 'product__name', 'unit__id32', 'unit__name'
+            'warehouse__id32', 'warehouse__name', 'product__id32', 'product__name',
+            'unit__id32', 'unit__name', 'unit__symbol'
         ).annotate(total_quantity=Sum('quantity'))
 
         serializer = self.get_serializer(queryset, many=True)

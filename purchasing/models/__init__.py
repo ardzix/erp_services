@@ -23,7 +23,9 @@ class Supplier(BaseModelGeneric):
     )
     company_profile = models.ForeignKey(
         'identities.CompanyProfile',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
         related_name='suppliers_profile',
         verbose_name=_("Company Profile"),
         help_text=_("Select the company profile for this supplier")

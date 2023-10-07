@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from django.contrib.gis.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -6,9 +7,11 @@ from django.core.validators import MinValueValidator
 from libs.base_model import BaseModelGeneric, User
 from common.models import File
 from identities.models import Brand
+from django.db.models import Sum
 
 SELECT_PRODUCT = _("Select the product")
 ENTER_THE_QUANTITY = _("Enter the quantity")
+
 
 class Category(BaseModelGeneric):
     name = models.CharField(
@@ -67,7 +70,7 @@ class Unit(BaseModelGeneric):
             current_unit = current_unit.parent
 
         return conversion
-    
+
     def conversion_to_ancestor(self, ancestor_id):
         """
         Calculates the conversion factor to a specified ancestor.
@@ -155,7 +158,8 @@ class Product(BaseModelGeneric):
         max_digits=10, decimal_places=2, help_text=_("Sell price in IDR (Rp)"))
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, help_text=_("Select the product category"))
-    quantity = models.IntegerField(default=0, help_text=_("Enter the product quantity"))
+    quantity = models.IntegerField(
+        default=0, help_text=_("Enter the product quantity"))
     smallest_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_smallest',
                                       default=None, null=True, blank=True, help_text=_("Select the smallest unit for the product"))
     purchasing_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_purchasing',
@@ -209,7 +213,8 @@ class Product(BaseModelGeneric):
         stocks = WarehouseStock.objects.filter(product=self)
         if exclude_zero_stock:
             stocks = stocks.exclude(quantity=0)
-        items = StockMovementItem.objects.filter(id__in=stocks.values_list('inbound_movement_item', flat=True)).order_by('-created_at')
+        items = StockMovementItem.objects.filter(id__in=stocks.values_list(
+            'inbound_movement_item', flat=True)).order_by('-created_at')
         return items
 
     class Meta:
@@ -219,16 +224,16 @@ class Product(BaseModelGeneric):
     @property
     def phsycal_quantity(self):
         warehouse_stocks = WarehouseStock.objects.filter(product=self)
-        total_quantity = warehouse_stocks.aggregate(
-            models.Sum('quantity'))['quantity__sum']
-        if total_quantity and self.stock_unit and self.smallest_unit.conversion_to_top_level():
-            total_quantity = total_quantity * int(self.stock_unit.conversion_to_top_level() / self.smallest_unit.conversion_to_top_level())
-        return total_quantity or 0
+        warehouse_stocks = warehouse_stocks.values('unit__symbol', 'unit__id32'
+                                                   ).annotate(total_quantity=Sum('quantity'))
+        return list(warehouse_stocks)
 
     @property
     def previous_buy_price(self):
-        buy_price_history = self.get_purchase_item_history(exclude_zero_stock=False).values('buy_price')
-        return buy_price_history[1]['buy_price'] if buy_price_history.count()>1 else None
+        buy_price_history = self.get_purchase_item_history(
+            exclude_zero_stock=False).values('buy_price')
+        return buy_price_history[1]['buy_price'] if buy_price_history.count() > 1 else None
+
 
 class ProductGroup(BaseModelGeneric):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,
@@ -284,6 +289,12 @@ class ProductLog(models.Model):
             quantity_change=self.quantity_change
         )
 
+    def save(self, *args, **kwargs):
+        if self.quantity_change != 0 or round(self.buy_price_change, 2) != 0 or round(self.base_price_change, 2) != 0 or round(self.sell_price_change, 2) != 0:
+            print(self.quantity_change, self.buy_price_change,
+                  self.base_price_change, self.sell_price_change)
+            return super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = _("Product Log")
         verbose_name_plural = _("Product Logs")
@@ -305,7 +316,8 @@ class Warehouse(BaseModelGeneric):
         (VEHICLE, _('Vehicle')),
         (BUILDING, _('Building')),
     ]
-    type = models.CharField(choices=TYPE_CHOICES, max_length=20, default=BUILDING)
+    type = models.CharField(choices=TYPE_CHOICES,
+                            max_length=20, default=BUILDING)
 
     def __str__(self):
         return _("Warehouse #{warehouse_id} - {warehouse_name}").format(
@@ -415,7 +427,8 @@ class StockMovementItem(BaseModelGeneric):
     buy_price = models.DecimalField(
         blank=True, null=True,
         max_digits=19, decimal_places=2, help_text=_("Buy price"))
-    unit = models.ForeignKey(Unit, blank=True, null=True, on_delete=models.SET_NULL)
+    unit = models.ForeignKey(
+        Unit, blank=True, null=True, on_delete=models.SET_NULL)
     expire_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
@@ -434,8 +447,10 @@ class WarehouseStock(BaseModelGeneric):
     quantity = models.PositiveIntegerField(default=0, help_text=_(
         "Enter the product quantity in the warehouse"))
     expire_date = models.DateField(blank=True, null=True)
-    inbound_movement_item = models.ForeignKey(StockMovementItem, blank=True, null=True, on_delete=models.SET_NULL, related_name='inbound_stock_item')
-    dispatch_movement_items = models.ManyToManyField(StockMovementItem, blank=True, related_name='dispatch_stock_items')
+    inbound_movement_item = models.ForeignKey(
+        StockMovementItem, blank=True, null=True, on_delete=models.SET_NULL, related_name='inbound_stock_item')
+    dispatch_movement_items = models.ManyToManyField(
+        StockMovementItem, blank=True, related_name='dispatch_stock_items')
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
 
     def __str__(self):

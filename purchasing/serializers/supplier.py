@@ -41,7 +41,7 @@ class SupplierDetailSerializer(serializers.ModelSerializer):
 
 
 class SupplierCreateSerializer(CompanyProfileID32Mixin, serializers.ModelSerializer):
-    company_profile_id32 = serializers.CharField(write_only=True, source="company_profile.id32")
+    company_profile_id32 = serializers.CharField(write_only=True, source="company_profile.id32", required=False)
 
     class Meta:
         model = Supplier
@@ -49,14 +49,15 @@ class SupplierCreateSerializer(CompanyProfileID32Mixin, serializers.ModelSeriali
         read_only_fields = ['id32']
 
     def create(self, validated_data):
-        company_profile_id32 = validated_data.pop('company_profile')['id32']
-        company_profile = CompanyProfile.objects.get(id32=company_profile_id32)
-        validated_data['company_profile'] = company_profile
+        if 'company_profile' in validated_data:
+            company_profile_id32 = validated_data.pop('company_profile')['id32']
+            company_profile = CompanyProfile.objects.get(id32=company_profile_id32)
+            validated_data['company_profile'] = company_profile
         return super().create(validated_data)
 
 
 class SupplierEditSerializer(CompanyProfileID32Mixin, serializers.ModelSerializer):
-    company_profile_id32 = serializers.CharField(write_only=True, source="company_profile.id32")
+    company_profile_id32 = serializers.CharField(write_only=True, source="company_profile.id32", required=False)
 
     class Meta:
         model = Supplier
@@ -67,9 +68,10 @@ class SupplierEditSerializer(CompanyProfileID32Mixin, serializers.ModelSerialize
         read_only_fields = ['id32']
 
     def update(self, instance, validated_data):
-        company_profile_id32 = validated_data.pop('company_profile')['id32']
-        company_profile = CompanyProfile.objects.get(id32=company_profile_id32)
-        validated_data['company_profile'] = company_profile
+        if 'company_profile' in validated_data:
+            company_profile_id32 = validated_data.pop('company_profile')['id32']
+            company_profile = CompanyProfile.objects.get(id32=company_profile_id32)
+            validated_data['company_profile'] = company_profile
         return super().update(instance, validated_data)
 
 

@@ -1,6 +1,7 @@
 from datetime import timedelta, date
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator, MaxValueValidator
 from libs.base_model import BaseModelGeneric, User
 from common.models import File, AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
 from inventory.models import Product, StockMovement, Unit
@@ -145,7 +146,7 @@ class SalesOrder(BaseModelGeneric):
     status = models.CharField(
         max_length=255,  # Adjusting for the added descriptions
         choices=STATUS_CHOICES,
-        default=DRAFT,
+        default=SUBMITTED,
         help_text=_('Current status of the sales order.')
     )
 
@@ -159,6 +160,10 @@ class SalesOrder(BaseModelGeneric):
     @property
     def delivery_status(self):
         return self.stock_movement.status if self.stock_movement else None
+
+    @property
+    def invoice(self):
+        return Invoice.objects.filter(oerder=self).last()
 
 
 class OrderItem(BaseModelGeneric):
@@ -221,16 +226,53 @@ class Invoice(BaseModelGeneric):
         help_text=_(APPROVED_AT_HELP_TEXT)
     )
     # Add any other fields specific to your invoice model
-
-    def __str__(self):
-        return _('Invoice #{id32} - {order}').format(id32=self.id32, order=self.order)
+    vat = models.DecimalField(
+        max_digits=5, 
+        decimal_places=4, 
+        validators=[
+            MinValueValidator(0),  # minimum value is 0
+            MaxValueValidator(1)   # maximum value is 1
+        ],
+        default=0.11,
+        help_text=_('Value Added Tax percentage in decimal'))
 
     class Meta:
         verbose_name = _('Invoice')
         verbose_name_plural = _('Invoices')
 
+    def __str__(self):
+        return _('Invoice #{id32} - {order}').format(id32=self.id32, order=self.order)
+
+    @property
+    def payment_status(self):
+        payment = SalesPayment.objects.filter(invoice=self).last()
+        return payment.status if payment else None
+
 
 class SalesPayment(BaseModelGeneric):
+    AUTHORIZE = 'authorize'
+    CAPTURE = 'capture'
+    SETTLEMENT = 'settlement'
+    DENY = 'deny'
+    PENDING = 'pending'
+    CANCEL = 'cancel'
+    REFUND = 'refund'
+    EXPIRE = 'expired'
+    FAILURE = 'falure'
+
+    # STATUS_CHOICES
+    STATUS_CHOICES = [
+        (AUTHORIZE, _('Authorize: The payment has been authorized but not yet captured.')),
+        (CAPTURE, _('Capture: The authorized payment has been secured.')),
+        (SETTLEMENT, _('Settlement: The payment process has been completed and funds have been transferred.')),
+        (DENY, _('Deny: The payment request was denied.')),
+        (PENDING, _('Pending: The payment process is ongoing and the final status is not yet determined.')),
+        (CANCEL, _('Cancel: The payment process was canceled before completion.')),
+        (REFUND, _('Refund: Funds have been returned to the payer.')),
+        (EXPIRE, _('Expired: The payment authorization has expired without capture.')),
+        (FAILURE, _('Failure: The payment process encountered an error and was unsuccessful.'))
+    ]
+
     invoice = models.ForeignKey(
         Invoice,
         on_delete=models.CASCADE,
@@ -257,7 +299,13 @@ class SalesPayment(BaseModelGeneric):
         verbose_name=_(APPROVED_AT),
         help_text=_(APPROVED_AT_HELP_TEXT)
     )
-    # Add any other fields specific to your payment model
+    payment_evidence = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_payment_evidence', blank=True, null=True, on_delete=models.SET_NULL)
+    status = models.CharField(
+        max_length=255,  # Adjusting for the added descriptions
+        choices=STATUS_CHOICES,
+        default=PENDING,
+        help_text=_('Current status of the payment.')
+    )
 
     def __str__(self):
         return _('Payment #{id32} - {invoice}').format(id32=self.id32, invoice=self.invoice)
