@@ -14,7 +14,8 @@ from ..models import (
     CustomerVisit,
     CustomerVisitReport,
     TripCustomer,
-    Invoice
+    Invoice,
+    SalesPayment
 )
 
 
@@ -187,11 +188,13 @@ def ensure_trip_status_on_progress(sender, instance, **kwargs):
     if instance.status != Trip.WAITING and instance.trip.status != Trip.ON_PROGRESS:
         raise ValidationError(_('CustomerVisit status can only be changed if associated Trip status is ON_PROGRESS.'))
 
-# 3. CustomerVisit status cannot be changed to COMPLETED if CustomerVisit sales_order is null.
+# 3. CustomerVisit status cannot be changed to COMPLETED if CustomerVisit sales_order and visit_evidence is null.
 @receiver(pre_save, sender=CustomerVisit)
 def ensure_customer_visit_sales_order_for_completion(sender, instance, **kwargs):
-    if instance.status == Trip.COMPLETED and not instance.sales_order:
-        raise ValidationError(_('CustomerVisit status cannot be set to COMPLETED if its sales_order is null.'))
+    if instance.status == Trip.COMPLETED:
+        if not all([instance.sales_order, instance.visit_evidence]):
+            raise ValidationError(_('CustomerVisit status cannot be set to COMPLETED if sales_order and visit_evidence are null.'))
+
     
 # 4. CustomerVisit status cannot be changed to SKIPPED if notes, visit_evidence, or signature is null.
 @receiver(pre_save, sender=CustomerVisit)
@@ -199,6 +202,33 @@ def ensure_fields_present_when_skipped(sender, instance, **kwargs):
     if instance.status == Trip.SKIPPED:
         if not all([instance.notes, instance.visit_evidence, instance.signature]):
             raise ValidationError(_('CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or signature are null.'))
+
+
+# 5. If CustomerVisit status is changed to COMPLETED and trip type is CANVASING, check SalesOrder, Invoice and Payment.
+@receiver(pre_save, sender=CustomerVisit)
+def check_canvasing_requirements(sender, instance, **kwargs):
+    if instance.status == Trip.COMPLETED and instance.trip.type == Trip.CANVASING:
+        if instance.sales_order.status == SalesOrder.DRAFT:
+            raise ValidationError("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED.")
+
+        try:
+            invoice = instance.sales_order.invoice
+        except Invoice.DoesNotExist:
+            raise ValidationError("The associated Sales Order doesn't have an invoice.")
+
+        payment = SalesPayment.objects.filter(invoice=invoice).last()
+        if not payment:
+            raise ValidationError("The associated invoice doesn't have a payment.")
+
+        if payment.status not in [SalesPayment.CAPTURE, SalesPayment.SETTLEMENT]:
+            raise ValidationError("The payment status for the associated invoice is neither CAPTURE nor SETTLEMENT.")
+
+# 6. If CustomerVisit status is changed to COMPLETED and trip type is TAKING_ORDER, check SalesOrder status.
+@receiver(pre_save, sender=CustomerVisit)
+def check_taking_order_requirements(sender, instance, **kwargs):
+    if instance.status == Trip.COMPLETED and instance.trip.type == Trip.TAKING_ORDER:
+        if instance.sales_order.status == SalesOrder.DRAFT:
+            raise ValidationError("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED.")
 
 # Sales process singnalling ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @receiver(post_save, sender=SalesOrder)
@@ -212,3 +242,33 @@ def create_invoice_on_order_submit(sender, instance, **kwargs):
                 invoice_date=timezone.now().date(),
                 # Any other necessary fields can be populated here.
             )
+
+@receiver(post_save, sender=CustomerVisit)
+def handle_customer_visit_completed(sender, instance, **kwargs):
+    sales_order = instance.sales_order
+    # Check if the sales order is completed and call the approve method
+    if instance.status == Trip.COMPLETED:
+        if instance.trip.type == Trip.CANVASING:
+            sales_order.status = 'completed'
+        sales_order.approve(user=instance.trip.updated_by)  # assuming the approve method updates and saves the model
+
+    # Get content types for 'customer' and 'warehouse'
+    customer_content_type = ContentType.objects.get(model='customer')
+    warehouse_content_type = ContentType.objects.get(model='warehouse')
+    
+    # Get the stock movement with the specified destination_type and destination_id
+    stock_movements = StockMovement.objects.filter(
+        destination_type=customer_content_type, 
+        destination_id=sales_order.customer.id
+    )
+    
+    # Update origin_type and origin_id for the fetched stock movements
+    for stock_movement in stock_movements:
+        stock_movement.origin_type = warehouse_content_type
+        stock_movement.origin_id = instance.trip.vehicle.warehouse.id
+        if instance.trip.type == Trip.CANVASING:
+            stock_movement.status = 'delivered'
+            stock_movement.movement_date = instance.updated_at
+        if instance.trip.type == Trip.TAKING_ORDER:
+            stock_movement.status = 'requested'
+        stock_movement.save()

@@ -1,0 +1,2 @@
+- stock movement items when creating sales order from trip, still bug on its qty
+- stock movement items seems not updated with multi unit

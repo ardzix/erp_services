@@ -337,4 +337,4 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
         try:
             return super().update(instance, validated_data)
         except Exception as e:
-            raise serializers.ValidationError(list(e))
+            raise serializers.ValidationError(e)
