@@ -25,7 +25,7 @@ class WarehouseStockFilter(django_filters.FilterSet):
 
 
 class WarehouseStockViewSet(viewsets.ModelViewSet):
-    queryset = WarehouseStock.objects.all()
+    queryset = WarehouseStock.objects.filter(quantity__gt=0)
     serializer_class = WarehouseStockSerializer
     filter_backends = (filters.OrderingFilter,
                        django_filters.DjangoFilterBackend)
@@ -43,7 +43,15 @@ class WarehouseStockViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], name='Distinct Warehouse Stock')
     def distinct(self, request, *args, **kwargs):
-        queryset = WarehouseStock.objects.values(
+        # Start with the default queryset
+        queryset = self.queryset
+
+        # Apply filters
+        filter_class = self.filterset_class
+        if filter_class:
+            queryset = filter_class(self.request.GET, queryset=queryset).qs
+
+        queryset = queryset.values(
             'warehouse__id32', 'warehouse__name', 'product__id32', 'product__name', 'unit__id32', 'unit__name'
         ).annotate(total_quantity=Sum('quantity'))
 
