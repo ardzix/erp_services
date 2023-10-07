@@ -145,7 +145,9 @@ def handle_destination_warehouse(instance):
             warehouse=instance.destination,
             product=item.product,
             inbound_movement_item=item,
-            created_by=instance.created_by
+            created_by=instance.created_by,
+            unit = item.unit,
+            expire_date = item.expire_date
         )
         if instance.status == 'delivered' and instance.status_before != 'delivered':
             add_stock(stock, item.quantity)

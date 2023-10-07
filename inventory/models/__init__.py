@@ -416,6 +416,7 @@ class StockMovementItem(BaseModelGeneric):
         blank=True, null=True,
         max_digits=19, decimal_places=2, help_text=_("Buy price"))
     unit = models.ForeignKey(Unit, blank=True, null=True, on_delete=models.SET_NULL)
+    expire_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return _("Stock Movement Item #{movement_item_id} - {product_name}").format(movement_item_id=self.id32, product_name=self.product)
