@@ -252,23 +252,23 @@ def handle_customer_visit_completed(sender, instance, **kwargs):
             sales_order.status = 'completed'
         sales_order.approve(user=instance.trip.updated_by)  # assuming the approve method updates and saves the model
 
-    # Get content types for 'customer' and 'warehouse'
-    customer_content_type = ContentType.objects.get(model='customer')
-    warehouse_content_type = ContentType.objects.get(model='warehouse')
-    
-    # Get the stock movement with the specified destination_type and destination_id
-    stock_movements = StockMovement.objects.filter(
-        destination_type=customer_content_type, 
-        destination_id=sales_order.customer.id
-    )
-    
-    # Update origin_type and origin_id for the fetched stock movements
-    for stock_movement in stock_movements:
-        stock_movement.origin_type = warehouse_content_type
-        stock_movement.origin_id = instance.trip.vehicle.warehouse.id
-        if instance.trip.type == Trip.CANVASING:
-            stock_movement.status = 'delivered'
-            stock_movement.movement_date = instance.updated_at
-        if instance.trip.type == Trip.TAKING_ORDER:
-            stock_movement.status = 'requested'
-        stock_movement.save()
+        # Get content types for 'customer' and 'warehouse'
+        customer_content_type = ContentType.objects.get(model='customer')
+        warehouse_content_type = ContentType.objects.get(model='warehouse')
+        
+        # Get the stock movement with the specified destination_type and destination_id
+        stock_movements = StockMovement.objects.filter(
+            destination_type=customer_content_type, 
+            destination_id=sales_order.customer.id
+        )
+        
+        # Update origin_type and origin_id for the fetched stock movements
+        for stock_movement in stock_movements:
+            stock_movement.origin_type = warehouse_content_type
+            stock_movement.origin_id = instance.trip.vehicle.warehouse.id
+            if instance.trip.type == Trip.CANVASING:
+                stock_movement.status = 'delivered'
+                stock_movement.movement_date = instance.updated_at
+            if instance.trip.type == Trip.TAKING_ORDER:
+                stock_movement.status = 'requested'
+            stock_movement.save()
