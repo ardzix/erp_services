@@ -117,6 +117,12 @@ class SalesOrder(BaseModelGeneric):
             'Completed: All aspects of the order are done, and it\'s considered closed.')),
         (CANCELED, _('Canceled: Order was terminated before reaching completion.')),
     ]
+    CANVASING = 'canvasing'
+    TAKING_ORDER = 'taking_order'
+    TYPE_CHOICES = [
+        (CANVASING, _('Canvasing')),
+        (TAKING_ORDER, _('Taking Order')),
+    ]
 
     customer = models.ForeignKey(
         Customer,
@@ -149,6 +155,9 @@ class SalesOrder(BaseModelGeneric):
         default=SUBMITTED,
         help_text=_('Current status of the sales order.')
     )
+    type = models.CharField(
+        max_length=50, choices=TYPE_CHOICES, default=TAKING_ORDER)
+
 
     def __str__(self):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)
@@ -371,7 +380,7 @@ class Trip(BaseModelGeneric):
     vehicle = models.ForeignKey(
         Vehicle, on_delete=models.SET_NULL, blank=True, null=True
     )
-    
+
     CANVASING = 'canvasing'
     TAKING_ORDER = 'taking_order'
     COLLECTING = 'collecting'

@@ -79,17 +79,24 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
     class Meta:
         model = SalesOrder
         fields = ['id32', 'customer', 'order_date', 'approved_by',
-                  'total_amount', 'order_items', 'delivery_status', 'status', 'invoice']
+                  'total_amount', 'order_items', 'delivery_status',
+                  'status', 'type', 'invoice']
         read_only_fields = ['id32', 'approved_by',
                             'customer', 'delivery_status']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
-        status_type_dict = dict(SalesOrder.STATUS_CHOICES)
+        status_dict = dict(SalesOrder.STATUS_CHOICES)
         representation['status'] = {
             'key': instance.status,
-            'value': status_type_dict.get(instance.status, ""),
+            'value': status_dict.get(instance.status, ""),
+        }
+
+        type_dict = dict(SalesOrder.TYPE_CHOICES)
+        representation['type'] = {
+            'key': instance.type,
+            'value': type_dict.get(instance.type, ""),
         }
 
         if instance.invoice:
