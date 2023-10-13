@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            width: 4cm;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border-bottom: 1px solid #000;
+            padding: 2px;
+        }
+        .totals {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <strong>INVOICE #{{ invoice.id32 }}</strong>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="totals">
+        <strong>Subtotal:</strong> {{ invoice.subtotal|floatformat:2 }}<br>
+        <strong>VAT ({{ invoice.vat_percent|floatformat:2 }}%): {{ invoice.vat_amount|floatformat:2 }}</strong> {{ invoice.order.get_vat_amount|floatformat:2 }}<br>
+        <strong>Total:</strong> {{ invoice.total|floatformat:2 }}
+    </div>
+</body>
+</html>

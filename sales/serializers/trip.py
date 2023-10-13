@@ -140,6 +140,11 @@ class CustomerVisitSerializer(serializers.ModelSerializer):
             'key': instance.status,
             'value': status_dict.get(instance.status, ""),
         }
+        if instance.sales_order:
+            representation['sales_order'] = {
+                'id32': instance.sales_order.id32,
+                'str': instance.sales_order.__str__()
+            }
 
         return representation
 
@@ -241,16 +246,18 @@ class GenerateTripsSerializer(serializers.Serializer):
 
 
 class CustomerVisitStatusSerializer(serializers.ModelSerializer):
-    sales_order_id32 = serializers.CharField(write_only=True)
-    visit_evidence_id32 = serializers.CharField(write_only=True)
-    signature_id32 = serializers.CharField(write_only=True)
+    sales_order_id32 = serializers.CharField(write_only=True, required=False)
+    visit_evidence_id32 = serializers.CharField(write_only=True, required=False)
+    item_delivery_evidence_id32 = serializers.CharField(write_only=True, required=False)
+    signature_id32 = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = CustomerVisit
-        fields = ['status', 'sales_order_id32', 'sales_order',
-                  'visit_evidence_id32', 'signature_id32',
-                  'visit_evidence', 'signature', 'notes']
-        read_only_fields = ['sales_order', 'visit_evidence', 'signature']
+        fields = ['id32', 'status', 'sales_order_id32', 'sales_order', 'notes',
+                  'item_delivery_evidence_id32', 'item_delivery_evidence',
+                  'visit_evidence_id32', 'visit_evidence',
+                  'signature_id32', 'signature']
+        read_only_fields = ['id32', 'sales_order', 'visit_evidence', 'item_delivery_evidence', 'signature']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -264,7 +271,7 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
         # Handle Files
         # For each file field, if the attribute exists on the instance,
         # add its 'id32' and 'url' to the representation dictionary.
-        file_fields = ['visit_evidence', 'signature']
+        file_fields = ['visit_evidence', 'signature', 'item_delivery_evidence']
         for field in file_fields:
             attr_instance = getattr(instance, field)
             if attr_instance:

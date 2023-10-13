@@ -5,6 +5,7 @@ from common.serializers import UserListSerializer
 from common.models import File
 from inventory.models import Product, Unit
 from .customer import CustomerLiteSerializer
+from .trip import CustomerVisitStatusSerializer
 from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment
 
 
@@ -46,6 +47,122 @@ class OrderItemSerializer(serializers.ModelSerializer):
         return representation
 
 
+class SalesPaymentSerializer(serializers.ModelSerializer):
+    invoice_id32 = serializers.CharField(write_only=True)
+    payment_evidence_id32 = serializers.CharField(write_only=True, required=False)
+
+    class Meta:
+        model = SalesPayment
+        fields = [
+            'id32', 'invoice_id32', 'invoice', 'amount', 'payment_date',
+            'payment_evidence_id32', 'payment_evidence', 'status'
+        ]
+        read_only_fields = ['id32', 'invoice', 'payment_evidence']
+
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        if instance.invoice:
+            representation['invoice'] = {
+                'id32': instance.invoice.id32,
+                'str': instance.invoice.__str__(),
+            }
+        if instance.payment_evidence:
+            representation['payment_evidence'] = {
+                'id32': instance.payment_evidence.id32,
+                'url': instance.payment_evidence.file.url,
+            }
+        return representation
+
+    def validate_invoice_id32(self, value):
+        try:
+            Invoice.objects.get(id32=value)
+            return value
+        except Invoice.DoesNotExist:
+            raise serializers.ValidationError(
+                _("Invoice with this id32 does not exist."))
+
+    def validate_payment_evidence_id32(self, value):
+        try:
+            File.objects.get(id32=value)
+            return value
+        except File.DoesNotExist:
+            raise serializers.ValidationError(
+                _("File with this id32 does not exist."))
+
+    def create(self, validated_data):
+        invoice_id32 = validated_data.pop('invoice_id32', None)
+        if invoice_id32:
+            validated_data['invoice'] = Invoice.objects.get(id32=invoice_id32)
+        file_id32 = validated_data.pop('payment_evidence_id32', None)
+        if file_id32:
+            validated_data['payment_evidence'] = File.objects.get(id32=invoice_id32)
+        return super().create(validated_data)
+
+class SalesPaymentPartialUpdateSerializer(serializers.ModelSerializer):
+    payment_evidence_id32 = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = SalesPayment
+        fields = ['payment_date', 'payment_evidence_id32', 'status']
+
+    def validate_payment_evidence_id32(self, value):
+        try:
+            File.objects.get(id32=value)
+            return value
+        except File.DoesNotExist:
+            raise serializers.ValidationError(
+                _("File with this id32 does not exist."))
+
+    def update(self, instance, validated_data):
+        payment_evidence_id32 = validated_data.pop('payment_evidence_id32', None)
+        if payment_evidence_id32:
+            instance.payment_evidence = File.objects.get(id32=payment_evidence_id32)
+        return super().update(instance, validated_data)
+
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    order_id32 = serializers.CharField(source='order.id32', read_only=True)
+    approved_by_username = serializers.CharField(source='approved_by.username', read_only=True)
+    payments = SalesPaymentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Invoice
+        fields = [
+            'id32', 'order_id32', 'invoice_date', 'approved_by_username',
+            'approved_at', 'subtotal', 'vat_percent', 'vat_amount', 'total', 'payments', 'attachment'
+        ]
+        read_only_fields = ['id32', 'approved_at', 'subtotal', 'vat_percent', 'vat_amount', 'total', 'attachment']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        if instance.attachment:
+            representation['attachment'] = instance.attachment.file.url
+        return representation
+
+    def validate_order_id32(self, value):
+        try:
+            order = SalesOrder.objects.get(id32=value)
+            return order
+        except SalesOrder.DoesNotExist:
+            raise serializers.ValidationError(
+                _("Order with this id32 does not exist."))
+
+    def create(self, validated_data):
+        order_id32 = validated_data.pop('order_id32', None)
+        if order_id32:
+            validated_data['order'] = SalesOrder.objects.get(id32=order_id32)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        order_id32 = validated_data.pop('order_id32', None)
+        if order_id32:
+            instance.order = SalesOrder.objects.get(id32=order_id32)
+        return super().update(instance, validated_data)
+
+
 class SalesOrderListSerializer(serializers.ModelSerializer):
     approved_by = serializers.CharField(
         source='approved_by.email',
@@ -75,12 +192,14 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
     total_amount = serializers.SerializerMethodField()
     approved_by = UserListSerializer(read_only=True)
     customer = CustomerLiteSerializer(read_only=True)
+    invoice = InvoiceSerializer(read_only=True)
+    customer_visits = CustomerVisitStatusSerializer(many=True, read_only=True)
 
     class Meta:
         model = SalesOrder
         fields = ['id32', 'customer', 'order_date', 'approved_by',
                   'total_amount', 'order_items', 'delivery_status',
-                  'status', 'type', 'invoice']
+                  'status', 'type', 'invoice', 'customer_visits']
         read_only_fields = ['id32', 'approved_by',
                             'customer', 'delivery_status']
 
@@ -98,12 +217,6 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
             'key': instance.type,
             'value': type_dict.get(instance.type, ""),
         }
-
-        if instance.invoice:
-            representation['invoice'] = {
-                'id32': instance.invoice.id32,
-                'str': instance.invoice.__str__()
-            }
         return representation
 
 
@@ -187,98 +300,3 @@ class SalesOrderSerializer(SalesOrderListSerializer):
                     order=instance, created_by=instance.created_by, **item_data)
 
         return instance
-
-
-class InvoiceSerializer(serializers.ModelSerializer):
-    order_id32 = serializers.CharField(source='order.id32', read_only=True)
-    approved_by_username = serializers.CharField(source='approved_by.username', read_only=True)
-    vat_display = serializers.SerializerMethodField(method_name='get_vat_display')
-
-    class Meta:
-        model = Invoice
-        fields = [
-            'id32', 'order_id32', 'invoice_date', 'approved_by_username',
-            'approved_at', 'vat', 'vat_display', 'payment_status'
-        ]
-
-    def get_vat_display(self, obj):
-        return f"{obj.vat * 100:.2f}%"
-
-    def validate_order_id32(self, value):
-        try:
-            order = SalesOrder.objects.get(id32=value)
-            return order
-        except SalesOrder.DoesNotExist:
-            raise serializers.ValidationError(
-                _("Order with this id32 does not exist."))
-
-    def create(self, validated_data):
-        order_id32 = validated_data.pop('order_id32', None)
-        if order_id32:
-            validated_data['order'] = SalesOrder.objects.get(id32=order_id32)
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        order_id32 = validated_data.pop('order_id32', None)
-        if order_id32:
-            instance.order = SalesOrder.objects.get(id32=order_id32)
-        return super().update(instance, validated_data)
-
-
-class SalesPaymentSerializer(serializers.ModelSerializer):
-    invoice_id32 = serializers.CharField(write_only=True)
-    payment_evidence_id32 = serializers.CharField(write_only=True, required=False)
-
-    class Meta:
-        model = SalesPayment
-        fields = [
-            'id32', 'invoice_id32', 'invoice', 'amount', 'payment_date',
-            'payment_evidence_id32', 'payment_evidence', 'status'
-        ]
-        read_only_fields = ['id32', 'invoice', 'payment_evidence']
-
-    def validate_invoice_id32(self, value):
-        try:
-            Invoice.objects.get(id32=value)
-            return value
-        except Invoice.DoesNotExist:
-            raise serializers.ValidationError(
-                _("Invoice with this id32 does not exist."))
-
-    def validate_payment_evidence_id32(self, value):
-        try:
-            File.objects.get(id32=value)
-            return value
-        except File.DoesNotExist:
-            raise serializers.ValidationError(
-                _("File with this id32 does not exist."))
-
-    def create(self, validated_data):
-        invoice_id32 = validated_data.pop('invoice_id32', None)
-        if invoice_id32:
-            validated_data['invoice'] = Invoice.objects.get(id32=invoice_id32)
-        file_id32 = validated_data.pop('payment_evidence_id32', None)
-        if file_id32:
-            validated_data['payment_evidence'] = File.objects.get(id32=invoice_id32)
-        return super().create(validated_data)
-
-class SalesPaymentPartialUpdateSerializer(serializers.ModelSerializer):
-    payment_evidence_id32 = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = SalesPayment
-        fields = ['payment_date', 'payment_evidence_id32', 'status']
-
-    def validate_payment_evidence_id32(self, value):
-        try:
-            File.objects.get(id32=value)
-            return value
-        except File.DoesNotExist:
-            raise serializers.ValidationError(
-                _("File with this id32 does not exist."))
-
-    def update(self, instance, validated_data):
-        payment_evidence_id32 = validated_data.pop('payment_evidence_id32', None)
-        if payment_evidence_id32:
-            instance.payment_evidence = File.objects.get(id32=payment_evidence_id32)
-        return super().update(instance, validated_data)

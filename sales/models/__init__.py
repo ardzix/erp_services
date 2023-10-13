@@ -157,7 +157,7 @@ class SalesOrder(BaseModelGeneric):
     )
     type = models.CharField(
         max_length=50, choices=TYPE_CHOICES, default=TAKING_ORDER)
-
+    invoice_pdf_generated = models.BooleanField(default=False)
 
     def __str__(self):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)
@@ -173,6 +173,10 @@ class SalesOrder(BaseModelGeneric):
     @property
     def invoice(self):
         return Invoice.objects.filter(oerder=self).last()
+    
+    @property
+    def customer_visits(self):
+        return self.customervisit_set.all().order_by('-created_at')
 
 
 class OrderItem(BaseModelGeneric):
@@ -244,6 +248,7 @@ class Invoice(BaseModelGeneric):
         ],
         default=0.11,
         help_text=_('Value Added Tax percentage in decimal'))
+    attachment = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_attachment', blank=True, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = _('Invoice')
@@ -256,6 +261,26 @@ class Invoice(BaseModelGeneric):
     def payment_status(self):
         payment = SalesPayment.objects.filter(invoice=self).last()
         return payment.status if payment else None
+    
+    @property
+    def total(self):
+        return 10000000
+    
+    @property
+    def subtotal(self):
+        return 9900000
+    
+    @property
+    def vat_percent(self):
+        return self.vat * 100
+    
+    @property
+    def vat_amount(self):
+        return self.vat * self.subtotal
+
+    @property
+    def payments(self):
+        return self.salespayment_set.all().order_by('-created_at')
 
 
 class SalesPayment(BaseModelGeneric):
@@ -430,6 +455,7 @@ class CustomerVisit(BaseModelGeneric):
         'Order'), help_text=_(ORDER_OF_CUSTOMER_VISIT))
 
     visit_evidence = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_visit_evidence', blank=True, null=True, on_delete=models.SET_NULL)
+    item_delivery_evidence = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_item_delivery_evidence', blank=True, null=True, on_delete=models.SET_NULL)
     signature = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
     notes = models.TextField(blank=True, null=True)
 

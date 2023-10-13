@@ -6,6 +6,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from inventory.models import StockMovement, Product, StockMovementItem
+from ..scripts import generate_invoice_pdf_for_instance
 from ..models import (
     OrderItem,
     SalesOrder,
@@ -272,3 +273,20 @@ def handle_customer_visit_completed(sender, instance, **kwargs):
             if instance.trip.type == Trip.TAKING_ORDER:
                 stock_movement.status = 'requested'
             stock_movement.save()
+
+@receiver(post_save, sender=SalesOrder)
+def sales_order_saved(sender, instance, **kwargs):
+    # Generate PDF only if there are order items and the PDF hasn't been generated yet.
+    if not instance.invoice_pdf_generated and instance.order_items.exists():
+        generate_invoice_pdf_for_instance(instance)
+        instance.invoice_pdf_generated = True
+        instance.save()
+
+@receiver(post_save, sender=OrderItem)
+def order_item_saved(sender, instance, **kwargs):
+    # If an OrderItem gets saved, we'll check its related SalesOrder to see if we need to generate the PDF.
+    order = instance.order
+    if not order.invoice_pdf_generated:
+        generate_invoice_pdf_for_instance(order)
+        order.invoice_pdf_generated = True
+        order.save()
