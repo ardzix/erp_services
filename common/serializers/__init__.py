@@ -79,11 +79,12 @@ class SetFileSerializer(serializers.Serializer):
 class MeSerializer(serializers.ModelSerializer):
     groups = serializers.StringRelatedField(many=True)
     check_in = serializers.SerializerMethodField()
+    last_attendance = serializers.SerializerMethodField()
     sales_trips = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'groups', 'check_in', 'sales_trips']
+        fields = ['username', 'email', 'groups', 'check_in', 'last_attendance', 'sales_trips']
 
     def get_check_in(self, instance):
         from hr.models import Attendance
@@ -93,6 +94,18 @@ class MeSerializer(serializers.ModelSerializer):
         return {
             'is_checked_in': True if attendance else False,
             'clock_in': attendance.clock_in if attendance else None,
+            'attendance_id32': attendance.id32 if attendance else None,
+            'able_checkout': attendance.able_checkout if attendance else None
+        }
+
+    def get_last_attendance(self, instance):
+        from hr.models import Attendance
+
+        attendance = Attendance.objects.filter(
+            employee__user=instance, clock_out__isnull=False).last()
+        return {
+            'clock_in': attendance.clock_in if attendance else None,
+            'clock_out': attendance.clock_out if attendance else None,
             'attendance_id32': attendance.id32 if attendance else None,
         }
 

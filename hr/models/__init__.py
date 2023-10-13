@@ -54,6 +54,7 @@ class Attendance(BaseModelGeneric):
     clock_out = models.DateTimeField(null=True, blank=True, help_text=_("Clock-out time and date of the employee"))
     clock_in_location = models.PointField(null=True, blank=True, help_text=_("Coordinates where the employee clocked in"))
     clock_out_location = models.PointField(null=True, blank=True, help_text=_("Coordinates where the employee clocked out"))
+    able_checkout = models.BooleanField(default=False)
 
     def __str__(self):
         return _("Attendance #{att_id} - {att_emp}").format(att_id=self.id32, att_emp=self.employee)

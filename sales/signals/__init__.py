@@ -144,6 +144,7 @@ def generate_canvasing_report(sender, instance, **kwargs):
 
 @receiver(post_save, sender=CustomerVisit)
 def update_canvasing_trip_status(sender, instance, **kwargs):
+    from hr.models import Attendance
     visits = CustomerVisit.objects.filter(trip=instance.trip)
     trip_count = visits.count()
     completed_count = visits.filter(status__in=[Trip.COMPLETED, Trip.SKIPPED]).count()
@@ -152,6 +153,15 @@ def update_canvasing_trip_status(sender, instance, **kwargs):
         canvasing_trip.status = Trip.COMPLETED
         canvasing_trip.updated_by = instance.updated_by
         canvasing_trip.save()
+
+        user = instance.trip.salesperson
+        attendance = Attendance.objects.filter(
+            employee__user=user, clock_out__isnull=True).last()
+        if attendance:
+            attendance.able_checkout = True
+            attendance.save()
+
+
 
 
 @receiver(pre_save, sender=SalesOrder)
