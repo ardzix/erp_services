@@ -292,6 +292,11 @@ class SalesOrderSerializer(SalesOrderListSerializer):
             product_instance = Product.objects.get(id32=product.get('id32'))
             # Add the actual product to the item_data
             item_data['product'] = product_instance
+            # Obtain product from unit_id32 and remove it from item_data
+            unit = item_data.pop('unit', None)
+            unit_instance = Unit.objects.get(id32=unit.get('id32'))
+            # Add the actual unit to the item_data
+            item_data['unit'] = unit_instance
             if 'id' in item_data:
                 order_item_id = item_data.pop('id')
                 OrderItem.objects.filter(id=order_item_id).update(**item_data)
