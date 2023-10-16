@@ -240,4 +240,19 @@ class CustomerLiteSerializer(serializers.ModelSerializer):
         fields = ['id32', 'name', 'store_name',
                   'contact_number', 'address', 'location_coordinate']
 
-# e920477217b35578fa1e71f7aa5b280771987b13
+class CustomerMapSerializer(serializers.ModelSerializer):
+    location_coordinate = serializers.SerializerMethodField()
+    class Meta:
+        model = Customer
+        fields = ['id32', 'location_coordinate']
+
+    def get_location_coordinate(self, obj):
+        """
+        Retrieve the geographic coordinates (latitude and longitude) from the given object's location attribute.
+        """
+        if obj.location:
+            return {
+                'latitude': obj.location.y,
+                'longitude': obj.location.x
+            }
+        return None
