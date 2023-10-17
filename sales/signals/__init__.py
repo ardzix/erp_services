@@ -370,7 +370,7 @@ def set_sales_order_to_completed(sender, instance, **kwargs):
 
 
 # ==================================================================================
-# Trip progress rules
+# Model Validator
 # 1. Trip status cannot be changed if its vehicle warehouse is null.
 @receiver(pre_save, sender=Trip)
 def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
@@ -450,4 +450,17 @@ def check_taking_order_requirements(sender, instance, **kwargs):
         if instance.sales_order.status == SalesOrder.DRAFT:
             raise ValidationError(
                 _("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED."))
+
+# 7. Create new payment, its amount shall be greater than the total invoice
+@receiver(pre_save, sender=SalesPayment)
+def validate_payment_amount(sender, instance, **kwargs):
+    invoice_total = instance.invoice.total
+
+    if instance.amount < invoice_total:
+        raise ValidationError(
+            _("The payment amount of {payment_amount} is less than the invoice total of {invoice_total}").format(
+                payment_amount=instance.amount,
+                invoice_total=invoice_total
+            )
+        )
 # ==================================================================================

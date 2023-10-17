@@ -99,7 +99,10 @@ class SalesPaymentSerializer(serializers.ModelSerializer):
         file_id32 = validated_data.pop('payment_evidence_id32', None)
         if file_id32:
             validated_data['payment_evidence'] = File.objects.get(id32=file_id32)
-        return super().create(validated_data)
+        try:
+            return super().create(validated_data)
+        except Exception as e:
+            raise serializers.ValidationError(e)
 
 class SalesPaymentPartialUpdateSerializer(serializers.ModelSerializer):
     payment_evidence_id32 = serializers.CharField(write_only=True)
