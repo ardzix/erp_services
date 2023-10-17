@@ -35,12 +35,6 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
         source='product',
         write_only=True
     )
-    stock_movement_id32 = serializers.SlugRelatedField(
-        slug_field='id32',
-        queryset=StockMovement.objects.all(),
-        source='stock_movement',
-        write_only=True
-    )
     unit_id32 = serializers.SlugRelatedField(
         slug_field='id32',
         queryset=Unit.objects.all(),
@@ -50,8 +44,7 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockMovementItem
-        fields = ['id32', 'stock_movement', 'stock_movement_id32',
-                  'product', 'product_id32', 'quantity', 'unit', 'unit_id32']
+        fields = ['id32', 'product', 'product_id32', 'quantity', 'unit', 'unit_id32']
         read_only_fields = ['id32', 'stock_movement', 'product', 'unit']
 
     def create(self, validated_data):
@@ -71,11 +64,6 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
-        if instance.stock_movement:
-            representation['stock_movement'] = {
-                'id32': instance.stock_movement.id32,
-                'str': instance.stock_movement.__str__()
-            }
         if instance.product:
             representation['product'] = {
                 'id32': instance.product.id32,
@@ -120,11 +108,12 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         choices=['warehouse', 'supplier', 'customer'], write_only=True)
     origin_id32 = serializers.CharField(write_only=True)
     destination_id32 = serializers.CharField(write_only=True)
+    items = StockMovementItemSerializer(many=True)
 
     class Meta:
         model = StockMovement
         fields = ['id32', 'status', 'movement_date', 'destination_type',
-                  'destination_id32', 'origin_type', 'origin_id32']
+                  'destination_id32', 'origin_type', 'origin_id32', 'items']
         read_only_fields = ['id32']
 
     def validate_origin_type(self, value):
@@ -167,3 +156,13 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
                 })
 
         return data
+
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        stock_movement = StockMovement.objects.create(**validated_data)
+        for item_data in items_data:
+            StockMovementItem.objects.create(
+                stock_movement=stock_movement, **item_data)
+
+        return stock_movement

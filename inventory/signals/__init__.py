@@ -2,6 +2,7 @@ from django.db.models.signals import pre_save, post_save, pre_delete
 from django.db import models
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
+from purchasing.models import Supplier
 from ..models import Product, ProductLog, StockMovement, WarehouseStock, Warehouse, StockMovementItem
 
 
@@ -144,7 +145,8 @@ def handle_destination_warehouse(instance):
         )
         if instance.status == 'delivered' and instance.status_before != 'delivered':
             add_stock(stock, item.quantity)
-            calculate_buy_price(item)
+            if instance.origin_type == ContentType.objects.get_for_model(Supplier):
+                calculate_buy_price(item)
         elif instance.status != 'delivered' and instance.status_before == 'delivered':
             deduct_stock(stock, item.quantity)
 

@@ -15,8 +15,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ['id32', 'product_id32', 'unit_id32', 'quantity']
-        read_only_fields = ['id32']
+        fields = ['id32', 'product_id32', 'unit_id32', 'quantity', 'price']
+        read_only_fields = ['id32', 'price']
 
     def validate(self, data):
         validated_data = super().validate(data)
@@ -265,7 +265,7 @@ class SalesOrderSerializer(SalesOrderListSerializer):
             # Add the actual product to the item_data
             item_data['unit'] = unit_instance
             OrderItem.objects.create(
-                order=sales_order, created_by=sales_order.created_by, **item_data)
+                order=sales_order, **item_data)
 
         return sales_order
 
@@ -306,6 +306,6 @@ class SalesOrderSerializer(SalesOrderListSerializer):
                 OrderItem.objects.filter(id=order_item_id).update(**item_data)
             else:
                 OrderItem.objects.create(
-                    order=instance, created_by=instance.created_by, **item_data)
+                    order=instance, **item_data)
 
         return instance

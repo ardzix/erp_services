@@ -123,3 +123,12 @@ class DistinctWarehouseStockSerializer(serializers.Serializer):
     unit__name = serializers.CharField()
     unit__symbol = serializers.CharField()
     total_quantity = serializers.IntegerField()
+    price = serializers.SerializerMethodField()
+
+    def get_price(self, instance):
+        unit = Unit.objects.filter(id32=instance.get('unit__id32')).last()
+        product = Product.objects.filter(id32=instance.get('product__id32')).last()
+        if unit and product:
+            return unit.conversion_to_top_level() * product.sell_price
+        else:
+            return None
