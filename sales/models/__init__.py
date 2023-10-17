@@ -362,6 +362,7 @@ class TripTemplate(BaseModelGeneric):
         'Name'), help_text=_('Enter the name for the canvasing trip template'))
     customers = models.ManyToManyField(Customer, through='TripCustomer', verbose_name=_(
         'Customers'), help_text=_('Select customers for this trip template'))
+    pic = models.ManyToManyField(User, blank=True, help_text=_('Select people in charge of this trip'))
 
     class Meta:
         verbose_name = _('Trip Template')

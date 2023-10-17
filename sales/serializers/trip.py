@@ -40,34 +40,52 @@ class TripTemplateListSerializer(serializers.ModelSerializer):
         fields = ['id32', 'name']
         read_only_fields = ['id32']
 
+class UsernamesField(serializers.RelatedField):
+    def to_representation(self, value):
+        return value.username
+
+    def to_internal_value(self, data):
+        try:
+            return User.objects.get(username=data)
+        except User.DoesNotExist:
+            raise serializers.ValidationError(f"User with username {data} does not exist.")
 
 class TripTemplateDetailSerializer(serializers.ModelSerializer):
     trip_customers = TripCustomerSerializer(
         many=True, source='tripcustomer_set')
+    pic_usernames = UsernamesField(source='pic', many=True, queryset=User.objects.all())
 
     class Meta:
         model = TripTemplate
-        fields = ['id32', 'name', 'trip_customers']
+        fields = ['id32', 'name', 'trip_customers', 'pic_usernames']
         read_only_fields = ['id32']
 
     def create(self, validated_data):
         trip_customers_data = validated_data.pop('tripcustomer_set', [])
+        pic = validated_data.pop('pic', [])
+
         trip_template = TripTemplate.objects.create(**validated_data)
+
+        # Assign the provided users to pic
+        trip_template.pic.set(pic)
 
         # For each trip customer data, create a TripCustomer instance linked to the TripTemplate
         for trip_customer_data in trip_customers_data:
-            TripCustomer.objects.create(
-                template=trip_template, created_by=trip_template.created_by, **trip_customer_data)
+            TripCustomer.objects.create(template=trip_template, **trip_customer_data)
 
         return trip_template
 
     def update(self, instance, validated_data):
         trip_customers_data = validated_data.pop('tripcustomer_set', [])
+        pic = validated_data.pop('pic', [])
 
         # Update the TripTemplate fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+
+        # Assign the provided users to pic
+        instance.pic.set(pic)
 
         # Handle the nested TripCustomers
         existing_trip_customers = TripCustomer.objects.filter(
@@ -114,6 +132,7 @@ class TripRepresentationMixin():
                 'name': instance.vehicle.name,
                 'license_plate': instance.vehicle.license_plate,
                 'driver': instance.vehicle.driver.name if instance.vehicle.driver else None,
+                'warehouse_id32': instance.vehicle.warehouse.id32 if instance.vehicle.warehouse else None
             }
         if instance.salesperson:
             representation['salesperson'] = {
