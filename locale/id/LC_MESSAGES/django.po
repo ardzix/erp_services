@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-28 00:57+0700\n"
+"POT-Creation-Date: 2023-10-17 15:23+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -145,7 +145,7 @@ msgstr "Transaksi"
 msgid "Debit"
 msgstr "Debit"
 
-#: accounting/models/__init__.py:74 sales/models/__init__.py:19
+#: accounting/models/__init__.py:74 sales/models/__init__.py:21
 msgid "Credit"
 msgstr "Kredit"
 
@@ -209,19 +209,19 @@ msgstr "Berkas"
 msgid "Files"
 msgstr "Berkas"
 
-#: common/models/__init__.py:51 sales/models/__init__.py:48
+#: common/models/__init__.py:51 sales/models/__init__.py:50
 msgid "Administrative Lvl 1"
 msgstr "Provinsi"
 
-#: common/models/__init__.py:58 sales/models/__init__.py:49
+#: common/models/__init__.py:58 sales/models/__init__.py:51
 msgid "Administrative Lvl 2"
 msgstr "Kota/Kabupaten"
 
-#: common/models/__init__.py:65 sales/models/__init__.py:50
+#: common/models/__init__.py:65 sales/models/__init__.py:52
 msgid "Administrative Lvl 3"
 msgstr "Kecamatan"
 
-#: common/models/__init__.py:72 sales/models/__init__.py:51
+#: common/models/__init__.py:72 sales/models/__init__.py:53
 msgid "Administrative Lvl 4"
 msgstr "Kelurahan"
 
@@ -361,11 +361,11 @@ msgstr "Kegiatan"
 msgid "Activities"
 msgstr "Kegiatan"
 
-#: erp_backoffice/settings.py:199
+#: erp_backoffice/settings.py:200
 msgid "English"
 msgstr "Inggris"
 
-#: erp_backoffice/settings.py:200
+#: erp_backoffice/settings.py:201
 msgid "Indonesian"
 msgstr "Indonesia"
 
@@ -460,65 +460,65 @@ msgstr "Kordinat saat pegawai absen masuk"
 msgid "Coordinates where the employee clocked out"
 msgstr "Kordinat saat pegawai absen keluar"
 
-#: hr/models/__init__.py:59
+#: hr/models/__init__.py:60
 #, python-brace-format
 msgid "Attendance #{att_id} - {att_emp}"
 msgstr "Kehadiran #{att_id} - {att_emp}"
 
-#: hr/models/__init__.py:62
+#: hr/models/__init__.py:63
 msgid "Attendance"
 msgstr "Kehadiran"
 
-#: hr/models/__init__.py:63
+#: hr/models/__init__.py:64
 msgid "Attendances"
 msgstr "Kehadiran"
 
-#: hr/models/__init__.py:66
+#: hr/models/__init__.py:67
 msgid "The employee being reviewed"
 msgstr "Karyawan yang diulas"
 
-#: hr/models/__init__.py:67 purchasing/models/__init__.py:159
+#: hr/models/__init__.py:68 purchasing/models/__init__.py:161
 msgid "Poor"
 msgstr "Buruk"
 
-#: hr/models/__init__.py:67 purchasing/models/__init__.py:159
+#: hr/models/__init__.py:68 purchasing/models/__init__.py:161
 msgid "Fair"
 msgstr "Cukup"
 
-#: hr/models/__init__.py:67 purchasing/models/__init__.py:159
+#: hr/models/__init__.py:68 purchasing/models/__init__.py:161
 msgid "Good"
 msgstr "Baik"
 
-#: hr/models/__init__.py:67 purchasing/models/__init__.py:159
+#: hr/models/__init__.py:68 purchasing/models/__init__.py:161
 msgid "Very Good"
 msgstr "Sangat Baik"
 
-#: hr/models/__init__.py:67 purchasing/models/__init__.py:159
+#: hr/models/__init__.py:68 purchasing/models/__init__.py:161
 msgid "Excellent"
 msgstr "Luar Biasa"
 
-#: hr/models/__init__.py:67
+#: hr/models/__init__.py:68
 msgid "Rating given to the employee's performance"
 msgstr "Penilaian terhadap kinerja karyawan"
 
-#: hr/models/__init__.py:68
+#: hr/models/__init__.py:69
 msgid "Additional review notes"
 msgstr "Catatan tambahan ulasan"
 
-#: hr/models/__init__.py:71
+#: hr/models/__init__.py:72
 #, python-brace-format
 msgid "Performance #{perf_id} - {perf_emp}"
 msgstr "Kinerja #{perf_id} - {perf_emp}"
 
-#: hr/models/__init__.py:74
+#: hr/models/__init__.py:75
 msgid "Performance"
 msgstr "Kinerja"
 
-#: hr/models/__init__.py:75
+#: hr/models/__init__.py:76
 msgid "Performances"
 msgstr "Kinerja"
 
-#: hr/serializers/attendance.py:41
+#: hr/serializers/attendance.py:43
 msgid "Employee object not found for the given user."
 msgstr "Data pegawai tidak ditemukan untuk user tersebut."
 
@@ -554,8 +554,8 @@ msgstr "Alamat perusahaan"
 msgid "Company's contact number"
 msgstr "Nomor kontak perusahaan"
 
-#: identities/models/__init__.py:38 purchasing/models/__init__.py:28
-#: sales/models/__init__.py:45
+#: identities/models/__init__.py:38 purchasing/models/__init__.py:30
+#: sales/models/__init__.py:47
 msgid "Company Profile"
 msgstr "Profil Perusahaan"
 
@@ -588,127 +588,127 @@ msgstr "Merek"
 msgid "Brands"
 msgstr "Merek"
 
-#: inventory/admin/__init__.py:44 inventory/models/__init__.py:310
+#: inventory/admin/__init__.py:57 inventory/models/__init__.py:358
 msgid "Warehouse"
 msgstr "Gudang"
 
-#: inventory/admin/__init__.py:45 sales/models/__init__.py:84
+#: inventory/admin/__init__.py:58 sales/models/__init__.py:91
 msgid "Customer"
 msgstr "Pelanggan"
 
-#: inventory/admin/__init__.py:46 purchasing/models/__init__.py:36
+#: inventory/admin/__init__.py:59 purchasing/models/__init__.py:38
 msgid "Supplier"
 msgstr "Pemasok"
 
-#: inventory/admin/__init__.py:51
+#: inventory/admin/__init__.py:64
 msgid "Origin Filter"
 msgstr "Filter Asal"
 
-#: inventory/admin/__init__.py:61
+#: inventory/admin/__init__.py:75
 msgid "Destination Filter"
 msgstr "Filter Tujuan"
 
-#: inventory/admin/__init__.py:85 inventory/models/__init__.py:418
+#: inventory/admin/__init__.py:100 inventory/models/__init__.py:479
 msgid "Stock Movement Items"
 msgstr "Item Pergerakan Stok"
 
-#: inventory/admin/__init__.py:111
+#: inventory/admin/__init__.py:127
 msgid "Origin"
 msgstr "Asal"
 
-#: inventory/admin/__init__.py:112
+#: inventory/admin/__init__.py:128
 msgid "Destination"
 msgstr "Tujuan"
 
-#: inventory/models/__init__.py:10
+#: inventory/models/__init__.py:12
 msgid "Select the product"
 msgstr "Pilih produk"
 
-#: inventory/models/__init__.py:11
+#: inventory/models/__init__.py:13
 msgid "Enter the quantity"
 msgstr "Masukkan jumlahnya"
 
-#: inventory/models/__init__.py:15
+#: inventory/models/__init__.py:18
 msgid "Enter the category name"
 msgstr "Masukkan nama kategori"
 
-#: inventory/models/__init__.py:17
+#: inventory/models/__init__.py:20
 msgid "Enter the category description"
 msgstr "Masukkan deskripsi kategori"
 
-#: inventory/models/__init__.py:20
+#: inventory/models/__init__.py:23
 #, python-brace-format
 msgid "Category #{category_id} - {category_name}"
 msgstr "Kategori #{category_id} - {category_name}"
 
-#: inventory/models/__init__.py:26
+#: inventory/models/__init__.py:29
 msgid "Category"
 msgstr "Kategori"
 
-#: inventory/models/__init__.py:27
+#: inventory/models/__init__.py:30
 msgid "Categories"
 msgstr "Kategori"
 
-#: inventory/models/__init__.py:31
+#: inventory/models/__init__.py:34
 msgid "Enter the unit name"
 msgstr "Masukkan nama unit"
 
-#: inventory/models/__init__.py:33
+#: inventory/models/__init__.py:36
 msgid "Enter the unit symbol"
 msgstr "Masukkan simbol unit"
 
-#: inventory/models/__init__.py:35
+#: inventory/models/__init__.py:38
 msgid "Select the parent unit"
 msgstr "Pilih unit induk"
 
-#: inventory/models/__init__.py:39
+#: inventory/models/__init__.py:42
 msgid "Conversion factor to parent unit"
 msgstr "Faktor konversi ke unit induk"
 
-#: inventory/models/__init__.py:42
+#: inventory/models/__init__.py:45
 msgid "Unit depth level"
 msgstr "Tingkat kedalaman unit"
 
-#: inventory/models/__init__.py:48
+#: inventory/models/__init__.py:51
 msgid "Unit"
 msgstr "Unit"
 
-#: inventory/models/__init__.py:49
+#: inventory/models/__init__.py:52
 msgid "Units"
 msgstr "Unit"
 
-#: inventory/models/__init__.py:119
+#: inventory/models/__init__.py:122
 msgid "Raw Material - Used to create other products"
 msgstr "Bahan Baku - Digunakan untuk membuat produk lain"
 
-#: inventory/models/__init__.py:120
+#: inventory/models/__init__.py:123
 msgid "Finished Goods - Completed and ready for sale"
 msgstr "Barang Jadi - Selesai dan siap dijual"
 
-#: inventory/models/__init__.py:121
+#: inventory/models/__init__.py:124
 msgid "Intermediate Product - Partly finished, used in production"
 msgstr "Produk Perantara - Sebagian selesai, digunakan dalam produksi"
 
-#: inventory/models/__init__.py:123
+#: inventory/models/__init__.py:126
 msgid ""
 "Consumable - Used in the production process but not part of the final product"
 msgstr ""
 "Barang Habis Pakai - Digunakan dalam proses produksi tetapi bukan bagian "
 "dari produk akhir"
 
-#: inventory/models/__init__.py:126
+#: inventory/models/__init__.py:129
 msgid "FIFO - First in first out of buy price history"
 msgstr "FIFO - Pertama masuk pertama keluar dari riwayat harga beli"
 
-#: inventory/models/__init__.py:127
+#: inventory/models/__init__.py:130
 msgid "LIFO - Last in first out of buy price history"
 msgstr "LIFO - Terakhir masuk pertama keluar dari riwayat harga beli"
 
-#: inventory/models/__init__.py:128
+#: inventory/models/__init__.py:131
 msgid "Average - Average of buy price history"
 msgstr "Rata-rata - Rata-rata dari riwayat harga beli"
 
-#: inventory/models/__init__.py:130
+#: inventory/models/__init__.py:133
 msgid ""
 "Production Cost - Form direct material cost, labour cost, and manufacturing "
 "overhead"
@@ -716,65 +716,57 @@ msgstr ""
 "Biaya Produksi - Terbentuk dari biaya bahan baku langsung, biaya tenaga "
 "kerja, dan overhead pabrikasi"
 
-#: inventory/models/__init__.py:133
+#: inventory/models/__init__.py:136
 msgid "Percentage margin value from base price"
 msgstr ""
 
-#: inventory/models/__init__.py:134
+#: inventory/models/__init__.py:137
 msgid "Fixed margin value"
 msgstr ""
 
-#: inventory/models/__init__.py:138 inventory/models/__init__.py:237
+#: inventory/models/__init__.py:141 inventory/models/__init__.py:271
 msgid "Enter the product name"
 msgstr "Masukkan nama produk"
 
-#: inventory/models/__init__.py:140
+#: inventory/models/__init__.py:143
 msgid "Enter the product alias name"
 msgstr "Masukkan nama alias produk"
 
-#: inventory/models/__init__.py:142
+#: inventory/models/__init__.py:145
 msgid "Enter the product stock keeping unit or barcode"
 msgstr "Masukkan unit simpan stok produk atau kode batang"
 
-#: inventory/models/__init__.py:146
+#: inventory/models/__init__.py:149
 msgid "Enter the product description"
 msgstr "Masukkan deskripsi produk"
 
-#: inventory/models/__init__.py:149
+#: inventory/models/__init__.py:152
 msgid "Base price in IDR (Rp)"
 msgstr "Harga dasar dalam IDR (Rp)"
 
-#: inventory/models/__init__.py:152
+#: inventory/models/__init__.py:155
 msgid "Last buy price in IDR (Rp)"
 msgstr "Harga beli terakhir dalam IDR (Rp)"
 
-#: inventory/models/__init__.py:155
+#: inventory/models/__init__.py:158
 msgid "Sell price in IDR (Rp)"
 msgstr "Harga jual dalam IDR (Rp)"
 
-#: inventory/models/__init__.py:157
+#: inventory/models/__init__.py:160
 msgid "Select the product category"
 msgstr "Pilih kategori produk"
 
-#: inventory/models/__init__.py:158
+#: inventory/models/__init__.py:162
 msgid "Enter the product quantity"
 msgstr "Masukkan jumlah produk"
 
-#: inventory/models/__init__.py:160
+#: inventory/models/__init__.py:164
 msgid "Select the smallest unit for the product"
 msgstr "Pilih unit terkecil untuk produk"
 
-#: inventory/models/__init__.py:162
+#: inventory/models/__init__.py:166
 msgid "Select the purchasing unit for the product"
 msgstr "Pilih unit pembelian untuk produk"
-
-#: inventory/models/__init__.py:164
-msgid "Select the sales unit for the product"
-msgstr "Pilih unit penjualan untuk produk"
-
-#: inventory/models/__init__.py:166
-msgid "Select the stock unit for the product"
-msgstr "Pilih unit stok untuk produk"
 
 #: inventory/models/__init__.py:168
 msgid "Select the product type"
@@ -813,110 +805,118 @@ msgstr "Foto untuk produk"
 msgid "Product #{product_id} - {product_name}"
 msgstr "Produk #{product_id} - {product_name}"
 
-#: inventory/models/__init__.py:216
+#: inventory/models/__init__.py:213
 msgid "Product"
 msgstr "Produk"
 
-#: inventory/models/__init__.py:217
+#: inventory/models/__init__.py:214
 msgid "Products"
 msgstr "Produk"
 
-#: inventory/models/__init__.py:235
+#: inventory/models/__init__.py:269
 msgid "Select the parent group"
 msgstr "Pilih grup induk"
 
-#: inventory/models/__init__.py:241
+#: inventory/models/__init__.py:275
 #, python-brace-format
 msgid "Product Group #{product_group_id} - {product_group_name}"
 msgstr "Grup Produk #{product_group_id} - {product_group_name}"
 
-#: inventory/models/__init__.py:247
+#: inventory/models/__init__.py:281
 msgid "Product Group"
 msgstr "Grup Produk"
 
-#: inventory/models/__init__.py:248
+#: inventory/models/__init__.py:282
 msgid "Product Groups"
 msgstr "Grup Produk"
 
-#: inventory/models/__init__.py:253
+#: inventory/models/__init__.py:287
 msgid "Select the product associated with the log"
 msgstr "Pilih produk yang terkait dengan log"
 
-#: inventory/models/__init__.py:257
+#: inventory/models/__init__.py:291
 msgid "Enter the quantity change"
 msgstr "Masukkan perubahan jumlah"
 
-#: inventory/models/__init__.py:263
+#: inventory/models/__init__.py:297
 msgid "Enter the buy price change"
 msgstr "Masukkan perubahan harga beli"
 
-#: inventory/models/__init__.py:269 inventory/models/__init__.py:275
+#: inventory/models/__init__.py:303 inventory/models/__init__.py:309
 msgid "Enter the base price change"
 msgstr "Masukkan perubahan harga dasar"
 
-#: inventory/models/__init__.py:277
+#: inventory/models/__init__.py:311
 msgid "Specify the creation date"
 msgstr "Tentukan tanggal pembuatan"
 
-#: inventory/models/__init__.py:279
+#: inventory/models/__init__.py:313
 msgid "Select the user who created the log"
 msgstr "Pilih pengguna yang membuat log"
 
-#: inventory/models/__init__.py:282
+#: inventory/models/__init__.py:316
 #, python-brace-format
 msgid "{product_name} - Quantity Change: {quantity_change}"
 msgstr "{product_name} - Perubahan Jumlah: {quantity_change}"
 
-#: inventory/models/__init__.py:288
+#: inventory/models/__init__.py:328
 msgid "Product Log"
 msgstr "Log Produk"
 
-#: inventory/models/__init__.py:289
+#: inventory/models/__init__.py:329
 msgid "Product Logs"
 msgstr "Log Produk"
 
-#: inventory/models/__init__.py:294
+#: inventory/models/__init__.py:334
 msgid "Enter the warehouse name"
 msgstr "Masukkan nama gudang"
 
-#: inventory/models/__init__.py:295
+#: inventory/models/__init__.py:335
 msgid "Enter the warehouse address"
 msgstr "Masukkan alamat gudang"
 
-#: inventory/models/__init__.py:300
+#: inventory/models/__init__.py:340
 msgid "Enter the warehouse location coordinates"
 msgstr "Masukkan koordinat lokasi gudang"
 
-#: inventory/models/__init__.py:304
+#: inventory/models/__init__.py:345 logistics/models/__init__.py:20
+msgid "Vehicle"
+msgstr "Kendaraan"
+
+#: inventory/models/__init__.py:346
+msgid "Building"
+msgstr ""
+
+#: inventory/models/__init__.py:352
 #, python-brace-format
 msgid "Warehouse #{warehouse_id} - {warehouse_name}"
 msgstr "Gudang #{warehouse_id} - {warehouse_name}"
 
-#: inventory/models/__init__.py:311
+#: inventory/models/__init__.py:359
 msgid "Warehouses"
 msgstr "Gudang"
 
-#: inventory/models/__init__.py:316 inventory/models/__init__.py:423
+#: inventory/models/__init__.py:364 inventory/models/__init__.py:484
 msgid "Select the warehouse"
 msgstr "Pilih gudang"
 
-#: inventory/models/__init__.py:318
+#: inventory/models/__init__.py:366
 msgid "Enter the area within the warehouse"
 msgstr "Masukkan area dalam gudang"
 
-#: inventory/models/__init__.py:320
+#: inventory/models/__init__.py:368
 msgid "Enter the shelving within the area"
 msgstr "Masukkan rak dalam area tersebut"
 
-#: inventory/models/__init__.py:322
+#: inventory/models/__init__.py:370
 msgid "Enter the specific position on the shelving"
 msgstr "Masukkan posisi spesifik di rak"
 
-#: inventory/models/__init__.py:326
+#: inventory/models/__init__.py:374
 msgid "Enter the product quantity in this location"
 msgstr "Masukkan jumlah produk di lokasi ini"
 
-#: inventory/models/__init__.py:330
+#: inventory/models/__init__.py:378
 #, python-brace-format
 msgid ""
 "Warehouse: {warehouse_name} - Area: {area} - Shelving: {shelving} - "
@@ -925,97 +925,105 @@ msgstr ""
 "Gudang: {warehouse_name} - Area: {area} - Rak: {shelving} - Posisi: "
 "{position} - Produk: {product_name} - Jumlah: {quantity}"
 
-#: inventory/models/__init__.py:342
+#: inventory/models/__init__.py:390
 msgid "Product Location"
 msgstr "Lokasi Produk"
 
-#: inventory/models/__init__.py:343
+#: inventory/models/__init__.py:391
 msgid "Product Locations"
 msgstr "Lokasi-lokasi Produk"
 
-#: inventory/models/__init__.py:347
+#: inventory/models/__init__.py:395
 msgid "Requested"
 msgstr "Diminta"
 
-#: inventory/models/__init__.py:348
+#: inventory/models/__init__.py:396
 msgid "Canceled"
 msgstr "Dibatalkan"
 
-#: inventory/models/__init__.py:349
+#: inventory/models/__init__.py:397
 msgid "Preparing"
 msgstr "Sedang disiapkan"
 
-#: inventory/models/__init__.py:350
+#: inventory/models/__init__.py:398
 msgid "Ready to pickup"
 msgstr "Siap diambil"
 
-#: inventory/models/__init__.py:351
+#: inventory/models/__init__.py:399
 msgid "On Delivery"
 msgstr "Dalam pengiriman"
 
-#: inventory/models/__init__.py:352
+#: inventory/models/__init__.py:400
 msgid "Delivered"
 msgstr "Terkirim"
 
-#: inventory/models/__init__.py:353
+#: inventory/models/__init__.py:401
 msgid "Returned"
 msgstr "Dikembalikan"
 
-#: inventory/models/__init__.py:364
+#: inventory/models/__init__.py:412
 msgid "Select the content type of the source warehouse"
 msgstr "Pilih tipe konten dari gudang sumber"
 
-#: inventory/models/__init__.py:367
+#: inventory/models/__init__.py:415
 msgid "Enter the ID of the source warehouse"
 msgstr "Masukkan ID dari gudang sumber"
 
-#: inventory/models/__init__.py:375
+#: inventory/models/__init__.py:423
 msgid "Select the content type of the destination warehouse"
 msgstr "Pilih tipe konten dari gudang tujuan"
 
-#: inventory/models/__init__.py:378
+#: inventory/models/__init__.py:426
 msgid "Enter the ID of the destination warehouse"
 msgstr "Masukkan ID dari gudang tujuan"
 
-#: inventory/models/__init__.py:381
+#: inventory/models/__init__.py:434
+msgid "Select the content type of the creator instance"
+msgstr "Pilih tipe konten dari creator instance"
+
+#: inventory/models/__init__.py:437
+msgid "Enter the ID of the creator instance"
+msgstr "Masukkan ID dari creator sumber"
+
+#: inventory/models/__init__.py:440
 msgid "Specify the movement date"
 msgstr "Tentukan tanggal perpindahan"
 
-#: inventory/models/__init__.py:385
+#: inventory/models/__init__.py:444
 #, python-brace-format
 msgid "Stock Movement #{movement_id}"
 msgstr "Perpindahan Stok #{movement_id}"
 
-#: inventory/models/__init__.py:388
+#: inventory/models/__init__.py:447
 msgid "Stock Movement"
 msgstr "Perpindahan Stok"
 
-#: inventory/models/__init__.py:389
+#: inventory/models/__init__.py:448
 msgid "Stock Movements"
 msgstr "Perpindahan-perpindahan Stok"
 
-#: inventory/models/__init__.py:397
+#: inventory/models/__init__.py:456
 msgid "Select the stock movement"
 msgstr "Pilih perpindahan stok"
 
-#: inventory/models/__init__.py:410
+#: inventory/models/__init__.py:469
 msgid "Buy price"
 msgstr ""
 
-#: inventory/models/__init__.py:414
+#: inventory/models/__init__.py:475
 #, python-brace-format
 msgid "Stock Movement Item #{movement_item_id} - {product_name}"
 msgstr "Item Perpindahan Stok #{movement_item_id} - {product_name}"
 
-#: inventory/models/__init__.py:417
+#: inventory/models/__init__.py:478
 msgid "Stock Movement Item"
 msgstr "Item Perpindahan Stok"
 
-#: inventory/models/__init__.py:427
+#: inventory/models/__init__.py:488
 msgid "Enter the product quantity in the warehouse"
 msgstr "Masukkan jumlah produk di gudang"
 
-#: inventory/models/__init__.py:434
+#: inventory/models/__init__.py:498
 #, python-brace-format
 msgid ""
 "Warehouse Stock: {warehouse_name} - Product: {product_name} - Quantity: "
@@ -1023,93 +1031,111 @@ msgid ""
 msgstr ""
 "Stok Gudang: {warehouse_name} - Produk: {product_name} - Jumlah: {quantity}"
 
-#: inventory/models/__init__.py:442
+#: inventory/models/__init__.py:510
 msgid "Warehouse Stock"
 msgstr "Stok Gudang"
 
-#: inventory/models/__init__.py:443
+#: inventory/models/__init__.py:511
 msgid "Warehouse Stocks"
 msgstr "Stok-Stok Gudang"
 
-#: inventory/models/__init__.py:451
+#: inventory/models/__init__.py:519
 msgid "Specify the adjustment date"
 msgstr "Tentukan tanggal penyesuaian"
 
-#: inventory/models/__init__.py:453
+#: inventory/models/__init__.py:521
 msgid "Enter the reason for the adjustment"
 msgstr "Masukkan alasan untuk penyesuaian"
 
-#: inventory/models/__init__.py:456
+#: inventory/models/__init__.py:524
 #, python-brace-format
 msgid "Stock Adjustment #{adjustment_id}"
 msgstr "Penyesuaian Stok #{adjustment_id}"
 
-#: inventory/models/__init__.py:459
+#: inventory/models/__init__.py:527
 msgid "Stock Adjustment"
 msgstr "Penyesuaian Stok"
 
-#: inventory/models/__init__.py:460
+#: inventory/models/__init__.py:528
 msgid "Stock Adjustments"
 msgstr "Penyesuaian-penyesuaian Stok"
 
-#: inventory/models/__init__.py:467
+#: inventory/models/__init__.py:535
 msgid "Specify the order date"
 msgstr "Tentukan tanggal pemesanan"
 
-#: inventory/models/__init__.py:470
+#: inventory/models/__init__.py:538
 #, python-brace-format
 msgid "Replenishment Order #{order_id}"
 msgstr "Pesanan Pelengkap #{order_id}"
 
-#: inventory/models/__init__.py:473
+#: inventory/models/__init__.py:541
 msgid "Replenishment Order"
 msgstr "Pesanan Pelengkap"
 
-#: inventory/models/__init__.py:474
+#: inventory/models/__init__.py:542
 msgid "Replenishment Orders"
 msgstr "Pesanan-pesanan Pelengkap"
 
-#: inventory/models/__init__.py:479
+#: inventory/models/__init__.py:547
 msgid "Select the replenishment order"
 msgstr "Pilih pesanan pelengkap"
 
-#: inventory/models/__init__.py:480
+#: inventory/models/__init__.py:548
 msgid "Specify the received date"
 msgstr "Tentukan tanggal penerimaan"
 
-#: inventory/models/__init__.py:483
+#: inventory/models/__init__.py:551
 #, python-brace-format
 msgid "Replenishment Received #{order_received_id}"
 msgstr "Pelengkap Diterima #{order_received_id}"
 
-#: inventory/models/__init__.py:486 inventory/models/__init__.py:487
+#: inventory/models/__init__.py:554 inventory/models/__init__.py:555
 msgid "Replenishment Received"
 msgstr "Pelengkap Diterima"
 
-#: inventory/serializers/product.py:45
+#: inventory/serializers/product.py:35
 #, python-brace-format
 msgid "Invalid {field} provided."
 msgstr ""
 
-#: inventory/serializers/product.py:174
+#: inventory/serializers/product.py:161
 msgid ""
 "The chosen unit does not have the smallest unit as an ancestor, nor is it "
 "the same as the smallest unit."
 msgstr ""
 
-#: inventory/serializers/stock_movement.py:69
+#: inventory/serializers/stock.py:30
+msgid "Provided warehouse_id32 does not match any Warehouse records."
+msgstr ""
+
+#: inventory/serializers/stock.py:38
+msgid "Provided product_id32 does not match any Product records."
+msgstr ""
+
+#: inventory/serializers/stock.py:46
+msgid "Provided unit_id32 does not match any Unit records."
+msgstr ""
+
+#: inventory/serializers/stock.py:54
+msgid ""
+"Provided inbound_movement_item_id32 does not match any StockMovementItem "
+"records."
+msgstr ""
+
+#: inventory/serializers/stock_movement.py:134
 msgid "Invalid content type for origin."
 msgstr ""
 
-#: inventory/serializers/stock_movement.py:77
+#: inventory/serializers/stock_movement.py:142
 msgid "Invalid content type for destination."
 msgstr "Tipe konten untuk destinasi tidak sesuai"
 
-#: inventory/serializers/stock_movement.py:90
+#: inventory/serializers/stock_movement.py:155
 msgid "Invalid origin_id32 provided."
 msgstr "origin_id32 yang dimasukkan tidak sesuai"
 
-#: inventory/serializers/stock_movement.py:100
+#: inventory/serializers/stock_movement.py:166
 msgid "Invalid destination_id32 provided."
 msgstr "destination_id32 yang dimasukkan tidak sesuai"
 
@@ -1129,92 +1155,88 @@ msgstr "Pilih pengemudi untuk kendaraan ini"
 msgid "Enter the license plate"
 msgstr "Masukkan plat nomor"
 
-#: logistics/models/__init__.py:16
+#: logistics/models/__init__.py:17
 #, python-brace-format
 msgid "Vehicle #{vehicle_id} - {vehicle_name}"
 msgstr "Kendaraan #{vehicle_id} - {vehicle_name}"
 
-#: logistics/models/__init__.py:19
-msgid "Vehicle"
-msgstr "Kendaraan"
-
-#: logistics/models/__init__.py:20
+#: logistics/models/__init__.py:21
 msgid "Vehicles"
 msgstr "Kendaraan-kendaraan"
 
-#: logistics/models/__init__.py:24
+#: logistics/models/__init__.py:25
 msgid "Enter the driver's name"
 msgstr "Masukkan nama pengemudi"
 
-#: logistics/models/__init__.py:25
+#: logistics/models/__init__.py:26
 msgid "Enter the driver's phone number"
 msgstr "Masukkan nomor telepon pengemudi"
 
-#: logistics/models/__init__.py:26
+#: logistics/models/__init__.py:27
 msgid "Enter the device GPS information"
 msgstr "Masukkan informasi GPS perangkat"
 
-#: logistics/models/__init__.py:29
+#: logistics/models/__init__.py:30
 #, python-brace-format
 msgid "Driver #{driver_id} - {driver_name}"
 msgstr "Pengemudi #{driver_id} - {driver_name}"
 
-#: logistics/models/__init__.py:32
+#: logistics/models/__init__.py:33
 msgid "Driver"
 msgstr "Pengemudi"
 
-#: logistics/models/__init__.py:33
+#: logistics/models/__init__.py:34
 msgid "Drivers"
 msgstr "Pengemudi-pengemudi"
 
-#: logistics/models/__init__.py:37
+#: logistics/models/__init__.py:38
 msgid "Select the vehicle for this job"
 msgstr "Pilih kendaraan untuk pekerjaan ini"
 
-#: logistics/models/__init__.py:38
+#: logistics/models/__init__.py:39
 msgid "Select the stock movement for this job"
 msgstr "Pilih perpindahan stok untuk pekerjaan ini"
 
-#: logistics/models/__init__.py:39
+#: logistics/models/__init__.py:40
 msgid "Select the assigned driver for this job"
 msgstr "Pilih pengemudi yang ditugaskan untuk pekerjaan ini"
 
-#: logistics/models/__init__.py:44
+#: logistics/models/__init__.py:45
 #, python-brace-format
 msgid "Job #{job_id} - {stock_movement}"
 msgstr "Pekerjaan #{job_id} - {stock_movement}"
 
-#: logistics/models/__init__.py:47
+#: logistics/models/__init__.py:48
 msgid "Job"
 msgstr "Pekerjaan"
 
-#: logistics/models/__init__.py:48
+#: logistics/models/__init__.py:49
 msgid "Jobs"
 msgstr "Pekerjaan-pekerjaan"
 
-#: logistics/models/__init__.py:52
+#: logistics/models/__init__.py:53
 msgid "Select the driver for this movement"
 msgstr "Pilih pengemudi untuk perpindahan ini"
 
-#: logistics/models/__init__.py:53 purchasing/models/__init__.py:22
-#: sales/models/__init__.py:36
+#: logistics/models/__init__.py:54 purchasing/models/__init__.py:22
+#: sales/models/__init__.py:38
 msgid "Enter the location coordinates"
 msgstr "Masukkan koordinat lokasi"
 
-#: logistics/models/__init__.py:54
+#: logistics/models/__init__.py:55
 msgid "Specify the movement timestamp"
 msgstr "Tentukan waktu perpindahan"
 
-#: logistics/models/__init__.py:57
+#: logistics/models/__init__.py:58
 #, python-brace-format
 msgid "Driver Movement #{movement_id} - {driver_name} at {timestamp}"
 msgstr "Pergerakan Pengemudi #{movement_id} - {driver_name} pada {timestamp}"
 
-#: logistics/models/__init__.py:60
+#: logistics/models/__init__.py:61
 msgid "Driver Movement"
 msgstr "Pergerakan Pengemudi"
 
-#: logistics/models/__init__.py:61
+#: logistics/models/__init__.py:62
 msgid "Driver Movements"
 msgstr "Pergerakan-pergerakan Pengemudi"
 
@@ -1400,165 +1422,165 @@ msgstr "Perintah kerja telah selesai"
 msgid "Enter the supplier's name"
 msgstr "Masukkan nama pemasok"
 
-#: purchasing/models/__init__.py:13 sales/models/__init__.py:30
+#: purchasing/models/__init__.py:13 sales/models/__init__.py:32
 msgid "Enter the contact number"
 msgstr "Masukkan nomor kontak"
 
-#: purchasing/models/__init__.py:16 sales/models/__init__.py:31
+#: purchasing/models/__init__.py:16 sales/models/__init__.py:33
 msgid "Enter the address"
 msgstr "Masukkan alamat"
 
-#: purchasing/models/__init__.py:29
+#: purchasing/models/__init__.py:31
 msgid "Select the company profile for this supplier"
 msgstr "Pilih profil perusahaan untuk pemasok ini"
 
-#: purchasing/models/__init__.py:33
+#: purchasing/models/__init__.py:35
 #, python-brace-format
 msgid "Supplier #{id32} - {name}"
 msgstr "Pemasok #{id32} - {name}"
 
-#: purchasing/models/__init__.py:37
+#: purchasing/models/__init__.py:39
 msgid "Suppliers"
 msgstr "Pemasok-pemasok"
 
-#: purchasing/models/__init__.py:43
+#: purchasing/models/__init__.py:45
 msgid "Select the supplier for this product"
 msgstr "Pilih pemasok untuk produk ini"
 
-#: purchasing/models/__init__.py:48
+#: purchasing/models/__init__.py:50
 msgid "Select the product provided by the supplier"
 msgstr "Pilih produk yang disediakan oleh pemasok"
 
-#: purchasing/models/__init__.py:52
+#: purchasing/models/__init__.py:54
 msgid "Check if this supplier is the default supplier for the product"
 msgstr "Periksa apakah pemasok ini adalah pemasok utama untuk produk"
 
-#: purchasing/models/__init__.py:56
+#: purchasing/models/__init__.py:58
 #, python-brace-format
 msgid "{supplier} - {product}"
 msgstr "{supplier} - {product}"
 
-#: purchasing/models/__init__.py:59
+#: purchasing/models/__init__.py:61
 msgid "Supplier Product"
 msgstr "Produk Pemasok"
 
-#: purchasing/models/__init__.py:60
+#: purchasing/models/__init__.py:62
 msgid "Supplier Products"
 msgstr "Produk-produk Pemasok"
 
-#: purchasing/models/__init__.py:67
+#: purchasing/models/__init__.py:69
 msgid "Select the supplier associated with the order"
 msgstr "Pilih pemasok yang terkait dengan pesanan"
 
-#: purchasing/models/__init__.py:70 sales/models/__init__.py:119
+#: purchasing/models/__init__.py:72 sales/models/__init__.py:132
 msgid "Enter the order date"
 msgstr "Masukkan tanggal pesanan"
 
-#: purchasing/models/__init__.py:78
+#: purchasing/models/__init__.py:80
 msgid "Approved by"
 msgstr "Disetujui oleh"
 
-#: purchasing/models/__init__.py:79
+#: purchasing/models/__init__.py:81
 msgid "Select the user who approved the purchase order"
 msgstr "Pilih pengguna yang menyetujui pesanan pembelian"
 
-#: purchasing/models/__init__.py:84
+#: purchasing/models/__init__.py:86
 msgid "Approved at"
 msgstr "Disetujui pada"
 
-#: purchasing/models/__init__.py:85
+#: purchasing/models/__init__.py:87
 msgid "Specify the date and time when the order was approved"
 msgstr "Tentukan tanggal dan waktu ketika pesanan disetujui"
 
-#: purchasing/models/__init__.py:91
+#: purchasing/models/__init__.py:93
 #, python-brace-format
 msgid "Purchase Order #{id32}"
 msgstr "Pesanan Pembelian #{id32}"
 
-#: purchasing/models/__init__.py:94
+#: purchasing/models/__init__.py:96
 msgid "Purchase Order"
 msgstr "Pesanan Pembelian"
 
-#: purchasing/models/__init__.py:95
+#: purchasing/models/__init__.py:97
 msgid "Purchase Orders"
 msgstr "Pesanan-pesanan Pembelian"
 
-#: purchasing/models/__init__.py:101
+#: purchasing/models/__init__.py:103
 msgid "Select the purchase order associated with the item"
 msgstr "Pilih pesanan pembelian yang terkait dengan item tersebut"
 
-#: purchasing/models/__init__.py:106 sales/models/__init__.py:169
+#: purchasing/models/__init__.py:108 sales/models/__init__.py:193
 msgid "Select the product associated with the item"
 msgstr "Pilih produk yang terkait dengan item tersebut"
 
-#: purchasing/models/__init__.py:109 sales/models/__init__.py:172
+#: purchasing/models/__init__.py:111 sales/models/__init__.py:196
 msgid "Enter the item quantity"
 msgstr "Masukkan jumlah item"
 
-#: purchasing/models/__init__.py:114
+#: purchasing/models/__init__.py:116
 msgid "Enter the purchase order item price"
 msgstr "Masukkan harga item pesanan pembelian"
 
-#: purchasing/models/__init__.py:121
+#: purchasing/models/__init__.py:123
 msgid "Enter the actual item price"
 msgstr "Masukkan harga item sesungguhnya"
 
-#: purchasing/models/__init__.py:128
+#: purchasing/models/__init__.py:130
 #, python-brace-format
 msgid "Purchase Order Item #{id32} - {product}"
 msgstr "Item Pesanan Pembelian #{id32} - {product}"
 
-#: purchasing/models/__init__.py:131
+#: purchasing/models/__init__.py:133
 msgid "Purchase Order Item"
 msgstr "Item Pesanan Pembelian"
 
-#: purchasing/models/__init__.py:132
+#: purchasing/models/__init__.py:134
 msgid "Purchase Order Items"
 msgstr "Item-item Pesanan Pembelian"
 
-#: purchasing/models/__init__.py:138
+#: purchasing/models/__init__.py:140
 msgid "Select the purchase order associated with the shipment"
 msgstr "Pilih pesanan pembelian yang terkait dengan pengiriman"
 
-#: purchasing/models/__init__.py:141
+#: purchasing/models/__init__.py:143
 msgid "Enter the shipment date"
 msgstr "Masukkan tanggal pengiriman"
 
-#: purchasing/models/__init__.py:146
+#: purchasing/models/__init__.py:148
 #, python-brace-format
 msgid "Shipment #{id32} - {purchase_order}"
 msgstr "Pengiriman #{id32} - {purchase_order}"
 
-#: purchasing/models/__init__.py:149
+#: purchasing/models/__init__.py:151
 msgid "Shipment"
 msgstr "Pengiriman"
 
-#: purchasing/models/__init__.py:150
+#: purchasing/models/__init__.py:152
 msgid "Shipments"
 msgstr "Pengiriman-pengiriman"
 
-#: purchasing/models/__init__.py:156
+#: purchasing/models/__init__.py:158
 msgid "Select the supplier associated with the vendor performance"
 msgstr "Pilih pemasok yang terkait dengan kinerja vendor"
 
-#: purchasing/models/__init__.py:160
+#: purchasing/models/__init__.py:162
 msgid "Select the rating for the vendor performance"
 msgstr "Pilih penilaian untuk kinerja vendor"
 
-#: purchasing/models/__init__.py:164
+#: purchasing/models/__init__.py:166
 msgid "Enter any comments or additional information"
 msgstr "Masukkan komentar atau informasi tambahan"
 
-#: purchasing/models/__init__.py:169
+#: purchasing/models/__init__.py:171
 #, python-brace-format
 msgid "Vendor Performance #{id32} - {supplier}"
 msgstr "Kinerja Vendor #{id32} - {supplier}"
 
-#: purchasing/models/__init__.py:172
+#: purchasing/models/__init__.py:174
 msgid "Vendor Performance"
 msgstr "Kinerja Vendor"
 
-#: purchasing/models/__init__.py:173
+#: purchasing/models/__init__.py:175
 msgid "Vendor Performances"
 msgstr "Kinerja-kinerja Vendor"
 
@@ -1570,372 +1592,462 @@ msgstr ""
 msgid "Invalid company profile ID32."
 msgstr ""
 
-#: purchasing/serializers/supplier.py:93 purchasing/serializers/supplier.py:121
+#: purchasing/serializers/supplier.py:95 purchasing/serializers/supplier.py:123
 msgid "Supplier with this id32 does not exist."
 msgstr "Pemasok dengan id32 ini tidak ada."
 
-#: purchasing/serializers/supplier.py:99
+#: purchasing/serializers/supplier.py:101
 msgid "Product with this id32 does not exist."
 msgstr "Produk dengan id32 ini tidak ada."
 
-#: purchasing/serializers/supplier.py:102
+#: purchasing/serializers/supplier.py:104
 msgid "A product with this supplier already exists."
 msgstr "Produk dengan supplier sudah ada."
 
-#: purchasing/serializers/supplier.py:126
+#: purchasing/serializers/supplier.py:128
 msgid "The product list contains duplicate entries."
 msgstr "Daftar produk mengandung entri duplikat."
 
-#: purchasing/serializers/supplier.py:140
+#: purchasing/serializers/supplier.py:142
 msgid "The supplier already has associations with product(s): {}"
 msgstr "Pemasok sudah memiliki asosiasi dengan produk: {}"
 
-#: sales/models/__init__.py:17
+#: sales/models/__init__.py:19
 msgid "Cash before Delivery"
 msgstr "Dibayar sebelum pengiriman (CBD)"
 
-#: sales/models/__init__.py:18
+#: sales/models/__init__.py:20
 msgid "Cash on Delivery"
 msgstr "Dibayar saat pengiriman (COD)"
 
-#: sales/models/__init__.py:22
+#: sales/models/__init__.py:24
 msgid "Wholesaler"
 msgstr "Grosir"
 
-#: sales/models/__init__.py:23
+#: sales/models/__init__.py:25
 msgid "Distributor"
 msgstr "Distributor"
 
-#: sales/models/__init__.py:24
+#: sales/models/__init__.py:26
 msgid "Retailer"
 msgstr "Ritel"
 
-#: sales/models/__init__.py:28
+#: sales/models/__init__.py:30
 msgid "Enter the customer's name"
 msgstr "Masukkan nama pelanggan"
 
-#: sales/models/__init__.py:46
+#: sales/models/__init__.py:48
 msgid "Select the company profile associated with the customer"
 msgstr "Pilih profil perusahaan yang terkait dengan pelanggan"
 
-#: sales/models/__init__.py:48 sales/models/__init__.py:49
 #: sales/models/__init__.py:50 sales/models/__init__.py:51
+#: sales/models/__init__.py:52 sales/models/__init__.py:53
 msgid "Enter the "
 msgstr "Masukkan"
 
-#: sales/models/__init__.py:55
+#: sales/models/__init__.py:57
 msgid "Enter the store name"
 msgstr "Masukkan nama toko"
 
-#: sales/models/__init__.py:59
+#: sales/models/__init__.py:61
 msgid "Select payment type."
 msgstr "Pilih tipe pembayaran."
 
-#: sales/models/__init__.py:66
+#: sales/models/__init__.py:68
 msgid "Select store type."
 msgstr "Pilih tipe toko"
 
-#: sales/models/__init__.py:81
+#: sales/models/__init__.py:88
 #, python-brace-format
 msgid "Customer #{id32} - {name}"
 msgstr "Pelanggan #{id32} - {name}"
 
-#: sales/models/__init__.py:85 sales/models/__init__.py:268
+#: sales/models/__init__.py:92 sales/models/__init__.py:364
 msgid "Customers"
 msgstr "Pelanggan-pelanggan"
 
-#: sales/models/__init__.py:101
+#: sales/models/__init__.py:108
 msgid ""
 "Draft: The initial stage of the order where it's still being drafted or "
 "created."
-msgstr "Draf: Tahap awal dari pesanan di mana masih dalam tahap draf atau dibuat."
+msgstr ""
+"Draf: Tahap awal dari pesanan di mana masih dalam tahap draf atau dibuat."
 
-#: sales/models/__init__.py:102
+#: sales/models/__init__.py:109
 msgid "Submitted: Order has been completed and sent for review or approval."
-msgstr "Dikirim: Pesanan telah diselesaikan dan dikirim untuk ditinjau atau disetujui."
+msgstr ""
+"Dikirim: Pesanan telah diselesaikan dan dikirim untuk ditinjau atau "
+"disetujui."
 
-#: sales/models/__init__.py:103
+#: sales/models/__init__.py:110
 msgid "Approved: Order has been accepted for processing after review."
 msgstr "Disetujui: Pesanan telah diterima untuk diproses setelah ditinjau."
 
-#: sales/models/__init__.py:104
+#: sales/models/__init__.py:111
 msgid ""
 "Rejected: Order has been found unsuitable for processing and needs revision."
-msgstr "Ditolak: Pesanan ditemukan tidak sesuai untuk diproses dan perlu direvisi."
+msgstr ""
+"Ditolak: Pesanan ditemukan tidak sesuai untuk diproses dan perlu direvisi."
 
-#: sales/models/__init__.py:105
+#: sales/models/__init__.py:112
 msgid "Processing: Active steps to fulfill the order are underway."
 msgstr "Dalam Proses: Langkah aktif untuk memenuhi pesanan sedang berlangsung."
 
-#: sales/models/__init__.py:106
+#: sales/models/__init__.py:113
 msgid ""
 "Shipped: Order has left the business premises and is en route to the "
 "customer."
-msgstr "Dikirim: Pesanan telah meninggalkan tempat usaha dan sedang dalam perjalanan ke pelanggan."
+msgstr ""
+"Dikirim: Pesanan telah meninggalkan tempat usaha dan sedang dalam perjalanan "
+"ke pelanggan."
 
-#: sales/models/__init__.py:108
+#: sales/models/__init__.py:115
 msgid ""
 "Delivered: Order has reached its destination and is now with the customer."
-msgstr "Diterima: Pesanan telah sampai di tujuannya dan sekarang berada di tangan pelanggan."
+msgstr ""
+"Diterima: Pesanan telah sampai di tujuannya dan sekarang berada di tangan "
+"pelanggan."
 
-#: sales/models/__init__.py:110
+#: sales/models/__init__.py:117
 msgid ""
 "Completed: All aspects of the order are done, and it's considered closed."
 msgstr "Selesai: Semua aspek dari pesanan telah selesai, dan dianggap ditutup."
 
-#: sales/models/__init__.py:111
+#: sales/models/__init__.py:118
 msgid "Canceled: Order was terminated before reaching completion."
 msgstr "Dibatalkan: Pesanan dihentikan sebelum mencapai selesai."
 
-#: sales/models/__init__.py:117
+#: sales/models/__init__.py:123 sales/models/__init__.py:422
+msgid "Canvasing"
+msgstr ""
+
+#: sales/models/__init__.py:124 sales/models/__init__.py:423
+msgid "Taking Order"
+msgstr ""
+
+#: sales/models/__init__.py:130
 msgid "Select the customer associated with the order"
 msgstr "Pilih pelanggan yang terkait dengan pesanan"
 
-#: sales/models/__init__.py:127
+#: sales/models/__init__.py:140
 msgid "Select the user who approved the order"
 msgstr "Pilih pengguna yang menyetujui pesanan"
 
-#: sales/models/__init__.py:143
+#: sales/models/__init__.py:156
 msgid "Current status of the sales order."
 msgstr "Status terbaru pada sales order."
 
-#: sales/models/__init__.py:147
+#: sales/models/__init__.py:163
 #, python-brace-format
 msgid "Order #{id32} - {customer}"
 msgstr "Pesanan #{id32} - {customer}"
 
-#: sales/models/__init__.py:150 sales/models/__init__.py:301
-#: sales/models/__init__.py:368
+#: sales/models/__init__.py:166 sales/models/__init__.py:395
+#: sales/models/__init__.py:463
 msgid "Order"
 msgstr "Pesanan"
 
-#: sales/models/__init__.py:151
+#: sales/models/__init__.py:167
 msgid "Orders"
 msgstr "Pesanan-pesanan"
 
-#: sales/models/__init__.py:164
+#: sales/models/__init__.py:188
 msgid "Select the order associated with the item"
 msgstr "Pilih pesanan yang terkait dengan item tersebut"
 
-#: sales/models/__init__.py:176
+#: sales/models/__init__.py:200
 msgid "Enter the item price in IDR (Rp)"
 msgstr "Masukkan harga item dalam IDR (Rp)"
 
-#: sales/models/__init__.py:183
-#, python-brace-format
-msgid "Order Item #{id32} - {product} {quantity}({unit})"
-msgstr "Item Pesanan #{id32} - {product} {quantity}({unit})"
+#: sales/models/__init__.py:207
+msgid "Order Item #{id32} - [#{product_id32}]{product} ({quantity}{unit})"
+msgstr "Item Pesanan #{id32} - [#{product_id32}]{product} ({quantity}{unit})"
 
-#: sales/models/__init__.py:191
+#: sales/models/__init__.py:220
 msgid "Order Item"
 msgstr "Item Pesanan"
 
-#: sales/models/__init__.py:192
+#: sales/models/__init__.py:221
 msgid "Order Items"
 msgstr "Item-item Pesanan"
 
-#: sales/models/__init__.py:199
+#: sales/models/__init__.py:228
 msgid "Select the order associated with the invoice"
 msgstr "Pilih pesanan yang terkait dengan faktur"
 
-#: sales/models/__init__.py:201
+#: sales/models/__init__.py:230
 msgid "Enter the invoice date"
 msgstr "Masukkan tanggal faktur"
 
-#: sales/models/__init__.py:209
+#: sales/models/__init__.py:238
 msgid "Select the user who approved the invoice"
 msgstr "Pilih pengguna yang menyetujui faktur"
 
-#: sales/models/__init__.py:220
+#: sales/models/__init__.py:255
+msgid "Value Added Tax percentage in decimal"
+msgstr ""
+
+#: sales/models/__init__.py:259
+msgid "Invoice"
+msgstr "Faktur"
+
+#: sales/models/__init__.py:260
+msgid "Invoices"
+msgstr "Faktur-faktur"
+
+#: sales/models/__init__.py:263
 #, python-brace-format
 msgid "Invoice #{id32} - {order}"
 msgstr "Faktur #{id32} - {order}"
 
-#: sales/models/__init__.py:223
-msgid "Invoice"
-msgstr "Faktur"
+#: sales/models/__init__.py:307
+msgid "Authorize: The payment has been authorized but not yet captured."
+msgstr ""
 
-#: sales/models/__init__.py:224
-msgid "Invoices"
-msgstr "Faktur-faktur"
+#: sales/models/__init__.py:308
+msgid "Capture: The authorized payment has been secured."
+msgstr ""
 
-#: sales/models/__init__.py:231
+#: sales/models/__init__.py:309
+msgid ""
+"Settlement: The payment process has been completed and funds have been "
+"transferred."
+msgstr ""
+
+#: sales/models/__init__.py:310
+msgid "Deny: The payment request was denied."
+msgstr ""
+
+#: sales/models/__init__.py:311
+msgid ""
+"Pending: The payment process is ongoing and the final status is not yet "
+"determined."
+msgstr ""
+
+#: sales/models/__init__.py:312
+msgid "Cancel: The payment process was canceled before completion."
+msgstr "Dibatalkan: Proses pembayaran dibatalkan sebelum mencapai selesai."
+
+#: sales/models/__init__.py:313
+msgid "Refund: Funds have been returned to the payer."
+msgstr ""
+
+#: sales/models/__init__.py:314
+msgid "Expired: The payment authorization has expired without capture."
+msgstr ""
+
+#: sales/models/__init__.py:315
+msgid "Failure: The payment process encountered an error and was unsuccessful."
+msgstr ""
+
+#: sales/models/__init__.py:321
 msgid "Select the invoice associated with the payment"
 msgstr "Pilih faktur yang terkait dengan pembayaran"
 
-#: sales/models/__init__.py:236
+#: sales/models/__init__.py:326
 msgid "Enter the payment amount"
 msgstr "Masukkan jumlah pembayaran"
 
-#: sales/models/__init__.py:238
+#: sales/models/__init__.py:328
 msgid "Enter the payment date"
 msgstr "Masukkan tanggal pembayaran"
 
-#: sales/models/__init__.py:246
+#: sales/models/__init__.py:336
 msgid "Select the user who approved the payment"
 msgstr "Pilih pengguna yang menyetujui pembayaran"
 
-#: sales/models/__init__.py:257
+#: sales/models/__init__.py:349
+msgid "Current status of the payment."
+msgstr "Status terbaru pada pembayaran."
+
+#: sales/models/__init__.py:353
 #, python-brace-format
 msgid "Payment #{id32} - {invoice}"
 msgstr "Pembayaran #{id32} - {invoice}"
 
-#: sales/models/__init__.py:260
+#: sales/models/__init__.py:356
 msgid "Payment"
 msgstr "Pembayaran"
 
-#: sales/models/__init__.py:261
+#: sales/models/__init__.py:357
 msgid "Payments"
 msgstr "Pembayaran-pembayaran"
 
-#: sales/models/__init__.py:266
+#: sales/models/__init__.py:362
 msgid "Name"
 msgstr "Nama"
 
-#: sales/models/__init__.py:266
+#: sales/models/__init__.py:362
 msgid "Enter the name for the canvasing trip template"
 msgstr "Masukkan nama untuk template perjalanan canvasing"
 
-#: sales/models/__init__.py:268
+#: sales/models/__init__.py:364
 msgid "Select customers for this trip template"
 msgstr "Pilih pelanggan untuk template perjalanan ini"
 
-#: sales/models/__init__.py:271
+#: sales/models/__init__.py:367
 msgid "Trip Template"
 msgstr "Template Perjalanan"
 
-#: sales/models/__init__.py:272
+#: sales/models/__init__.py:368
 msgid "Trip Templates"
 msgstr "Template-template Perjalanan"
 
-#: sales/models/__init__.py:304
+#: sales/models/__init__.py:398
 msgid "Trip Customer"
 msgstr "Perjalanan ke Pelanggan"
 
-#: sales/models/__init__.py:305
+#: sales/models/__init__.py:399
 msgid "Trip Customers"
 msgstr "Perjalanan-perjalanan ke Pelanggan"
 
-#: sales/models/__init__.py:316
+#: sales/models/__init__.py:410
 msgid "Date"
 msgstr "Tanggal"
 
-#: sales/models/__init__.py:316
+#: sales/models/__init__.py:410
 msgid "Date for the canvasing trip"
 msgstr "Tanggal untuk perjalanan canvasing"
 
-#: sales/models/__init__.py:327
-msgid "Canvasing"
-msgstr ""
-
-#: sales/models/__init__.py:328
-msgid "Taking Order"
-msgstr ""
-
-#: sales/models/__init__.py:329
+#: sales/models/__init__.py:424
 msgid "Collecting"
 msgstr ""
 
-#: sales/models/__init__.py:330
+#: sales/models/__init__.py:425
 msgid "Delivering"
 msgstr "Dalam Pengiriman"
 
-#: sales/models/__init__.py:342
+#: sales/models/__init__.py:437
 msgid "Waiting"
 msgstr "Menunggu"
 
-#: sales/models/__init__.py:343
+#: sales/models/__init__.py:438
 msgid "On Progress"
 msgstr "Sedang Berlangsung"
 
-#: sales/models/__init__.py:344
+#: sales/models/__init__.py:439
 msgid "Arrived"
 msgstr "Tiba"
 
-#: sales/models/__init__.py:345
+#: sales/models/__init__.py:440
 msgid "Completed"
 msgstr "Selesai"
 
-#: sales/models/__init__.py:346
+#: sales/models/__init__.py:441
 msgid "Skipped"
 msgstr "Dilewati"
 
-#: sales/models/__init__.py:353
+#: sales/models/__init__.py:448
 msgid "Trip"
 msgstr "Perjalanan"
 
-#: sales/models/__init__.py:354
+#: sales/models/__init__.py:449
 msgid "Trips"
 msgstr "Perjalanan-perjalanan"
 
-#: sales/models/__init__.py:371
+#: sales/models/__init__.py:471
 msgid "Customer Visit"
 msgstr "Kunjungan Konsumen"
 
-#: sales/models/__init__.py:372
+#: sales/models/__init__.py:472
 msgid "Customer Visits"
 msgstr "Kunjungan-kunjungan Konsumen"
 
-#: sales/models/__init__.py:403
+#: sales/models/__init__.py:503
 msgid "Customer Visit Report"
 msgstr "Laporan Kunjungan Pelanggan"
 
-#: sales/models/__init__.py:404
+#: sales/models/__init__.py:504
 msgid "Customer Visit Reports"
 msgstr "Laporan-laporan Kunjungan Pelanggan"
 
-#: sales/serializers/trip.py:20
+#: sales/serializers/sales.py:85
+msgid "Invoice with this id32 does not exist."
+msgstr "Invoice dengan id32 ini tidak ada."
+
+#: sales/serializers/sales.py:93 sales/serializers/sales.py:120
+msgid "File with this id32 does not exist."
+msgstr "Dokumen dengan id32 ini tidak ada."
+
+#: sales/serializers/sales.py:155
+msgid "Order with this id32 does not exist."
+msgstr "Order dengan id32 ini tidak ada."
+
+#: sales/serializers/trip.py:22
 msgid "Select customer intended for this canvasing"
 msgstr "Pilih pelanggan yang ditujukan untuk canvasing ini"
 
-#: sales/serializers/trip.py:26
+#: sales/serializers/trip.py:28
 msgid "Name of the customer"
 msgstr "Nama pelanggan"
 
-#: sales/serializers/trip.py:136
-msgid "End date must be after start date."
-msgstr "Tanggal akhir harus setelah tanggal mulai."
-
-#: sales/serializers/trip.py:144
+#: sales/serializers/trip.py:198 sales/serializers/trip.py:236
 msgid "Salesperson with this username does not exist."
 msgstr "Penjual dengan nama pengguna ini tidak ada."
 
-#: sales/serializers/trip.py:152
-msgid "Driver with this username does not exist."
-msgstr "Pengemudi dengan nama pengguna ini tidak ada."
+#: sales/serializers/trip.py:206 sales/serializers/trip.py:244
+msgid "Vehicle with this id32 does not exist."
+msgstr "Kendaraan dengan id32 ini tidak ada."
 
-#~ msgid "Date of attendance"
-#~ msgstr "Tanggal kehadiran"
+#: sales/serializers/trip.py:228
+msgid "End date must be after start date."
+msgstr "Tanggal akhir harus setelah tanggal mulai."
 
-#~ msgid "Select products intended for this customer"
-#~ msgstr "Pilih produk yang ditujukan untuk pelanggan ini"
+#: sales/signals/__init__.py:381
+msgid "Trip must have an associated vehicle to start the trip."
+msgstr "Perjalanan harus memiliki kendaraan terkait untuk memulai perjalanan."
 
-#~ msgid "Canvasing Customer"
-#~ msgstr "Pelanggan Canvasing"
+#: sales/signals/__init__.py:385
+msgid "Vehicle must have an associated warehouse to start the trip."
+msgstr "Kendaraan harus memiliki gudang terkait untuk memulai perjalanan."
 
-#~ msgid "Canvasing Customers"
-#~ msgstr "Pelanggan-pelanggan Canvasing"
+#: sales/signals/__init__.py:394
+msgid ""
+"CustomerVisit status can only be changed if associated Trip status is "
+"ON_PROGRESS."
+msgstr "Status Kunjungan Pelanggan hanya dapat diubah jika status Perjalanan yang terkait adalah DALAM PROSES."
 
-#~ msgid "Intended Quantity"
-#~ msgstr "Jumlah yang Dituju"
+#: sales/signals/__init__.py:404
+msgid ""
+"CustomerVisit status cannot be set to COMPLETED if sales_order and "
+"item_delivery_evidence are null."
+msgstr "Status Kunjungan Pelanggan tidak dapat diatur ke SELESAI jika sales_order dan bukti_pengiriman_barang adalah null."
 
-#~ msgid "Intended quantity to sell to the customer"
-#~ msgstr "Jumlah yang ditujukan untuk dijual kepada pelanggan"
+#: sales/signals/__init__.py:410
+msgid ""
+"CustomerVisit CustomerVisit status cannot be set to COMPLETED because this "
+"Sales Order Item is out of stock."
+msgstr "Status Kunjungan Pelanggan tidak dapat diatur ke SELESAI karena Item Pesanan Penjualan ini kehabisan stok."
 
-#~ msgid "Canvasing Customer Product"
-#~ msgstr "Produk Pelanggan Canvasing"
+#: sales/signals/__init__.py:418
+msgid ""
+"CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or "
+"signature are null."
+msgstr "Status Kunjungan Pelanggan tidak dapat diatur ke DILEWATKAN jika catatan, bukti_kunjungan, atau tanda_tangan adalah null."
 
-#~ msgid "Canvasing Customer Products"
-#~ msgstr "Produk-produk Pelanggan Canvasing"
+#: sales/signals/__init__.py:427 sales/signals/__init__.py:452
+msgid ""
+"Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED."
+msgstr "Pesanan Penjualan berstatus DRAFT. Tidak dapat mengatur Kunjungan Pelanggan ke SELESAI."
 
-#~ msgid "Canvasing Trips"
-#~ msgstr "Perjalanan-perjalanan Canvasing"
 
-#~ msgid "Canvasing Report"
-#~ msgstr "Laporan Canvasing"
+#: sales/signals/__init__.py:433
+msgid "The associated Sales Order doesn't have an invoice."
+msgstr "Sales Order terkait tidak memiliki Invoice"
 
-#~ msgid "Canvasing Reports"
-#~ msgstr "Laporan-laporan Canvasing"
+#: sales/signals/__init__.py:438
+msgid "The associated invoice doesn't have a payment."
+msgstr "Invoice terkait tidak memiliki Pembayaran"
 
-#~ msgid "Name of the product"
-#~ msgstr "Nama produk"
+#: sales/signals/__init__.py:442
+msgid ""
+"The payment status for the associated invoice is neither CAPTURE nor "
+"SETTLEMENT."
+msgstr "Status pembayaran untuk faktur yang terkait bukan CAPTURE maupun SETTLEMENT."
+
+#: sales/signals/__init__.py:461
+#, python-brace-format
+msgid ""
+"The payment amount of {payment_amount} is less than the invoice total of "
+"{invoice_total}"
+msgstr "Jumlah pembayaran sebesar {payment_amount} kurang dari total faktur sebesar {invoice_total}"
