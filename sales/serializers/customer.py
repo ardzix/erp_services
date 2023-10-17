@@ -7,10 +7,10 @@ from ..models import Customer
 
 class CustomerSerializer(serializers.ModelSerializer):
     location_coordinate = serializers.SerializerMethodField()
-    id_card_id32 = serializers.CharField(write_only=True)
-    store_front_id32 = serializers.CharField(write_only=True)
-    store_street_id32 = serializers.CharField(write_only=True)
-    signature_id32 = serializers.CharField(write_only=True)
+    id_card_id32 = serializers.CharField(write_only=True, required=False)
+    store_front_id32 = serializers.CharField(write_only=True, required=False)
+    store_street_id32 = serializers.CharField(write_only=True, required=False)
+    signature_id32 = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Customer

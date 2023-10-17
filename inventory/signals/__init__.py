@@ -6,9 +6,8 @@ from ..models import Product, ProductLog, StockMovement, WarehouseStock, Warehou
 
 
 def commit_base_price(product, buy_price):
-    if buy_price and product.purchasing_unit and product.stock_unit:
-        base_price = buy_price * product.stock_unit.conversion_to_top_level() / \
-            product.purchasing_unit.conversion_to_top_level()
+    if buy_price and product.purchasing_unit:
+        base_price = buy_price / product.purchasing_unit.conversion_to_top_level()
         if base_price != product.base_price:
             product.base_price = base_price
             product.save()
@@ -21,12 +20,6 @@ def change_global_stock(sender, instance, created, **kwargs):
             smallest_conversion = instance.previous_smallest_unit.conversion_to_top_level() / instance.smallest_unit.conversion_to_top_level()
             instance.quantity = instance.quantity * smallest_conversion
             instance.save()
-        if instance.previous_stock_unit and instance.previous_stock_unit != instance.stock_unit:
-            stock_conversion = instance.previous_stock_unit.conversion_to_top_level() / instance.stock_unit.conversion_to_top_level()
-            for stock in WarehouseStock.objects.filter(product=instance):
-                stock.quantity = stock.quantity * stock_conversion
-                stock.updated_by = instance.updated_by
-                stock.save()
 
 
 @receiver(post_save, sender=Product)
@@ -60,8 +53,6 @@ def calculate_product_log(sender, instance, **kwargs):
     instance.previous_sell_price = prev_obj.sell_price if prev_obj else 0
     instance.previous_smallest_unit = prev_obj.smallest_unit if prev_obj else None
     instance.previous_purchasing_unit = prev_obj.purchasing_unit if prev_obj else None
-    instance.previous_sales_unit = prev_obj.sales_unit if prev_obj else None
-    instance.previous_stock_unit = prev_obj.stock_unit if prev_obj else None
 
 
 @receiver(post_save, sender=Product)
@@ -113,6 +104,7 @@ def handle_origin_warehouse(instance):
             stocks = WarehouseStock.objects.filter(
                 warehouse=instance.origin,
                 product=item.product,
+                unit=item.unit,
                 quantity__gt=0
             )
             stocks = filter_stock_by_method(stocks, item.product.price_calculation)
@@ -130,6 +122,7 @@ def handle_origin_warehouse(instance):
             stocks = WarehouseStock.objects.filter(
                 warehouse=instance.origin,
                 product=item.product,
+                unit=item.unit,
                 dispatch_movement_items=item)
             stocks = filter_stock_by_method(stocks, item.product.price_calculation)
             stock=stocks.first()

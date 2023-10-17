@@ -204,12 +204,17 @@ class OrderItem(BaseModelGeneric):
     # Add any other fields specific to your order item model
 
     def __str__(self):
-        return _('Order Item #{id32} - {product} {quantity}({unit})').format(
+        return _('Order Item #{id32} - [#{product_id32}]{product} ({quantity}{unit})').format(
             id32=self.id32,
             product=self.product.name,
+            product_id32=self.product.id32,
             quantity=self.quantity,
-            unit=self.product.sales_unit.symbol if self.product.sales_unit else '-'
+            unit=self.unit.symbol
         )
+
+    @property
+    def smallest_unit_quantity(self):
+        return self.quantity * self.unit.conversion_to_top_level()
 
     class Meta:
         verbose_name = _('Order Item')
@@ -263,12 +268,11 @@ class Invoice(BaseModelGeneric):
         return payment.status if payment else None
     
     @property
-    def total(self):
-        return 10000000
-    
-    @property
     def subtotal(self):
-        return 9900000
+        amount = 0
+        for item in self.order.order_items.all():
+            amount += item.price * item.quantity
+        return amount
     
     @property
     def vat_percent(self):
@@ -277,6 +281,10 @@ class Invoice(BaseModelGeneric):
     @property
     def vat_amount(self):
         return self.vat * self.subtotal
+    
+    @property
+    def total(self):
+        return self.subtotal + self.vat_amount
 
     @property
     def payments(self):

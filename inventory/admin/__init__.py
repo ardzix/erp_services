@@ -21,13 +21,26 @@ class UnitAdmin(BaseAdmin):
 
 @admin.register(Product)
 class ProductAdmin(BaseAdmin):
-    list_display = ['id32', 'name', 'description', 'base_price', 'quantity', 'phsycal_quantity', 'category']
+    list_display = ['id32', 'name', 'description',
+                    'base_price', 'quantity', 'phsycal_quantity', 'category']
     list_filter = ['category']
-    fields = ['name', 'alias', 'sku', 'description', 'base_price', 'last_buy_price', 'previous_buy_price', 'margin_type', 'margin_value', 'sell_price', 'quantity', 'minimum_quantity', 'phsycal_quantity', 'category', 'smallest_unit', 'purchasing_unit', 'sales_unit', 'stock_unit', 'product_type', 'price_calculation', 'brand', 'picture']
-    readonly_fields = ['phsycal_quantity', 'previous_buy_price']
+    fields = [
+        'name', 'alias', 'sku', 'description', 'base_price', 'last_buy_price',
+        'previous_buy_price', 'margin_type', 'margin_value', 'sell_price', 'quantity',
+        'minimum_quantity', 'category', 'smallest_unit', 'purchasing_unit',
+        'product_type', 'price_calculation', 'brand', 'picture',
+        'phsycal_quantity', 'phsycal_quantity_amount', 'prices']
+    readonly_fields = ['phsycal_quantity',
+                       'phsycal_quantity_amount', 'previous_buy_price', 'prices']
 
     def phsycal_quantity(self, obj):
         return obj.phsycal_quantity
+
+    def phsycal_quantity_amount(self, obj):
+        return obj.phsycal_quantity_amount
+
+    def prices(self, obj):
+        return obj.prices
 
 
 @admin.register(ProductGroup)
@@ -57,6 +70,7 @@ class FromWarehouseFilter(WarehouseFilter):
             return queryset.filter(origin_type__model=self.value())
         return queryset
 
+
 class ToWarehouseFilter(WarehouseFilter):
     title = _('Destination Filter')  # Display name of the filter
     parameter_name = 'destination_filter'  # URL parameter name for the filter
@@ -66,13 +80,14 @@ class ToWarehouseFilter(WarehouseFilter):
         if self.value():
             return queryset.filter(destination_type__model=self.value())
         return queryset
-    
+
 
 class WarehouseTypeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Customize the queryset for the foreign key field
-        ct = ContentType.objects.filter(model__in=['customer', 'supplier', 'warehouse'])
+        ct = ContentType.objects.filter(
+            model__in=['customer', 'supplier', 'warehouse'])
         self.fields['origin_type'].queryset = ct
         self.fields['destination_type'].queryset = ct
 
@@ -89,9 +104,11 @@ class StockMovementItemInline(admin.TabularInline):
 class StockMovementAdmin(BaseAdmin):
     form = WarehouseTypeForm
     list_display = ['id32', 'origin', 'destination', 'status', 'movement_date']
-    list_filter = ['movement_date', 'status', FromWarehouseFilter ,ToWarehouseFilter]
+    list_filter = ['movement_date', 'status',
+                   FromWarehouseFilter, ToWarehouseFilter]
     search_fields = ['product__name']
-    fields = ['status', 'movement_date', 'origin', 'origin_id', 'origin_type', 'destination', 'destination_id', 'destination_type']
+    fields = ['status', 'movement_date', 'origin', 'origin_id',
+              'origin_type', 'destination', 'destination_id', 'destination_type']
     readonly_fields = ['origin', 'destination']
     inlines = [StockMovementItemInline]
 
@@ -106,7 +123,6 @@ class StockMovementAdmin(BaseAdmin):
             return f"{obj.destination}"
         else:
             return ''
-
 
     origin.short_description = _('Origin')
     destination.short_description = _('Destination')
@@ -135,9 +151,11 @@ class ReplenishmentReceivedAdmin(BaseAdmin):
 
 @admin.register(ProductLog)
 class ProductLogAdmin(BaseAdmin):
-    list_display = ['product', 'quantity_change', 'buy_price_change', 'base_price_change', 'sell_price_change', 'created_at', 'created_by']
+    list_display = ['product', 'quantity_change', 'buy_price_change',
+                    'base_price_change', 'sell_price_change', 'created_at', 'created_by']
     list_filter = ['product']
-    readonly_fields = ['product', 'quantity_change', 'buy_price_change', 'base_price_change', 'sell_price_change', 'created_at', 'created_by']
+    readonly_fields = ['product', 'quantity_change', 'buy_price_change',
+                       'base_price_change', 'sell_price_change', 'created_at', 'created_by']
     ordering = ['-created_at']
     search_fields = ['product__name']
 
@@ -156,6 +174,7 @@ class WarehouseAdmin(BaseAdmin):
 
 @admin.register(WarehouseStock)
 class WarehouseStockAdmin(BaseAdmin):
-    list_display = ['id32', 'warehouse', 'product', 'quantity']
+    list_display = ['id32', 'warehouse', 'product', 'quantity', 'unit']
     list_filter = ['warehouse', 'product']
-    fields = ['warehouse', 'product', 'quantity']
+    fields = ['warehouse', 'product', 'quantity', 'unit',
+              'expire_date', 'inbound_movement_item', 'dispatch_movement_items']

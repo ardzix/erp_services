@@ -141,12 +141,14 @@ class _BaseAbstract(models.Model):
         super(_BaseAbstract, self).save(*args, **kwargs)
 
     def approve(self, user=None):
-        self._set_user_action('approved', user)
+        self._set_user_action(
+            'approved',  user if user else self._current_user)
         self._nullify_user_action('unapproved')
         self.save()
 
     def unapprove(self, user=None):
-        self._set_user_action('unapproved', user)
+        self._set_user_action(
+            'unapproved',  user if user else self._current_user)
         self._nullify_user_action('approved')
         self.save()
 

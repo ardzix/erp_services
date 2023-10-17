@@ -164,10 +164,6 @@ class Product(BaseModelGeneric):
                                       default=None, null=True, blank=True, help_text=_("Select the smallest unit for the product"))
     purchasing_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_purchasing',
                                         default=None, null=True, blank=True, help_text=_("Select the purchasing unit for the product"))
-    sales_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_sales',
-                                   default=None, null=True, blank=True, help_text=_("Select the sales unit for the product"))
-    stock_unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, related_name='products_as_stock',
-                                   default=None, null=True, blank=True, help_text=_("Select the stock unit for the product"))
     product_type = models.CharField(
         max_length=20, choices=PRODUCT_TYPE_CHOICES, help_text=_("Select the product type"))
     price_calculation = models.CharField(max_length=20, choices=PRICE_CALCULATION_CHOICES, help_text=_(
@@ -203,10 +199,6 @@ class Product(BaseModelGeneric):
     def save(self, *args, **kwargs):
         if not self.purchasing_unit:
             self.purchasing_unit = self.smallest_unit
-        if not self.sales_unit:
-            self.sales_unit = self.smallest_unit
-        if not self.stock_unit:
-            self.stock_unit = self.smallest_unit
         super().save(*args, **kwargs)
 
     def get_purchase_item_history(self, exclude_zero_stock=True):
@@ -223,16 +215,53 @@ class Product(BaseModelGeneric):
 
     @property
     def phsycal_quantity(self):
-        warehouse_stocks = WarehouseStock.objects.filter(product=self)
+        warehouse_stocks = WarehouseStock.objects.filter(product=self, quantity__gt=0)
         warehouse_stocks = warehouse_stocks.values('unit__symbol', 'unit__id32'
                                                    ).annotate(total_quantity=Sum('quantity'))
         return list(warehouse_stocks)
+
+    @property
+    def phsycal_quantity_amount(self):
+        qty = 0
+        for stock in WarehouseStock.objects.filter(product=self, quantity__gt=0):
+            qty += stock.quantity * stock.unit.conversion_to_top_level()
+        return int(qty)
+
 
     @property
     def previous_buy_price(self):
         buy_price_history = self.get_purchase_item_history(
             exclude_zero_stock=False).values('buy_price')
         return buy_price_history[1]['buy_price'] if buy_price_history.count() > 1 else None
+
+    @property
+    def prices(self):
+        base_unit = self.smallest_unit
+        if not base_unit:
+            return None
+        base_price = self.sell_price
+        if not base_price:
+            return None
+
+        prices = [
+            {
+                'unit_id32': base_unit.id32,
+                'unit_str': base_unit.__str__(),
+                'price': base_price
+            }
+        ]
+
+        for unit in base_unit.get_descendants():
+            prices.append(
+                {
+                    'unit_id32': unit.id32,
+                    'unit_str': unit.__str__(),
+                    'price': f'{base_price * unit.conversion_to_top_level():,.2f}'
+                }
+            )
+
+        return prices
+
 
 
 class ProductGroup(BaseModelGeneric):
@@ -396,9 +425,20 @@ class StockMovement(BaseModelGeneric):
     destination_id = models.PositiveIntegerField(
         blank=True, null=True, help_text=_("Enter the ID of the destination warehouse"))
     destination = GenericForeignKey('destination_type', 'destination_id')
+    creator_type = models.ForeignKey(
+        ContentType,
+        blank=True, null=True,
+        on_delete=models.CASCADE,
+        related_name='creator_stockmovement_set',
+        related_query_name='creator_stockmovement',
+        help_text=_("Select the content type of the creator instance")
+    )
+    creator_id = models.PositiveIntegerField(
+        blank=True, null=True, help_text=_("Enter the ID of the creator instance"))
+    creator = GenericForeignKey('creator_type', 'creator_id')
     movement_date = models.DateTimeField(
         blank=True, null=True, help_text=_("Specify the movement date"))
-    status = models.CharField(max_length=20, choices=MOVEMENT_STATUS)
+    status = models.CharField(max_length=20, choices=MOVEMENT_STATUS, default='requested')
 
     def __str__(self):
         return _("Stock Movement #{movement_id}").format(movement_id=self.id32)
@@ -461,6 +501,10 @@ class WarehouseStock(BaseModelGeneric):
             product_name=self.product.name,
             quantity=self.quantity
         )
+
+    @property
+    def smallest_unit_quantity(self):
+        return self.quantity * self.unit.conversion_to_top_level()
 
     class Meta:
         verbose_name = _("Warehouse Stock")

@@ -15,7 +15,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ['id32', 'product_id32', 'unit_id32', 'quantity', 'price']
+        fields = ['id32', 'product_id32', 'unit_id32', 'quantity']
         read_only_fields = ['id32']
 
     def validate(self, data):
@@ -32,12 +32,13 @@ class OrderItemSerializer(serializers.ModelSerializer):
                 product.smallest_unit.id
         ]
         try:
-            Unit.objects.get(id32=validated_data.get(
+            unit = Unit.objects.get(id32=validated_data.get(
                 'unit')['id32'], id__in=product_units_ids)
         except Unit.DoesNotExist:
             raise serializers.ValidationError(
                 {"unit_id32": "Unit with this id32 does not exist or not suits with the product."})
 
+        validated_data['price'] = unit.conversion_to_top_level() * product.sell_price
         return validated_data
 
     def to_representation(self, instance):
@@ -97,7 +98,7 @@ class SalesPaymentSerializer(serializers.ModelSerializer):
             validated_data['invoice'] = Invoice.objects.get(id32=invoice_id32)
         file_id32 = validated_data.pop('payment_evidence_id32', None)
         if file_id32:
-            validated_data['payment_evidence'] = File.objects.get(id32=invoice_id32)
+            validated_data['payment_evidence'] = File.objects.get(id32=file_id32)
         return super().create(validated_data)
 
 class SalesPaymentPartialUpdateSerializer(serializers.ModelSerializer):

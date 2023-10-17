@@ -27,24 +27,20 @@ def update_product_quantity(sender, instance, **kwargs):
         old_quantity = order_item.quantity
         quantity_diff = instance.quantity - old_quantity
         purchasing_unit = instance.product.purchasing_unit
-        stock_unit = instance.product.stock_unit
-        smi_quantity = abs(quantity_diff) * purchasing_unit.conversion_to_top_level() / \
-            stock_unit.conversion_to_top_level()
         product_quantity = quantity_diff * purchasing_unit.conversion_to_top_level()
         Product.objects.filter(pk=instance.product.pk).update(quantity=models.F(
             'quantity') + product_quantity, updated_by_id=instance.updated_by_id)
         if quantity_diff != 0 and instance.purchase_order.stock_movement:
             item_price = instance.actual_price if instance.actual_price else instance.po_price
-            item_price = item_price * stock_unit.conversion_to_top_level() / \
-                purchasing_unit.conversion_to_top_level()
+            item_price = item_price * purchasing_unit.conversion_to_top_level()
             smi, created = StockMovementItem.objects.get_or_create(
                 product_id=instance.product.pk,
                 stock_movement=instance.order.stock_movement,
                 created_by=order_item.created_by
             )
             smi.buy_price = item_price
-            smi.quantity = smi_quantity
-            smi.unit = stock_unit
+            smi.quantity = abs(quantity_diff)
+            smi.unit = instance.product.purchasing_unit
             smi.save()
 
 
@@ -99,20 +95,16 @@ def create_stock_movement_item(sender, instance, created, **kwargs):
         product = instance.product
         quantity = instance.quantity
         purchasing_unit = product.purchasing_unit
-        stock_unit = product.stock_unit
         item_price = instance.actual_price if instance.actual_price else instance.po_price
-        item_price = item_price * stock_unit.conversion_to_top_level() / \
-            purchasing_unit.conversion_to_top_level()
+        item_price = item_price * purchasing_unit.conversion_to_top_level()
         smi, created = StockMovementItem.objects.get_or_create(
             product=product,
             stock_movement=instance.order.stock_movement,
             created_by=instance.created_by
         )
         smi.buy_price = item_price
-        quantity = abs(quantity) * purchasing_unit.conversion_to_top_level() / \
-            stock_unit.conversion_to_top_level()
-        smi.quantity = quantity
-        smi.unit = stock_unit
+        smi.quantity = abs(quantity)
+        smi.unit = instance.product.purchasing_unit
         smi.save()
 
 

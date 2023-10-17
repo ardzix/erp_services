@@ -310,6 +310,9 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
     def validate_visit_evidence_id32(self, value):
         return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the visit evidence.")
 
+    def validate_item_delivery_evidence_id32(self, value):
+        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the visit evidence.")
+
     def validate_signature_id32(self, value):
         return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the signature.")
 
@@ -337,6 +340,7 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
             validated_data['sales_order'] = sales_order
         
         file_fields = {
+            'item_delivery_evidence_id32': 'item_delivery_evidence',
             'visit_evidence_id32': 'visit_evidence',
             'signature_id32': 'signature'
         }
