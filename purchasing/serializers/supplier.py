@@ -17,7 +17,7 @@ class CompanyProfileID32Mixin:
 class SupplierListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
-        fields = ['id32', 'name', 'company_profile']
+        fields = ['id32', 'created_at', 'name', 'company_profile']
 
 
 class SupplierDetailSerializer(serializers.ModelSerializer):
@@ -35,7 +35,7 @@ class SupplierDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
         fields = [
-            'id32', 'name', 'contact_number', 'address', 'location', 
+            'id32', 'created_at', 'name', 'contact_number', 'address', 'location', 
             'location_coordinate', 'company_profile'
         ]
 
@@ -45,8 +45,8 @@ class SupplierCreateSerializer(CompanyProfileID32Mixin, serializers.ModelSeriali
 
     class Meta:
         model = Supplier
-        fields = ['id32', 'name', 'contact_number', 'address', 'company_profile_id32']
-        read_only_fields = ['id32']
+        fields = ['id32', 'created_at', 'name', 'contact_number', 'address', 'company_profile_id32']
+        read_only_fields = ['id32', 'created_at']
 
     def create(self, validated_data):
         if 'company_profile' in validated_data:
@@ -62,10 +62,10 @@ class SupplierEditSerializer(CompanyProfileID32Mixin, serializers.ModelSerialize
     class Meta:
         model = Supplier
         fields = [
-            'id32', 'name', 'contact_number', 'address', 'location', 
+            'id32', 'created_at', 'name', 'contact_number', 'address', 'location', 
             'company_profile_id32'
         ]
-        read_only_fields = ['id32']
+        read_only_fields = ['id32', 'created_at']
 
     def update(self, instance, validated_data):
         if 'company_profile' in validated_data:
@@ -84,7 +84,7 @@ class SupplierProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SupplierProduct
-        fields = ['id32', 'supplier', 'supplier_name', 'product', 'product_name', 'is_default_supplier']
+        fields = ['id32', 'created_at', 'supplier', 'supplier_name', 'product', 'product_name', 'is_default_supplier']
 
     def validate(self, data):
 

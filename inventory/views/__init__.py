@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, status, filters
 from django_filters import rest_framework as django_filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from common.serializers import SetFileSerializer
 from ..models import Product, StockMovement, Unit, Category, StockMovementItem, Warehouse
@@ -48,12 +49,30 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response({"message": "Picture set successfully!"}, status=status.HTTP_200_OK)
 
 
+
+class StockMovementFilter(CreatedAtFilterMixin):
+    movement_date_range = django_filters.CharFilter(method='filter_movement_date_range')
+
+    def filter_movement_date_range(self, queryset, name, value):
+        if value:
+            # Split the value on a comma to extract the start and end dates
+            dates = value.split(',')
+            if len(dates) == 2:
+                start_date, end_date = dates
+                return queryset.filter(movement_date__gte=start_date, movement_date__lte=end_date)
+        return queryset
+    class Meta:
+        model = StockMovement
+        fields = ['created_at_range', 'movement_date_range']
+
 class StockMovementViewSet(viewsets.ModelViewSet):
     queryset = StockMovement.objects.all()
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination 
     serializer_class = StockMovementDetailSerializer
+    filter_backends = (django_filters.DjangoFilterBackend,)
+    filterset_class = StockMovementFilter
 
     def get_serializer_class(self):
         if self.action == 'list':

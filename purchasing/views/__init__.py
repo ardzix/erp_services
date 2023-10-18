@@ -5,26 +5,37 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.utils import timezone
 from django_filters import rest_framework as filters
+from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from libs.permission import CanApprovePurchaseOrderPermission
 from rest_framework import viewsets
 from inventory.models import Product
 from ..models import Supplier, SupplierProduct, PurchaseOrder
 from ..serializers.supplier import (
-    SupplierListSerializer, 
-    SupplierDetailSerializer, 
-    SupplierCreateSerializer, 
+    SupplierListSerializer,
+    SupplierDetailSerializer,
+    SupplierCreateSerializer,
     SupplierEditSerializer,
     SupplierProductSerializer,
     BulkAddProductsSerializer
 )
 from ..serializers.purchase_order import PurchaseOrderListSerializer, PurchaseOrderDetailSerializer
 
+
+class SupplierFilter(CreatedAtFilterMixin):
+    class Meta:
+        model = Supplier
+        fields = ['created_at_range']
+
+
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination 
+    pagination_class = CustomPagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = SupplierFilter
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -38,38 +49,32 @@ class SupplierViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
 
-    
-
-
-
 class SupplierProductViewSet(viewsets.ModelViewSet):
     queryset = SupplierProduct.objects.all()
     serializer_class = SupplierProductSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination 
-
-
-
-    
-
+    pagination_class = CustomPagination
 
     @action(detail=False, methods=['post'], serializer_class=BulkAddProductsSerializer)
     def bulk_add(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         supplier = serializer.validated_data['supplier']
-        product_ids = [product.id for product in Product.objects.filter(id32__in=serializer.validated_data['products'])]
+        product_ids = [product.id for product in Product.objects.filter(
+            id32__in=serializer.validated_data['products'])]
 
         # Create SupplierProduct for each product
         for product_id in product_ids:
-            SupplierProduct.objects.create(supplier=supplier, product_id=product_id, created_by=request.user)
+            SupplierProduct.objects.create(
+                supplier=supplier, product_id=product_id, created_by=request.user)
 
         return Response({"detail": "Products added successfully to the supplier."})
 
 
-class PurchaseOrderFilter(filters.FilterSet):
+class PurchaseOrderFilter(CreatedAtFilterMixin, filters.FilterSet):
     APPROVAL_CHOICES = [
         ('all', 'All'),
         ('requested', 'Requested'),
@@ -83,7 +88,8 @@ class PurchaseOrderFilter(filters.FilterSet):
 
     class Meta:
         model = PurchaseOrder
-        fields = ['approval']
+        # Only model-specific fields go here
+        fields = ['approval', 'created_at_range']
 
     def filter_approval(self, queryset, name, value):
         if value == 'requested':
@@ -96,11 +102,13 @@ class PurchaseOrderFilter(filters.FilterSet):
 
 
 class PurchaseOrderViewSet(viewsets.ModelViewSet):
-    queryset = PurchaseOrder.objects.all().prefetch_related('purchaseorderitem_set')  # Prefetch to reduce the number of queries
+    queryset = PurchaseOrder.objects.all().prefetch_related(
+        'purchaseorderitem_set')  # Prefetch to reduce the number of queries
     serializer_class = PurchaseOrderDetailSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination 
+    pagination_class = CustomPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = PurchaseOrderFilter
 

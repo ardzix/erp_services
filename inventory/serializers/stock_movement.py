@@ -80,7 +80,7 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
 class StockMovementListSerializer(StockMovementSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = StockMovement
-        fields = ['id32', 'origin', 'destination', 'movement_date', 'status']
+        fields = ['id32', 'created_at', 'origin', 'destination', 'movement_date', 'status']
 
 
 class ContentTypeSerializer(serializers.ModelSerializer):
@@ -96,9 +96,9 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
 
     class Meta:
         model = StockMovement
-        fields = ['id32', 'origin', 'destination', 'origin_type',
+        fields = ['id32', 'created_at', 'origin', 'destination', 'origin_type',
                   'destination_type', 'movement_date', 'status', 'items']
-        read_only_fields = ['id32']
+        read_only_fields = ['id32', 'created_at']
 
 
 class StockMovementCreateSerializer(serializers.ModelSerializer):
@@ -112,9 +112,9 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockMovement
-        fields = ['id32', 'status', 'movement_date', 'destination_type',
+        fields = ['id32', 'created_at', 'status', 'movement_date', 'destination_type',
                   'destination_id32', 'origin_type', 'origin_id32', 'items']
-        read_only_fields = ['id32']
+        read_only_fields = ['id32', 'created_at']
 
     def validate_origin_type(self, value):
         content_type = ContentType.objects.filter(model=value).first()
