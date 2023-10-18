@@ -11,11 +11,13 @@ from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_id32 = serializers.CharField(source='product.id32')
+    product_name = serializers.CharField(source='product.name')
     unit_id32 = serializers.CharField(source='unit.id32')
+    unit_symbol = serializers.CharField(source='unit.symbol')
 
     class Meta:
         model = OrderItem
-        fields = ['id32', 'product_id32', 'unit_id32', 'quantity', 'price']
+        fields = ['id32', 'product_id32', 'product_name', 'unit_id32', 'unit_symbol', 'quantity', 'price']
         read_only_fields = ['id32', 'price']
 
     def validate(self, data):
@@ -41,11 +43,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
         validated_data['price'] = unit.conversion_to_top_level() * product.sell_price
         return validated_data
 
-    def to_representation(self, instance):
-        """Override to represent product as its id32."""
-        representation = super().to_representation(instance)
-        representation['product_id32'] = instance.product.id32
-        return representation
+    # def to_representation(self, instance):
+    #     """Override to represent product as its id32."""
+    #     representation = super().to_representation(instance)
+    #     representation['product_id32'] = instance.product.id32
+    #     return representation
 
 
 class SalesPaymentSerializer(serializers.ModelSerializer):
