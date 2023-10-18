@@ -29,8 +29,8 @@ class PurchaseOrderListSerializer(serializers.ModelSerializer):
     supplier_name = serializers.StringRelatedField(source='supplier.name', read_only=True)
     class Meta:
         model = PurchaseOrder
-        fields = ['id32', 'supplier', 'supplier_name', 'order_date', 'is_approved']
-        read_only_fields = ['id32', 'is_approved']
+        fields = ['id32', 'supplier', 'supplier_name', 'order_date', 'approval']
+        read_only_fields = ['id32', 'approval']
 
 # Nested serializer for detail and create views
 class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
@@ -40,8 +40,8 @@ class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseOrder
-        fields = ['id32', 'supplier', 'supplier_name', 'order_date', 'items', 'is_approved']
-        read_only_fields = ['id32', 'is_approved']
+        fields = ['id32', 'supplier', 'supplier_name', 'order_date', 'items', 'approval']
+        read_only_fields = ['id32', 'approval']
 
     @transaction.atomic
     def create(self, validated_data):

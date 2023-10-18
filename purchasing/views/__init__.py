@@ -4,9 +4,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.response import Response
 from django.utils import timezone
+from django_filters import rest_framework as filters
 from libs.pagination import CustomPagination
 from libs.permission import CanApprovePurchaseOrderPermission
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets
 from inventory.models import Product
 from ..models import Supplier, SupplierProduct, PurchaseOrder
 from ..serializers.supplier import (
@@ -68,21 +69,45 @@ class SupplierProductViewSet(viewsets.ModelViewSet):
         return Response({"detail": "Products added successfully to the supplier."})
 
 
+class PurchaseOrderFilter(filters.FilterSet):
+    APPROVAL_CHOICES = [
+        ('all', 'All'),
+        ('requested', 'Requested'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    approval = filters.ChoiceFilter(
+        method='filter_approval', choices=APPROVAL_CHOICES, label='Approval Status'
+    )
+
+    class Meta:
+        model = PurchaseOrder
+        fields = ['approval']
+
+    def filter_approval(self, queryset, name, value):
+        if value == 'requested':
+            return queryset.filter(approved_at__isnull=True, unapproved_at__isnull=True)
+        elif value == 'approved':
+            return queryset.filter(approved_at__isnull=False, unapproved_at__isnull=True)
+        elif value == 'rejected':
+            return queryset.filter(approved_at__isnull=True, unapproved_at__isnull=False)
+        return queryset  # return all for 'all' and if the choice is not one of the listed above
+
+
 class PurchaseOrderViewSet(viewsets.ModelViewSet):
     queryset = PurchaseOrder.objects.all().prefetch_related('purchaseorderitem_set')  # Prefetch to reduce the number of queries
     serializer_class = PurchaseOrderDetailSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination 
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = PurchaseOrderFilter
 
     def get_serializer_class(self):
         if self.action == 'list':
             return PurchaseOrderListSerializer
         return PurchaseOrderDetailSerializer
-
-
-    
-
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated, CanApprovePurchaseOrderPermission])
     def approve(self, request, id32=None):
@@ -115,6 +140,3 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
         instance.save()
 
         return Response({"detail": "Purchase Order unapproved successfully."})
-
-
-#e920477217b35578fa1e71f7aa5b280771987b13

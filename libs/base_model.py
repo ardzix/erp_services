@@ -199,8 +199,13 @@ class _BaseAbstract(models.Model):
         return self.owned_by
     
     @property
-    def is_approved(self):
-        return True if self.approved_at else False
+    def approval(self):
+        if self.approved_at:
+            return 'approved'
+        elif self.unapproved_at:
+            return 'rejected'
+        else:
+            return 'requested'
 
     # ... Add other property methods
 
