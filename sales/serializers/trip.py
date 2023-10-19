@@ -1,6 +1,7 @@
-from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError as DjangoCoreValidationError
 from django.contrib.auth.models import User
+from rest_framework import serializers
 from common.models import File
 from logistics.models import Vehicle
 from ..models import (
@@ -366,5 +367,5 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
         validated_data = self.handle_file_fields(validated_data, file_fields)
         try:
             return super().update(instance, validated_data)
-        except Exception as e:
-            raise serializers.ValidationError(e)
+        except DjangoCoreValidationError as e:
+            raise serializers.ValidationError(e.messages)

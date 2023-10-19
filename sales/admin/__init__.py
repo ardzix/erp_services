@@ -127,7 +127,8 @@ class TripAdmin(BaseAdmin):
 @admin.register(CustomerVisit)
 class CustomerVisitAdmin(BaseAdmin):
     list_display = ('id32', 'trip', 'customer', 'sales_order', 'status')
-    fields = ('trip', 'customer', 'sales_order', 'status')
+    fields = ('trip', 'customer', 'sales_order', 'status', 'order',
+              'visit_evidence', 'item_delivery_evidence', 'signature', 'notes')
     list_filter = ('status',)
     search_fields = ('trip__template__name', 'customer__name')
 

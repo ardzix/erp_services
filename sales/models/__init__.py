@@ -15,10 +15,13 @@ ORDER_OF_CUSTOMER_VISIT = 'Order of customer visit in the trip'
 
 
 class Customer(BaseModelGeneric):
+    CBD = 'cbd'
+    COD = 'cod'
+    CREDIT = 'credit'
     PAYMENT_TYPE_CHOICES = [
-        ('cbd', _('Cash before Delivery')),
-        ('cod', _('Cash on Delivery')),
-        ('credit', _('Credit'))
+        (CBD, _('Cash before Delivery')),
+        (COD, _('Cash on Delivery')),
+        (CREDIT, _('Credit'))
     ]
     STORE_TYPE_CHOICES = [
         ('wholesaler', _('Wholesaler')),
@@ -59,8 +62,7 @@ class Customer(BaseModelGeneric):
         max_length=25,  # Adjusting for the added descriptions
         choices=PAYMENT_TYPE_CHOICES,
         help_text=_('Select payment type.'),
-        blank=True,
-        null=True
+        default=CBD
     )
     store_type = models.CharField(
         max_length=25,  # Adjusting for the added descriptions
@@ -477,7 +479,7 @@ class CustomerVisit(BaseModelGeneric):
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['order']
         verbose_name = _('Customer Visit')
         verbose_name_plural = _('Customer Visits')
 

@@ -11,14 +11,14 @@ from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_id32 = serializers.CharField(source='product.id32')
-    product_name = serializers.CharField(source='product.name')
+    product_name = serializers.CharField(source='product.name', read_only=True)
     unit_id32 = serializers.CharField(source='unit.id32')
-    unit_symbol = serializers.CharField(source='unit.symbol')
+    unit_symbol = serializers.CharField(source='unit.symbol', read_only=True)
 
     class Meta:
         model = OrderItem
         fields = ['id32', 'product_id32', 'product_name', 'unit_id32', 'unit_symbol', 'quantity', 'price']
-        read_only_fields = ['id32', 'price']
+        read_only_fields = ['id32', 'price', 'product_name', 'unit_symbol']
 
     def validate(self, data):
         validated_data = super().validate(data)

@@ -371,9 +371,9 @@ def set_sales_order_to_completed(sender, instance, **kwargs):
 
 # ==================================================================================
 # Model Validator
-# 1. Trip status cannot be changed if its vehicle warehouse is null.
 @receiver(pre_save, sender=Trip)
 def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
+    # 1. Trip status cannot be changed if its vehicle warehouse is null.
     if instance.status != Trip.WAITING:
         # If a trip vehicle is not specified
         if not instance.vehicle:
@@ -384,78 +384,118 @@ def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
             raise ValidationError(
                 _('Vehicle must have an associated warehouse to start the trip.'))
 
-# 2. CustomerVisit status can only be changed if Trip status is ON_PROGRESS.
-
 
 @receiver(pre_save, sender=CustomerVisit)
 def ensure_trip_status_on_progress(sender, instance, **kwargs):
+    # 2. CustomerVisit status can only be changed if Trip status is ON_PROGRESS.
     if instance.status != Trip.WAITING and instance.trip.status != Trip.ON_PROGRESS:
         raise ValidationError(
             _('CustomerVisit status can only be changed if associated Trip status is ON_PROGRESS.'))
 
-# 3. CustomerVisit status cannot be changed to COMPLETED if CustomerVisit sales_order and item_delivery_evidence is null.
 
-
-@receiver(pre_save, sender=CustomerVisit)
-def ensure_customer_visit_sales_order_for_completion(sender, instance, **kwargs):
-    if instance.status == Trip.COMPLETED:
-        if not all([instance.sales_order, instance.item_delivery_evidence]):
-            raise ValidationError(
-                _('CustomerVisit status cannot be set to COMPLETED if sales_order and item_delivery_evidence are null.'))
-        for item in instance.sales_order.order_items.all():
-            stocks = WarehouseStock.objects.filter(product=item.product, unit=item.unit, warehouse=instance.trip.vehicle.warehouse).values('product','unit').annotate(quantity=models.Sum('quantity'))
-            stock = stocks[0]['quantity'] if stocks else 0
-            if stock < item.quantity:
-                raise ValidationError(
-                _('CustomerVisit CustomerVisit status cannot be set to COMPLETED because this Sales Order Item is out of stock.'))
-
-# 4. CustomerVisit status cannot be changed to SKIPPED if notes, visit_evidence, or signature is null.
 @receiver(pre_save, sender=CustomerVisit)
 def ensure_fields_present_when_skipped(sender, instance, **kwargs):
+    # 4. CustomerVisit status cannot be changed to SKIPPED if notes, visit_evidence, or signature is null.
     if instance.status == Trip.SKIPPED:
         if not all([instance.notes, instance.visit_evidence, instance.signature]):
             raise ValidationError(
                 _('CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or signature are null.'))
 
 
-# 5. If CustomerVisit status is changed to COMPLETED and trip type is CANVASING, check SalesOrder, Invoice and Payment.
 @receiver(pre_save, sender=CustomerVisit)
-def check_canvasing_requirements(sender, instance, **kwargs):
-    if instance.status == Trip.COMPLETED and instance.trip.type == Trip.CANVASING:
-        if instance.sales_order.status == SalesOrder.DRAFT:
+def check_completed_customer_visit_requirements(sender, instance, **kwargs):
+    # 5. Ensure necessary requirements are met when marking a CustomerVisit as COMPLETED.
+    if instance.status != Trip.COMPLETED:
+        return
+
+    if instance.trip.type == Trip.CANVASING:
+        check_canvasing_requirements(instance)
+        check_invoice_and_payment(instance.sales_order.invoice)
+
+    elif instance.trip.type == Trip.TAKING_ORDER:
+        check_taking_order_requirements(instance)
+        print(instance.customer.payment_type)
+        if instance.customer.payment_type == Customer.CBD:
+            check_invoice_and_payment(instance.sales_order.invoice)
+
+    # Check common SalesOrder status
+    check_sales_order_status(instance.sales_order)
+
+
+def check_sales_order_status(sales_order):
+    """
+    Validate SalesOrder status is not DRAFT when completing a CustomerVisit.
+    """
+    if sales_order.status == SalesOrder.DRAFT:
+        raise ValidationError(
+            _("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED.")
+        )
+    
+    if sales_order.customer_visits.exists():
+        raise ValidationError(
+            _(f"Sales Order is already associated with a customer visit #{sales_order.customer_visits.last()}.")
+        )
+
+
+def check_invoice_and_payment(invoice):
+    """
+    Validate the presence of an invoice and a valid payment for the associated SalesOrder.
+    """
+    if not invoice:
+        raise ValidationError(
+            _("The associated Sales Order doesn't have an invoice.")
+        )
+
+    payment = SalesPayment.objects.filter(invoice=invoice).last()
+    if not payment:
+        raise ValidationError(
+            _("The associated invoice doesn't have a payment.")
+        )
+
+    if payment.status not in [SalesPayment.CAPTURE, SalesPayment.SETTLEMENT]:
+        raise ValidationError(
+            _("The payment status for the associated invoice is neither CAPTURE nor SETTLEMENT.")
+        )
+
+
+def check_canvasing_requirements(instance):
+    """
+    Validate requirements specific to CANVASING when completing a CustomerVisit.
+    """
+    if not all([instance.sales_order, instance.item_delivery_evidence, instance.signature]):
+        raise ValidationError(
+            _('CustomerVisit status cannot be set to COMPLETED if sales_order, item_delivery_evidence and signature are null.')
+        )
+
+    for item in instance.sales_order.order_items.all():
+        stocks = WarehouseStock.objects.filter(
+            product=item.product, 
+            unit=item.unit, 
+            warehouse=instance.trip.vehicle.warehouse
+        ).values('product', 'unit').annotate(quantity=models.Sum('quantity'))
+
+        stock = stocks[0]['quantity'] if stocks else 0
+        if stock < item.quantity:
             raise ValidationError(
-                _("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED."))
-
-        try:
-            invoice = instance.sales_order.invoice
-        except Invoice.DoesNotExist:
-            raise ValidationError(
-                _("The associated Sales Order doesn't have an invoice."))
-
-        payment = SalesPayment.objects.filter(invoice=invoice).last()
-        if not payment:
-            raise ValidationError(
-                _("The associated invoice doesn't have a payment."))
-
-        if payment.status not in [SalesPayment.CAPTURE, SalesPayment.SETTLEMENT]:
-            raise ValidationError(
-                _("The payment status for the associated invoice is neither CAPTURE nor SETTLEMENT."))
-
-# 6. If CustomerVisit status is changed to COMPLETED and trip type is TAKING_ORDER, check SalesOrder status.
+                _('CustomerVisit status cannot be set to COMPLETED because this Sales Order Item is out of stock.')
+            )
 
 
-@receiver(pre_save, sender=CustomerVisit)
-def check_taking_order_requirements(sender, instance, **kwargs):
-    if instance.status == Trip.COMPLETED and instance.trip.type == Trip.TAKING_ORDER:
-        if instance.sales_order.status == SalesOrder.DRAFT:
-            raise ValidationError(
-                _("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED."))
+def check_taking_order_requirements(instance):
+    """
+    Validate requirements specific to TAKING_ORDER when completing a CustomerVisit.
+    """
+    if not all([instance.sales_order, instance.signature]):
+        raise ValidationError(
+            _('CustomerVisit status cannot be set to COMPLETED if sales_order and signature are null.')
+        )
 
-# 7. Create new payment, its amount shall be greater than the total invoice
+
+
 @receiver(pre_save, sender=SalesPayment)
 def validate_payment_amount(sender, instance, **kwargs):
+    # 6. Create new payment, its amount shall be greater than the total invoice
     invoice_total = instance.invoice.total
-
     if instance.amount < invoice_total:
         raise ValidationError(
             _("The payment amount of {payment_amount} is less than the invoice total of {invoice_total}").format(
