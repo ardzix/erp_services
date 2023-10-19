@@ -244,7 +244,7 @@ class CustomerMapSerializer(serializers.ModelSerializer):
     location_coordinate = serializers.SerializerMethodField()
     class Meta:
         model = Customer
-        fields = ['id32', 'location_coordinate']
+        fields = ['id32', 'location_coordinate', 'name']
 
     def get_location_coordinate(self, obj):
         """
