@@ -88,6 +88,7 @@ class Customer(BaseModelGeneric):
         return _('Customer #{id32} - {name}').format(id32=self.id32, name=self.name)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Customer')
         verbose_name_plural = _('Customers')
 
@@ -163,6 +164,7 @@ class SalesOrder(BaseModelGeneric):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Order')
         verbose_name_plural = _('Orders')
 
@@ -217,6 +219,7 @@ class OrderItem(BaseModelGeneric):
         return self.quantity * self.unit.conversion_to_top_level()
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Order Item')
         verbose_name_plural = _('Order Items')
 
@@ -256,6 +259,7 @@ class Invoice(BaseModelGeneric):
     attachment = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_attachment', blank=True, null=True, on_delete=models.SET_NULL)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Invoice')
         verbose_name_plural = _('Invoices')
 
@@ -353,6 +357,7 @@ class SalesPayment(BaseModelGeneric):
         return _('Payment #{id32} - {invoice}').format(id32=self.id32, invoice=self.invoice)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Payment')
         verbose_name_plural = _('Payments')
 
@@ -365,6 +370,7 @@ class TripTemplate(BaseModelGeneric):
     pic = models.ManyToManyField(User, blank=True, help_text=_('Select people in charge of this trip'))
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Trip Template')
         verbose_name_plural = _('Trip Templates')
 
@@ -396,6 +402,7 @@ class TripCustomer(BaseModelGeneric):
         'Order'), help_text=_(ORDER_OF_CUSTOMER_VISIT))
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Trip Customer')
         verbose_name_plural = _('Trip Customers')
         ordering = ['order']
@@ -446,6 +453,7 @@ class Trip(BaseModelGeneric):
         max_length=50, choices=STATUS_CHOICES, default=WAITING)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Trip')
         verbose_name_plural = _('Trips')
 
@@ -469,6 +477,7 @@ class CustomerVisit(BaseModelGeneric):
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Customer Visit')
         verbose_name_plural = _('Customer Visits')
 
@@ -501,5 +510,6 @@ class CustomerVisitReport(BaseModelGeneric):
         return f'Report for {self.customer} - {self.status}'
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _('Customer Visit Report')
         verbose_name_plural = _('Customer Visit Reports')

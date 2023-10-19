@@ -26,6 +26,7 @@ class Category(BaseModelGeneric):
         )
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Category")
         verbose_name_plural = _("Categories")
 
@@ -48,6 +49,7 @@ class Unit(BaseModelGeneric):
         return f"{self.name} ({self.symbol})"
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Unit")
         verbose_name_plural = _("Units")
 
@@ -210,6 +212,7 @@ class Product(BaseModelGeneric):
         return items
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Product")
         verbose_name_plural = _("Products")
 
@@ -278,6 +281,7 @@ class ProductGroup(BaseModelGeneric):
         )
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Product Group")
         verbose_name_plural = _("Product Groups")
 
@@ -325,6 +329,7 @@ class ProductLog(models.Model):
             return super().save(*args, **kwargs)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Product Log")
         verbose_name_plural = _("Product Logs")
 
@@ -355,6 +360,7 @@ class Warehouse(BaseModelGeneric):
         )
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Warehouse")
         verbose_name_plural = _("Warehouses")
 
@@ -387,22 +393,21 @@ class ProductLocation(BaseModelGeneric):
         )
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Product Location")
         verbose_name_plural = _("Product Locations")
 
-
-MOVEMENT_STATUS = (
-    ('requested', _('Requested')),
-    ('canceled', _('Canceled')),
-    ('preparing', _('Preparing')),
-    ('ready', _('Ready to pickup')),
-    ('on_delivery', _('On Delivery')),
-    ('delivered', _('Delivered')),
-    ('returned', _('Returned')),
-)
-
-
 class StockMovement(BaseModelGeneric):
+    MOVEMENT_STATUS = (
+        ('requested', _('Requested')),
+        ('canceled', _('Canceled')),
+        ('preparing', _('Preparing')),
+        ('ready', _('Ready to pickup')),
+        ('on_delivery', _('On Delivery')),
+        ('delivered', _('Delivered')),
+        ('returned', _('Returned')),
+    )
+
     origin_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -444,6 +449,7 @@ class StockMovement(BaseModelGeneric):
         return _("Stock Movement #{movement_id}").format(movement_id=self.id32)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Stock Movement")
         verbose_name_plural = _("Stock Movements")
 
@@ -475,6 +481,7 @@ class StockMovementItem(BaseModelGeneric):
         return _("Stock Movement Item #{movement_item_id} - {product_name}").format(movement_item_id=self.id32, product_name=self.product)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Stock Movement Item")
         verbose_name_plural = _("Stock Movement Items")
 
@@ -507,6 +514,7 @@ class WarehouseStock(BaseModelGeneric):
         return self.quantity * self.unit.conversion_to_top_level()
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Warehouse Stock")
         verbose_name_plural = _("Warehouse Stocks")
 
@@ -524,6 +532,7 @@ class StockAdjustment(BaseModelGeneric):
         return _("Stock Adjustment #{adjustment_id}").format(adjustment_id=self.id32)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Stock Adjustment")
         verbose_name_plural = _("Stock Adjustments")
 
@@ -538,6 +547,7 @@ class ReplenishmentOrder(BaseModelGeneric):
         return _("Replenishment Order #{order_id}").format(order_id=self.id32)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Replenishment Order")
         verbose_name_plural = _("Replenishment Orders")
 
@@ -551,5 +561,6 @@ class ReplenishmentReceived(BaseModelGeneric):
         return _("Replenishment Received #{order_received_id}").format(order_received_id=self.id32)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Replenishment Received")
         verbose_name_plural = _("Replenishment Received")

@@ -35,6 +35,7 @@ class Supplier(BaseModelGeneric):
         return _("Supplier #{id32} - {name}").format(id32=self.id32, name=self.name)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Supplier")
         verbose_name_plural = _("Suppliers")
 
@@ -58,6 +59,7 @@ class SupplierProduct(BaseModelGeneric):
         return _("{supplier} - {product}").format(supplier=self.supplier, product=self.product)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Supplier Product")
         verbose_name_plural = _("Supplier Products")
         unique_together = ['supplier', 'product']  # Ensure uniqueness
@@ -93,6 +95,7 @@ class PurchaseOrder(BaseModelGeneric):
         return _("Purchase Order #{id32}").format(id32=self.id32)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Purchase Order")
         verbose_name_plural = _("Purchase Orders")
 
@@ -130,6 +133,7 @@ class PurchaseOrderItem(BaseModelGeneric):
         return _("Purchase Order Item #{id32} - {product}").format(id32=self.id32, product=self.product)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Purchase Order Item")
         verbose_name_plural = _("Purchase Order Items")
 
@@ -148,6 +152,7 @@ class Shipment(BaseModelGeneric):
         return _("Shipment #{id32} - {purchase_order}").format(id32=self.id32, purchase_order=self.purchase_order)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Shipment")
         verbose_name_plural = _("Shipments")
 
@@ -171,5 +176,6 @@ class VendorPerformance(BaseModelGeneric):
         return _("Vendor Performance #{id32} - {supplier}").format(id32=self.id32, supplier=self.supplier)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = _("Vendor Performance")
         verbose_name_plural = _("Vendor Performances")
