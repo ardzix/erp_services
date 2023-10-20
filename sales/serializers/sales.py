@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from common.serializers import UserListSerializer
 from common.models import File
-from inventory.models import Product, Unit, Warehouse
+from inventory.models import Product, Unit, Warehouse, StockMovement
 from .customer import CustomerLiteSerializer
 from .trip import CustomerVisitStatusSerializer
 from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment
@@ -217,6 +217,12 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
         representation['status'] = {
             'key': instance.status,
             'value': status_dict.get(instance.status, ""),
+        }
+
+        delivery_status_dict = dict(StockMovement.MOVEMENT_STATUS)
+        representation['delivery_status'] = {
+            'key': instance.delivery_status,
+            'value': delivery_status_dict.get(instance.delivery_status, ""),
         }
 
         type_dict = dict(SalesOrder.TYPE_CHOICES)
