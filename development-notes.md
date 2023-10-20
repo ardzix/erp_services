@@ -2,7 +2,7 @@
 - StockMovement update warehouse stock still bug, if origin is none movement still proceeded
 
 To Do:
-- Taking order endpoint direview lagi
+- Taking order endpoint direview lagi ✅
 - Picker endpoint
 - Checker endpont
 - Trip Report endpoint

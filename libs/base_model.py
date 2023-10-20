@@ -134,7 +134,7 @@ class _BaseAbstract(models.Model):
         self._set_user_action('updated', self._current_user)
 
         if not self.id32:
-            prev = self.__class__.all_objects.last()
+            prev = self.__class__.all_objects.order_by('id').last()
             obj_id = prev.id + 1 if prev else 1
             self.id32 = base32_encode(obj_id)
 
