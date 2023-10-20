@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>INVOICE #{{ invoice.id32 }}</title>
     <meta charset="UTF-8">
     <style>
         body {
@@ -30,11 +31,12 @@
         <strong>INVOICE #{{ invoice.id32 }}</strong>
     </div>
     <table>
+        <caption>Invoice Items</caption>
         <thead>
             <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Amount</th>
+                <th scope="col">Item</th>
+                <th scope="col">Qty</th>
+                <th scope="col">Amount</th>
             </tr>
         </thead>
         <tbody>
