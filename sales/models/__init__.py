@@ -87,7 +87,7 @@ class Customer(BaseModelGeneric):
         return None
 
     def __str__(self):
-        return _('Customer #{id32} - {name}').format(id32=self.id32, name=self.name)
+        return _('Customer #{id32} [{name}]').format(id32=self.id32, name=self.name)
 
     class Meta:
         ordering = ['-id']
