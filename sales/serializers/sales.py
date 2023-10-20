@@ -70,6 +70,12 @@ class SalesPaymentSerializer(serializers.ModelSerializer):
                 'id32': instance.payment_evidence.id32,
                 'url': instance.payment_evidence.file.url,
             }
+
+        status_dict = dict(SalesPayment.STATUS_CHOICES)
+        representation['status'] = {
+            'key': instance.status,
+            'value': status_dict.get(instance.status, ""),
+        }
         return representation
 
     def validate_invoice_id32(self, value):

@@ -1802,43 +1802,40 @@ msgstr "Faktur #{id32} - {order}"
 
 #: sales/models/__init__.py:307
 msgid "Authorize: The payment has been authorized but not yet captured."
-msgstr ""
+msgstr "Otorisasi: Pembayaran telah diotorisasi tetapi belum ditangkap."
 
 #: sales/models/__init__.py:308
 msgid "Capture: The authorized payment has been secured."
-msgstr ""
+msgstr "Tangkap: Pembayaran yang diotorisasi telah diamankan."
 
 #: sales/models/__init__.py:309
-msgid ""
-"Settlement: The payment process has been completed and funds have been "
-"transferred."
-msgstr ""
+msgid "Settlement: The payment process has been completed and funds have been transferred."
+msgstr "Penyelesaian: Proses pembayaran telah selesai dan dana telah ditransfer."
 
 #: sales/models/__init__.py:310
 msgid "Deny: The payment request was denied."
-msgstr ""
+msgstr "Tolak: Permintaan pembayaran ditolak."
 
 #: sales/models/__init__.py:311
-msgid ""
-"Pending: The payment process is ongoing and the final status is not yet "
-"determined."
-msgstr ""
+msgid "Pending: The payment process is ongoing and the final status is not yet determined."
+msgstr "Tertunda: Proses pembayaran sedang berlangsung dan status akhir belum ditentukan."
 
 #: sales/models/__init__.py:312
 msgid "Cancel: The payment process was canceled before completion."
-msgstr "Dibatalkan: Proses pembayaran dibatalkan sebelum mencapai selesai."
+msgstr "Batal: Proses pembayaran dibatalkan sebelum selesai."
 
 #: sales/models/__init__.py:313
 msgid "Refund: Funds have been returned to the payer."
-msgstr ""
+msgstr "Pengembalian dana: Dana telah dikembalikan ke pembayar."
 
 #: sales/models/__init__.py:314
 msgid "Expired: The payment authorization has expired without capture."
-msgstr ""
+msgstr "Kadaluwarsa: Otorisasi pembayaran telah kadaluwarsa tanpa penangkapan."
 
 #: sales/models/__init__.py:315
 msgid "Failure: The payment process encountered an error and was unsuccessful."
-msgstr ""
+msgstr "Gagal: Proses pembayaran mengalami kesalahan dan tidak berhasil."
+
 
 #: sales/models/__init__.py:321
 msgid "Select the invoice associated with the payment"

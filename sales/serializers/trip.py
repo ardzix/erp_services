@@ -288,6 +288,12 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
                 'str': instance.sales_order.__str__()
             }
 
+        status_dict = dict(Trip.STATUS_CHOICES)
+        representation['status'] = {
+            'key': instance.status,
+            'value': status_dict.get(instance.status, ""),
+        }
+
         # Handle Files
         # For each file field, if the attribute exists on the instance,
         # add its 'id32' and 'url' to the representation dictionary.
