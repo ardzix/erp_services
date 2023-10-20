@@ -43,12 +43,6 @@ class OrderItemSerializer(serializers.ModelSerializer):
         validated_data['price'] = unit.conversion_to_top_level() * product.sell_price
         return validated_data
 
-    # def to_representation(self, instance):
-    #     """Override to represent product as its id32."""
-    #     representation = super().to_representation(instance)
-    #     representation['product_id32'] = instance.product.id32
-    #     return representation
-
 
 class SalesPaymentSerializer(serializers.ModelSerializer):
     invoice_id32 = serializers.CharField(write_only=True)

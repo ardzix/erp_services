@@ -247,15 +247,13 @@ def create_invoice_on_order_submit(sender, instance, **kwargs):
     After saving a `SalesOrder`, if the order's status is 'SUBMITTED' and there isn't already an associated invoice,
     this signal creates a new `Invoice` entry associated with the given order.
     """
-    if instance.status == SalesOrder.SUBMITTED:
-        # Check if the SalesOrder doesn't already have an associated Invoice.
-        # This ensures we don't generate duplicate invoices.
-        if not Invoice.objects.filter(order=instance).exists():
-            Invoice.objects.create(
-                order=instance,
-                invoice_date=timezone.now().date(),
-                # Any other necessary fields can be populated here.
-            )
+    if instance.status == SalesOrder.SUBMITTED and not hasattr(instance, 'invoice'):
+        Invoice.objects.create(
+            order=instance,
+            invoice_date=timezone.now().date(),
+            # Any other necessary fields can be populated here.
+        )
+
 
 
 @receiver(post_save, sender=CustomerVisit)
@@ -419,19 +417,20 @@ def check_completed_customer_visit_requirements(sender, instance, **kwargs):
             check_invoice_and_payment(instance.sales_order.invoice)
 
     # Check common SalesOrder status
-    check_sales_order_status(instance.sales_order)
+    check_sales_order_status(instance)
 
 
-def check_sales_order_status(sales_order):
+def check_sales_order_status(instance):
     """
     Validate SalesOrder status is not DRAFT when completing a CustomerVisit.
     """
+    sales_order = instance.sales_order
     if sales_order.status == SalesOrder.DRAFT:
         raise ValidationError(
             _("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED.")
         )
     
-    if sales_order.customer_visits.exists():
+    if sales_order.customer_visits.exclude(id=instance.id).exists():
         raise ValidationError(
             _(f"Sales Order is already associated with a customer visit #{sales_order.customer_visits.last()}.")
         )
