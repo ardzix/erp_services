@@ -16,8 +16,7 @@ def commit_base_price(product, buy_price):
 
 @receiver(post_save, sender=Product)
 def change_global_stock(sender, instance, created, **kwargs):
-    if not created:
-        if instance.previous_smallest_unit and instance.previous_smallest_unit != instance.smallest_unit:
+    if not created and instance.previous_smallest_unit and instance.previous_smallest_unit != instance.smallest_unit:
             smallest_conversion = instance.previous_smallest_unit.conversion_to_top_level() / instance.smallest_unit.conversion_to_top_level()
             instance.quantity = instance.quantity * smallest_conversion
             instance.save()
@@ -97,38 +96,57 @@ def filter_stock_by_method(stocks, method):
     order_field = '-created_at' if method == 'lifo' else 'created_at'
     return stocks.order_by(order_field)
 
-# Handle items dispatch from a warehouse
-# This will pick wich stocks to deduct when dispatch occurs
 def handle_origin_warehouse(instance):
     for item in instance.items.all():
-        if instance.status in ['on_delivery', 'delivered'] and instance.status_before not in ['on_delivery', 'delivered']:
-            stocks = WarehouseStock.objects.filter(
-                warehouse=instance.origin,
-                product=item.product,
-                unit=item.unit,
-                quantity__gt=0
-            )
-            stocks = filter_stock_by_method(stocks, item.product.price_calculation)
-            quantity_remaining = item.quantity
-            for stock in stocks:
-                stock.dispatch_movement_items.add(item)
-                quantity = quantity_remaining if quantity_remaining <= stock.quantity else stock.quantity
-                deduct_stock(stock, quantity)
-                quantity_remaining -= quantity
-                if quantity_remaining <=0:
-                    continue
+        if is_dispatch_status_change(instance):
+            handle_dispatch_status_change(instance, item)
+        elif is_return_status_change(instance):
+            handle_return_status_change(instance, item)
 
-        # If the status is returned from delivered/delivery we need to put back the stocks
-        elif instance.status not in ['on_delivery', 'delivered'] and instance.status_before in ['on_delivery', 'delivered']:
-            stocks = WarehouseStock.objects.filter(
-                warehouse=instance.origin,
-                product=item.product,
-                unit=item.unit,
-                dispatch_movement_items=item)
-            stocks = filter_stock_by_method(stocks, item.product.price_calculation)
-            stock=stocks.first()
-            stock.dispatch_movement_items.remove(item)
-            add_stock(stock, item.quantity)
+
+def is_dispatch_status_change(instance):
+    return instance.status in ['on_delivery', 'delivered'] and instance.status_before not in ['on_delivery', 'delivered']
+
+
+def is_return_status_change(instance):
+    return instance.status not in ['on_delivery', 'delivered'] and instance.status_before in ['on_delivery', 'delivered']
+
+
+def handle_dispatch_status_change(instance, item):
+    stocks = get_filtered_stocks(instance, item)
+    quantity_remaining = item.quantity
+
+    for stock in stocks:
+        stock.dispatch_movement_items.add(item)
+        quantity = quantity_remaining if quantity_remaining <= stock.quantity else stock.quantity
+        deduct_stock(stock, quantity)
+        quantity_remaining -= quantity
+        if quantity_remaining <= 0:
+            break
+
+
+def handle_return_status_change(instance, item):
+    stocks = get_filtered_stocks(instance, item, for_dispatch=False)
+    stock = stocks.first()
+    if stock:
+        stock.dispatch_movement_items.remove(item)
+        add_stock(stock, item.quantity)
+
+
+def get_filtered_stocks(instance, item, for_dispatch=True):
+    basic_filter = {
+        'warehouse': instance.origin,
+        'product': item.product,
+        'unit': item.unit
+    }
+
+    if for_dispatch:
+        basic_filter['quantity__gt'] = 0
+    else:
+        basic_filter['dispatch_movement_items'] = item
+
+    stocks = WarehouseStock.objects.filter(**basic_filter)
+    return filter_stock_by_method(stocks, item.product.price_calculation)
 
 
 # Handle items inbound to a warehouse

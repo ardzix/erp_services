@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from common.serializers import UserListSerializer
 from common.models import File
-from inventory.models import Product, Unit
+from inventory.models import Product, Unit, Warehouse
 from .customer import CustomerLiteSerializer
 from .trip import CustomerVisitStatusSerializer
 from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment
@@ -199,7 +199,8 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
         model = SalesOrder
         fields = ['id32', 'customer', 'order_date', 'approved_by',
                   'total_amount', 'order_items', 'delivery_status',
-                  'status', 'type', 'invoice', 'customer_visits']
+                  'status', 'type', 'invoice', 'customer_visits',
+                  'warehouse']
         read_only_fields = ['id32', 'approved_by',
                             'customer', 'delivery_status']
 
@@ -217,6 +218,12 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
             'key': instance.type,
             'value': type_dict.get(instance.type, ""),
         }
+
+        if instance.warehouse:
+            representation['warehouse'] = {
+                'id32': instance.warehouse.id32,
+                'str': instance.warehouse.__str__()
+            }
         return representation
 
 
@@ -225,10 +232,11 @@ class SalesOrderSerializer(SalesOrderListSerializer):
     total_amount = serializers.SerializerMethodField()
     customer_id32 = serializers.CharField(
         write_only=True)  # Add the customer_id32 field
+    warehouse_id32 = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = SalesOrder
-        fields = ['id32', 'customer_id32',
+        fields = ['id32', 'customer_id32', 'warehouse_id32',
                   'order_date', 'total_amount', 'order_items']
         read_only_fields = ['id32']
 
@@ -244,10 +252,25 @@ class SalesOrderSerializer(SalesOrderListSerializer):
             raise serializers.ValidationError(
                 f"A customer with id32 {value} does not exist.")
 
+    def validate_warehouse_id32(self, value):
+        """
+        Validate the warehouse_id32 field, ensuring a Warehouse object with this ID exists.
+        """
+        try:
+            # Assign the customer object to the validated data directly
+            warehouse = Warehouse.objects.get(id32=value)
+            return warehouse  # We are returning the customer object instead of id32
+        except Warehouse.DoesNotExist:
+            raise serializers.ValidationError(
+                f"A warehouse with id32 {value} does not exist.")
+
     def create(self, validated_data):
         order_items_data = validated_data.pop('order_items')
         customer = validated_data.pop('customer_id32')
         validated_data['customer'] = customer
+        warehouse = validated_data.pop('warehouse_id32', None)
+        if warehouse:
+            validated_data['warehouse'] = warehouse
         sales_order = SalesOrder.objects.create(**validated_data)
 
         for item_data in order_items_data:
@@ -267,6 +290,12 @@ class SalesOrderSerializer(SalesOrderListSerializer):
 
     def update(self, instance, validated_data):
         order_items_data = validated_data.pop('order_items', None)
+        customer = validated_data.pop('customer_id32', None)
+        if customer:
+            validated_data['customer'] = customer
+        warehouse = validated_data.pop('warehouse_id32', None)
+        if warehouse:
+            validated_data['warehouse'] = warehouse
 
         # Update the SalesOrder fields
         for attr, value in validated_data.items():

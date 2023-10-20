@@ -268,6 +268,7 @@ def handle_customer_visit_completed(sender, instance, **kwargs):
     if instance.status == Trip.COMPLETED:
         if instance.trip.type == Trip.CANVASING:
             sales_order.status = 'completed'
+            sales_order.warehouse = instance.trip.vehicle.warehouse
         # assuming the approve method updates and saves the model
         sales_order.approve(user=instance.trip.updated_by)
 

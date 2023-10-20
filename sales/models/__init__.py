@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from libs.base_model import BaseModelGeneric, User
 from common.models import File, AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
-from inventory.models import Product, StockMovement, Unit
+from inventory.models import Product, StockMovement, Unit, Warehouse
 from identities.models import CompanyProfile
 from logistics.models import Vehicle
 
@@ -161,6 +161,7 @@ class SalesOrder(BaseModelGeneric):
     type = models.CharField(
         max_length=50, choices=TYPE_CHOICES, default=TAKING_ORDER)
     invoice_pdf_generated = models.BooleanField(default=False)
+    warehouse = models.ForeignKey(Warehouse, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)
