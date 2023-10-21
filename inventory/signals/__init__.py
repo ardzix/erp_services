@@ -6,7 +6,26 @@ from purchasing.models import Supplier
 from ..models import Product, ProductLog, StockMovement, WarehouseStock, Warehouse, StockMovementItem
 
 
+# Table of Content
+# 1. commit_base_price: Commits a new base price for a product.
+# 2. change_global_stock: Updates product quantity if its smallest unit changes.
+# 3. calculate_product_base_price: Computes the product's base price using fifo/lifo methodology.
+# 4. calculate_product_sell_price: Calculates the product's sell price based on margin settings.
+# 5. calculate_product_log: Gathers the product's previous details before saving.
+# 6. create_product_log: Creates a log entry for product changes.
+# 7. check_sm_status_before: Logs the StockMovement's status before save.
+# 8. handle_origin_warehouse: Adjusts stock based on changes in stock movement status for the origin warehouse.
+# 9. handle_destination_warehouse: Adjusts stock for the destination warehouse based on stock movement status.
+# 10. update_warehouse_stock: Updates warehouse stock following stock movement changes.
+# 11. handle_movement_item_status_change_pre: Checks for changes in movement item status before save.
+# 12. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
+# 13. stock_movement_status_update: Updates stock movement status based on associated item's status.
+
+
 def commit_base_price(product, buy_price):
+    """
+    Commits a new base price for a product based on its purchasing unit and buy price.
+    """
     if buy_price and product.purchasing_unit:
         base_price = buy_price / product.purchasing_unit.conversion_to_top_level()
         if base_price != product.base_price:
@@ -16,6 +35,9 @@ def commit_base_price(product, buy_price):
 
 @receiver(post_save, sender=Product)
 def change_global_stock(sender, instance, created, **kwargs):
+    """
+    Updates product quantity if there's a change in its smallest unit of measurement.
+    """
     if not created and instance.previous_smallest_unit and instance.previous_smallest_unit != instance.smallest_unit:
         smallest_conversion = instance.previous_smallest_unit.conversion_to_top_level(
         ) / instance.smallest_unit.conversion_to_top_level()
@@ -25,6 +47,9 @@ def change_global_stock(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Product)
 def calculate_product_base_price(sender, instance, created, **kwargs):
+    """
+    Computes the product's base price using the specified methodology, either fifo or lifo.
+    """
     if not created:
         items = instance.get_purchase_item_history()
         if instance.price_calculation in ['fifo', 'lifo']:
@@ -35,6 +60,9 @@ def calculate_product_base_price(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Product)
 def calculate_product_sell_price(sender, instance, created, **kwargs):
+    """
+    Calculates the product's sell price based on the configured margin settings.
+    """
     if not created:
         if instance.margin_type == 'percentage':
             sell_price = instance.base_price * (instance.margin_value + 1)
@@ -47,6 +75,9 @@ def calculate_product_sell_price(sender, instance, created, **kwargs):
 
 @receiver(pre_save, sender=Product)
 def calculate_product_log(sender, instance, **kwargs):
+    """
+    Collects previous details of the product before it gets updated or saved.
+    """
     prev_obj = sender.objects.filter(pk=instance.pk).last()
     instance.previous_quantity = prev_obj.quantity if prev_obj else 0
     instance._previous_buy_price = prev_obj.last_buy_price if prev_obj else 0
@@ -58,6 +89,9 @@ def calculate_product_log(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Product)
 def create_product_log(sender, instance, **kwargs):
+    """
+    Creates a log entry whenever there's a change in product details such as quantity, buy price, base price, or sell price.
+    """
     quantity_change = instance.quantity - instance.previous_quantity
     buy_price_change = instance.last_buy_price - instance._previous_buy_price
     base_price_change = instance.base_price - instance.previous_base_price
@@ -73,6 +107,9 @@ def create_product_log(sender, instance, **kwargs):
 
 @receiver(pre_save, sender=StockMovement)
 def check_sm_status_before(sender, instance, **kwargs):
+    """
+    Logs the StockMovement's current status before any change is made.
+    """
     sm = StockMovement.objects.filter(pk=instance.pk).last()
     instance.status_before = sm.status if sm else 0
 
@@ -107,6 +144,9 @@ def filter_stock_by_method(stocks, method):
 
 
 def handle_origin_warehouse(instance):
+    """
+    Adjusts stock quantities in the origin warehouse based on changes in stock movement status.
+    """
     for item in instance.items.all():
         if is_dispatch_status_change(instance):
             handle_dispatch_status_change(instance, item)
@@ -123,6 +163,9 @@ def is_return_status_change(instance):
 
 
 def handle_dispatch_status_change(instance, item):
+    """
+    Adjusts stock quantities in the destination warehouse based on the current stock movement status.
+    """
     stocks = get_filtered_stocks(instance, item)
     quantity_remaining = item.quantity
 
@@ -181,6 +224,9 @@ def handle_destination_warehouse(instance):
 
 @receiver(post_save, sender=StockMovement)
 def update_warehouse_stock(sender, instance, **kwargs):
+    """
+    Updates stocks in origin or destination warehouses following changes in stock movement status.
+    """
     if instance.origin_type == ContentType.objects.get_for_model(Warehouse):
         handle_origin_warehouse(instance)
 
@@ -189,7 +235,10 @@ def update_warehouse_stock(sender, instance, **kwargs):
 
 
 @receiver(pre_save, sender=StockMovementItem)
-def handle_movement_item_status_change(sender, instance, **kwargs):
+def handle_movement_item_status_change_pre(sender, instance, **kwargs):
+    """
+    Executes actions before saving the StockMovementItem, based on changes in its origin or destination movement status.
+    """
     # Check for origin_movement_status change to FINISHED
     if instance.pk and instance.origin_movement_status == StockMovementItem.CHECKED and instance.origin_checked_by is None:
         instance._set_user_action(
@@ -203,3 +252,33 @@ def handle_movement_item_status_change(sender, instance, **kwargs):
             'approved', instance._current_user)
         instance._nullify_user_action('unapproved')
         instance.destination_checked_by = instance.approved_by
+
+
+@receiver(post_save, sender=StockMovementItem)
+def handle_movement_item_status_change_post(sender, instance, **kwargs):
+    """
+    Executes actions after saving the StockMovementItem, based on its origin movement status and its parent StockMovement's status.
+    """
+    stock_movement = instance.stock_movement
+
+    # Condition 1: Set StockMovement status to PREPARING
+    if instance.origin_movement_status == StockMovementItem.ON_PROGRESS and stock_movement.status != StockMovement.PREPARING:
+        stock_movement.status = StockMovement.PREPARING
+        stock_movement.save()
+
+    # Condition 2: Set StockMovement status to READY
+    all_items = stock_movement.items.all()
+    if all(item.origin_movement_status == StockMovementItem.CHECKED for item in all_items):
+        stock_movement.status = StockMovement.READY
+        stock_movement.save()
+
+
+@receiver(pre_save, sender=StockMovement)
+def stock_movement_status_update(sender, instance, **kwargs):
+    """
+    Updates the StockMovement status to DELIVERED if all its associated items have a status set to FINISHED.
+    """
+    # Condition 3: If StockMovement is DELIVERED and all its items' origin_movement_status is set to FINISHED
+    if StockMovement.objects.get(pk=instance.pk).status != StockMovement.DELIVERED and instance.status == StockMovement.DELIVERED:
+        all_items = instance.items.all()
+        all_items.update(origin_movement_status=StockMovementItem.FINISHED)

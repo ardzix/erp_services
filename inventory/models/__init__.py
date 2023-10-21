@@ -399,14 +399,22 @@ class ProductLocation(BaseModelGeneric):
 
 
 class StockMovement(BaseModelGeneric):
+    REQUESTED = 'requested'
+    CANCELED = 'canceled'
+    PREPARING = 'preparing'
+    READY = 'ready'
+    ON_DELIVERY = 'on_delivery'
+    DELIVERED = 'delivered'
+    RETURNED = 'returned'
+
     MOVEMENT_STATUS = (
-        ('requested', _('Requested')),
-        ('canceled', _('Canceled')),
-        ('preparing', _('Preparing')),
-        ('ready', _('Ready to pickup')),
-        ('on_delivery', _('On Delivery')),
-        ('delivered', _('Delivered')),
-        ('returned', _('Returned')),
+        (REQUESTED, _('Requested')),
+        (CANCELED, _('Canceled')),
+        (PREPARING, _('Preparing')),
+        (READY, _('Ready to Deliver')),
+        (ON_DELIVERY, _('On Delivery')),
+        (DELIVERED, _('Delivered')),
+        (RETURNED, _('Returned')),
     )
 
     origin_type = models.ForeignKey(
@@ -445,7 +453,7 @@ class StockMovement(BaseModelGeneric):
     movement_date = models.DateTimeField(
         blank=True, null=True, help_text=_("Specify the movement date"))
     status = models.CharField(
-        max_length=20, choices=MOVEMENT_STATUS, default='requested')
+        max_length=20, choices=MOVEMENT_STATUS, default=REQUESTED)
 
     def __str__(self):
         return _("Stock Movement #{movement_id}").format(movement_id=self.id32)
