@@ -4,7 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from django import forms
 from libs.admin import BaseAdmin
 
-from inventory.models import Category, Unit, Product, ProductGroup, ProductLog, StockMovement, StockMovementItem, StockAdjustment, ReplenishmentOrder, ReplenishmentReceived, Warehouse, WarehouseStock
+from inventory.models import (Category, Unit, Product, ProductGroup, ProductLog, StockMovement, StockMovementItem,
+                              StockAdjustment, ReplenishmentOrder, ReplenishmentReceived, Warehouse, WarehouseStock, ProductLocation)
 
 
 @admin.register(Category)
@@ -169,7 +170,7 @@ class ProductLogAdmin(BaseAdmin):
 @admin.register(Warehouse)
 class WarehouseAdmin(BaseAdmin):
     list_display = ['id32', 'name', 'address', 'location']
-    fields = ['name', 'address', 'location']
+    fields = ['name', 'address', 'location', 'pic']
 
 
 @admin.register(WarehouseStock)
@@ -178,3 +179,14 @@ class WarehouseStockAdmin(BaseAdmin):
     list_filter = ['warehouse', 'product']
     fields = ['warehouse', 'product', 'quantity', 'unit',
               'expire_date', 'inbound_movement_item', 'dispatch_movement_items']
+
+
+@admin.register(ProductLocation)
+class ProductLocationAdmin(BaseAdmin):
+    list_display = ['id32', 'warehouse', 'area',
+                    'shelving', 'position', 'product', 'quantity']
+    list_filter = ['warehouse', 'product']
+    search_fields = ['area', 'shelving', 'position', 'product__name']
+    fields = ['warehouse', 'area', 'shelving',
+              'position', 'product', 'quantity']
+    raw_id_fields = ['warehouse', 'product']

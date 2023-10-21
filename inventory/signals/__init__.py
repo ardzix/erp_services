@@ -17,9 +17,10 @@ def commit_base_price(product, buy_price):
 @receiver(post_save, sender=Product)
 def change_global_stock(sender, instance, created, **kwargs):
     if not created and instance.previous_smallest_unit and instance.previous_smallest_unit != instance.smallest_unit:
-            smallest_conversion = instance.previous_smallest_unit.conversion_to_top_level() / instance.smallest_unit.conversion_to_top_level()
-            instance.quantity = instance.quantity * smallest_conversion
-            instance.save()
+        smallest_conversion = instance.previous_smallest_unit.conversion_to_top_level(
+        ) / instance.smallest_unit.conversion_to_top_level()
+        instance.quantity = instance.quantity * smallest_conversion
+        instance.save()
 
 
 @receiver(post_save, sender=Product)
@@ -76,25 +77,34 @@ def check_sm_status_before(sender, instance, **kwargs):
     instance.status_before = sm.status if sm else 0
 
 # Deducts the stock quantity of a given `WarehouseStock` instance by the provided amount.
+
+
 def deduct_stock(stock, quantity):
     stock.quantity -= quantity
     stock.save()
 
 # Adds to the stock quantity of a given `WarehouseStock` instance by the provided amount.
+
+
 def add_stock(stock, quantity):
     stock.quantity += quantity
     stock.save()
 
 # Adjusts the last buy price of a product based on an item's buy price and its unit conversion.
+
+
 def calculate_buy_price(item):
     product = item.product
     product.last_buy_price = item.buy_price / item.unit.conversion_to_top_level()
     product.save()
 
 # Orders the `WarehouseStock` queryset based on the provided method: either 'lifo' or 'fifo'.
+
+
 def filter_stock_by_method(stocks, method):
     order_field = '-created_at' if method == 'lifo' else 'created_at'
     return stocks.order_by(order_field)
+
 
 def handle_origin_warehouse(instance):
     for item in instance.items.all():
@@ -158,8 +168,8 @@ def handle_destination_warehouse(instance):
             product=item.product,
             inbound_movement_item=item,
             created_by=instance.created_by,
-            unit = item.unit,
-            expire_date = item.expire_date
+            unit=item.unit,
+            expire_date=item.expire_date
         )
         if instance.status == 'delivered' and instance.status_before != 'delivered':
             add_stock(stock, item.quantity)
@@ -177,3 +187,19 @@ def update_warehouse_stock(sender, instance, **kwargs):
     if instance.destination_type == ContentType.objects.get_for_model(Warehouse):
         handle_destination_warehouse(instance)
 
+
+@receiver(pre_save, sender=StockMovementItem)
+def handle_movement_item_status_change(sender, instance, **kwargs):
+    # Check for origin_movement_status change to FINISHED
+    if instance.pk and instance.origin_movement_status == StockMovementItem.CHECKED and instance.origin_checked_by is None:
+        instance._set_user_action(
+            'approved', instance._current_user)
+        instance._nullify_user_action('unapproved')
+        instance.origin_checked_by = instance._current_user
+
+    # Check for destination_movement_status change to FINISHED
+    if instance.pk and instance.destination_movement_status == StockMovementItem.CHECKED and instance.destination_checked_by is None:
+        instance._set_user_action(
+            'approved', instance._current_user)
+        instance._nullify_user_action('unapproved')
+        instance.destination_checked_by = instance.approved_by

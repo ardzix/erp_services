@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
-from ..models import StockMovement, StockMovementItem, Product, Unit
+from ..models import StockMovement, StockMovementItem, Product, Unit, ProductLocation
 
 
 class StockMovementSerializerMixin:
@@ -28,6 +28,17 @@ class StockMovementSerializerMixin:
         }
 
 
+class SMProductLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductLocation
+        fields = [
+            'area',
+            'shelving',
+            'position'
+        ]
+        read_only_fields = ['id32']
+
+
 class StockMovementItemSerializer(serializers.ModelSerializer):
     product_id32 = serializers.SlugRelatedField(
         slug_field='id32',
@@ -41,11 +52,18 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
         source='unit',
         write_only=True
     )
+    origin_locations = SMProductLocationSerializer(many=True, read_only=True)
+    destination_locations = SMProductLocationSerializer(
+        many=True, read_only=True)
 
     class Meta:
         model = StockMovementItem
-        fields = ['id32', 'product', 'product_id32', 'quantity', 'unit', 'unit_id32']
-        read_only_fields = ['id32', 'stock_movement', 'product', 'unit']
+        fields = ['id32', 'product', 'product_id32', 'quantity', 'unit',
+                  'unit_id32', 'order', 'origin_locations', 'destination_locations',
+                  'origin_movement_status', 'destination_movement_status']
+        read_only_fields = ['id32', 'stock_movement', 'product',
+                            'unit', 'origin_locations', 'destination_locations',
+                            'origin_movement_status', 'destination_movement_status']
 
     def create(self, validated_data):
         # `SlugRelatedField` will automatically convert the 'id32' to the actual model instance for us.
@@ -74,13 +92,34 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
                 'id32': instance.unit.id32,
                 'str': instance.unit.__str__()
             }
+
+        origin_movement_status_dict = dict(StockMovementItem.STATUS_CHOICES)
+        representation['origin_movement_status'] = {
+            'key': instance.origin_movement_status,
+            'value': origin_movement_status_dict.get(instance.origin_movement_status, ""),
+        }
+
+        destination_movement_status_dict = dict(
+            StockMovementItem.STATUS_CHOICES)
+        representation['destination_movement_status'] = {
+            'key': instance.destination_movement_status,
+            'value': destination_movement_status_dict.get(instance.destination_movement_status, ""),
+        }
         return representation
+
+
+class StockMovementItemStatusUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StockMovementItem
+        fields = ('origin_movement_status', 'destination_movement_status')
 
 
 class StockMovementListSerializer(StockMovementSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = StockMovement
-        fields = ['id32', 'created_at', 'origin', 'destination', 'movement_date', 'status']
+        fields = ['id32', 'created_at', 'origin',
+                  'destination', 'movement_date', 'status']
 
 
 class ContentTypeSerializer(serializers.ModelSerializer):
@@ -156,7 +195,6 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
                 })
 
         return data
-
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')

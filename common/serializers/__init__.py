@@ -84,11 +84,12 @@ class MeSerializer(serializers.ModelSerializer):
     header_text = serializers.SerializerMethodField()
     has_request_item = serializers.SerializerMethodField()
     trip_template_id32s = serializers.SerializerMethodField()
+    warehouse_assignment_id32s = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ['username', 'email', 'groups', 'check_in', 'last_attendance', 'sales_trips',
-                  'header_text', 'has_request_item', 'trip_template_id32s']
+                  'header_text', 'has_request_item', 'trip_template_id32s', 'warehouse_assignment_id32s']
 
     def get_check_in(self, instance):
         from hr.models import Attendance
@@ -132,3 +133,7 @@ class MeSerializer(serializers.ModelSerializer):
     def get_trip_template_id32s(self, instance):
         from sales.models import TripTemplate
         return TripTemplate.objects.filter(pic=instance).values_list('id32', flat=True)
+    
+    def get_warehouse_assignment_id32s(self, instance):
+        from inventory.models import Warehouse
+        return Warehouse.objects.filter(pic=instance).values_list('id32', flat=True)

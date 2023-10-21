@@ -53,44 +53,44 @@ class _BaseAbstract(models.Model):
     owned_at = models.DateTimeField(db_index=True, blank=True, null=True)
     owned_at_timestamp = models.PositiveIntegerField(
         db_index=True, blank=True, null=True)
-    owned_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+    owned_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
                                  related_name="%(app_label)s_%(class)s_owner")
 
     updated_at = models.DateTimeField(db_index=True, blank=True, null=True)
     updated_at_timestamp = models.PositiveIntegerField(
         db_index=True, blank=True, null=True)
-    updated_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+    updated_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
                                    related_name="%(app_label)s_%(class)s_updated_by")
 
     published_at = models.DateTimeField(blank=True, null=True)
     published_at_timestamp = models.PositiveIntegerField(
         db_index=True, blank=True, null=True)
-    published_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+    published_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
                                      related_name="%(app_label)s_%(class)s_published_by")
 
     unpublished_at = models.DateTimeField(blank=True, null=True)
     unpublished_at_timestamp = models.PositiveIntegerField(
         db_index=True, blank=True, null=True)
-    unpublished_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+    unpublished_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
                                        related_name="%(app_label)s_%(class)s_unpublished_by")
 
     approved_at = models.DateTimeField(blank=True, null=True)
     approved_at_timestamp = models.PositiveIntegerField(
         db_index=True, blank=True, null=True)
-    approved_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+    approved_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
                                     related_name="%(app_label)s_%(class)s_approved_by")
 
     unapproved_at = models.DateTimeField(blank=True, null=True)
     unapproved_at_timestamp = models.PositiveIntegerField(
         db_index=True, blank=True, null=True)
-    unapproved_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+    unapproved_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
                                       related_name="%(app_label)s_%(class)s_unapproved_by")
 
     deleted_at = models.DateTimeField(blank=True, null=True)
     deleted_at_timestamp = models.PositiveIntegerField(
         db_index=True, blank=True, null=True)
     deleted_by = models.ForeignKey(User, db_index=True, blank=True,
-                                   null=True, on_delete=models.CASCADE,
+                                   null=True, on_delete=models.SET_NULL,
                                    related_name="%(app_label)s_%(class)s_deleted_by")
 
     # Add the custom manager

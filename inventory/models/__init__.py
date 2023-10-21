@@ -218,7 +218,8 @@ class Product(BaseModelGeneric):
 
     @property
     def phsycal_quantity(self):
-        warehouse_stocks = WarehouseStock.objects.filter(product=self, quantity__gt=0)
+        warehouse_stocks = WarehouseStock.objects.filter(
+            product=self, quantity__gt=0)
         warehouse_stocks = warehouse_stocks.values('unit__symbol', 'unit__id32'
                                                    ).annotate(total_quantity=Sum('quantity'))
         return list(warehouse_stocks)
@@ -229,7 +230,6 @@ class Product(BaseModelGeneric):
         for stock in WarehouseStock.objects.filter(product=self, quantity__gt=0):
             qty += stock.quantity * stock.unit.conversion_to_top_level()
         return int(qty)
-
 
     @property
     def previous_buy_price(self):
@@ -264,7 +264,6 @@ class Product(BaseModelGeneric):
             )
 
         return prices
-
 
 
 class ProductGroup(BaseModelGeneric):
@@ -352,6 +351,7 @@ class Warehouse(BaseModelGeneric):
     ]
     type = models.CharField(choices=TYPE_CHOICES,
                             max_length=20, default=BUILDING)
+    pic = models.ManyToManyField(User, blank=True, help_text=_('Select people in charge of this warehouse'))
 
     def __str__(self):
         return _("Warehouse #{warehouse_id} - {warehouse_name}").format(
@@ -396,6 +396,7 @@ class ProductLocation(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _("Product Location")
         verbose_name_plural = _("Product Locations")
+
 
 class StockMovement(BaseModelGeneric):
     MOVEMENT_STATUS = (
@@ -443,7 +444,8 @@ class StockMovement(BaseModelGeneric):
     creator = GenericForeignKey('creator_type', 'creator_id')
     movement_date = models.DateTimeField(
         blank=True, null=True, help_text=_("Specify the movement date"))
-    status = models.CharField(max_length=20, choices=MOVEMENT_STATUS, default='requested')
+    status = models.CharField(
+        max_length=20, choices=MOVEMENT_STATUS, default='requested')
 
     def __str__(self):
         return _("Stock Movement #{movement_id}").format(movement_id=self.id32)
@@ -455,6 +457,22 @@ class StockMovement(BaseModelGeneric):
 
 
 class StockMovementItem(BaseModelGeneric):
+    WAITING = 'waiting'
+    ON_PROGRESS = 'on_progress'
+    ON_CHECK = 'on_check'
+    PUT = 'put'
+    CHECKED = 'checked'
+    FINISHED = 'finished'
+
+    STATUS_CHOICES = (
+        (WAITING, _('Waiting for movement initiation')),
+        (ON_PROGRESS, _('Item movement in progress')),
+        (ON_CHECK, _('Item movement awaiting verification')),
+        (PUT, _('Item placed in designated location')),
+        (CHECKED, _('Item movement verified')),
+        (FINISHED, _('Item movement completed')),
+    )
+
     stock_movement = models.ForeignKey(
         StockMovement,
         on_delete=models.CASCADE,
@@ -476,14 +494,35 @@ class StockMovementItem(BaseModelGeneric):
     unit = models.ForeignKey(
         Unit, blank=True, null=True, on_delete=models.SET_NULL)
     expire_date = models.DateField(blank=True, null=True)
+    order = models.PositiveIntegerField(default=1)
+    origin_movement_status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=WAITING, help_text=_("Item movement status in origin warehouse"))
+    origin_checked_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
+                                    related_name="%(app_label)s_%(class)s_origin_checked_by")
+    destination_movement_status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=WAITING, help_text=_("Item movement status in destination warehouse"))
+    destination_checked_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
+                                    related_name="%(app_label)s_%(class)s_destination_checked_by")
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name = _("Stock Movement Item")
+        verbose_name_plural = _("Stock Movement Items")
 
     def __str__(self):
         return _("Stock Movement Item #{movement_item_id} - {product_name}").format(movement_item_id=self.id32, product_name=self.product)
 
-    class Meta:
-        ordering = ['-id']
-        verbose_name = _("Stock Movement Item")
-        verbose_name_plural = _("Stock Movement Items")
+    @property
+    def origin_locations(self):
+        if not self.stock_movement.origin or self.stock_movement.origin_type.model != 'warehouse':
+            return []
+        return ProductLocation.objects.filter(warehouse=self.stock_movement.origin, product=self.product)
+
+    @property
+    def destination_locations(self):
+        if not self.stock_movement.destination or self.stock_movement.destination_type.model != 'warehouse':
+            return []
+        return ProductLocation.objects.filter(warehouse=self.stock_movement.destination, product=self.product)
 
 
 class WarehouseStock(BaseModelGeneric):
