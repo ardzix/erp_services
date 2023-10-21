@@ -279,6 +279,9 @@ def stock_movement_status_update(sender, instance, **kwargs):
     Updates the StockMovement status to DELIVERED if all its associated items have a status set to FINISHED.
     """
     # Condition 3: If StockMovement is DELIVERED and all its items' origin_movement_status is set to FINISHED
-    if StockMovement.objects.get(pk=instance.pk).status != StockMovement.DELIVERED and instance.status == StockMovement.DELIVERED:
+    prev_obj = StockMovement.objects.filter(pk=instance.pk).last()
+    if not pre_save:
+        return
+    if prev_obj.status != StockMovement.DELIVERED and instance.status == StockMovement.DELIVERED:
         all_items = instance.items.all()
         all_items.update(origin_movement_status=StockMovementItem.FINISHED)
