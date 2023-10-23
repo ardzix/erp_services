@@ -67,10 +67,13 @@ def check_purchaseorder_before_approved(sender, instance, **kwargs):
 @receiver(post_save, sender=PurchaseOrder)
 def create_stock_movement(sender, instance, **kwargs):
     if not instance.approved_before and instance.approved_at:
+        supplier_ct = ContentType.objects.get_for_model(Supplier)
+        destination_ct = ContentType.objects.get_for_model(Warehouse) 
         sm = StockMovement.objects.create(
-            origin_type=ContentType.objects.get_for_model(Supplier),
+            origin_type=supplier_ct,
             origin_id=instance.supplier.id,
-            created_by=instance.updated_by if instance.updated_by else instance.created_by
+            destination_type=destination_ct if instance.destination_warehouse else None,
+            destination_id=instance.destination_warehouse.id
         )
         instance.stock_movement = sm
         instance.save()

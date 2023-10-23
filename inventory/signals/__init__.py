@@ -2,6 +2,7 @@ from django.db.models.signals import pre_save, post_save, pre_delete
 from django.db import models
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 from purchasing.models import Supplier
 from ..models import Product, ProductLog, StockMovement, WarehouseStock, Warehouse, StockMovementItem
 
@@ -16,10 +17,9 @@ from ..models import Product, ProductLog, StockMovement, WarehouseStock, Warehou
 # 7. check_sm_status_before: Logs the StockMovement's status before save.
 # 8. handle_origin_warehouse: Adjusts stock based on changes in stock movement status for the origin warehouse.
 # 9. handle_destination_warehouse: Adjusts stock for the destination warehouse based on stock movement status.
-# 10. update_warehouse_stock: Updates warehouse stock following stock movement changes.
-# 11. handle_movement_item_status_change_pre: Checks for changes in movement item status before save.
-# 12. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
-# 13. stock_movement_status_update: Updates stock movement status based on associated item's status.
+# 10. check_movement_item_previous_status: Checks for status in movement item status before save.
+# 11. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
+# 12. stock_movement_status_update: Updates stock movement status based on associated item's status.
 
 
 def commit_base_price(product, buy_price):
@@ -205,53 +205,43 @@ def get_filtered_stocks(instance, item, for_dispatch=True):
 # Handle items inbound to a warehouse
 # This will create stocks to inbound occurs
 def handle_destination_warehouse(instance):
-    for item in instance.items.all():
-        stock, created = WarehouseStock.objects.get_or_create(
-            warehouse=instance.destination,
-            product=item.product,
-            inbound_movement_item=item,
-            created_by=instance.created_by,
-            unit=item.unit,
-            expire_date=item.expire_date
-        )
-        if instance.status == 'delivered' and instance.status_before != 'delivered':
-            add_stock(stock, item.quantity)
-            if instance.origin_type == ContentType.objects.get_for_model(Supplier):
-                calculate_buy_price(item)
-        elif instance.status != 'delivered' and instance.status_before == 'delivered':
-            deduct_stock(stock, item.quantity)
+    stock, created = WarehouseStock.objects.get_or_create(
+        warehouse=instance.stock_movement.destination,
+        product=instance.product,
+        inbound_movement_item=instance,
+        unit=instance.unit,
+        expire_date=instance.expire_date
+    )
+    if created:
+        add_stock(stock, instance.quantity)
+    if instance.stock_movement.origin_type == ContentType.objects.get_for_model(Supplier):
+        calculate_buy_price(instance)
 
 
-@receiver(post_save, sender=StockMovement)
-def update_warehouse_stock(sender, instance, **kwargs):
-    """
-    Updates stocks in origin or destination warehouses following changes in stock movement status.
-    """
-    if instance.origin_type == ContentType.objects.get_for_model(Warehouse):
-        handle_origin_warehouse(instance)
+# @receiver(post_save, sender=StockMovement)
+# def update_warehouse_stock(sender, instance, **kwargs):
+#     """
+#     Updates stocks in origin or destination warehouses following changes in stock movement status.
+#     """
+#     if instance.origin_type == ContentType.objects.get_for_model(Warehouse):
+#         handle_origin_warehouse(instance)
 
-    if instance.destination_type == ContentType.objects.get_for_model(Warehouse):
-        handle_destination_warehouse(instance)
+#     # if instance.destination_type == ContentType.objects.get_for_model(Warehouse):
+#     #     handle_destination_warehouse(instance)
 
 
 @receiver(pre_save, sender=StockMovementItem)
-def handle_movement_item_status_change_pre(sender, instance, **kwargs):
+def check_movement_item_previous_status(sender, instance, **kwargs):
     """
-    Executes actions before saving the StockMovementItem, based on changes in its origin or destination movement status.
+    Check status before saving the StockMovementItem, assign it to the instance to be used in post_save.
     """
-    # Check for origin_movement_status change to FINISHED
-    if instance.pk and instance.origin_movement_status == StockMovementItem.CHECKED and instance.origin_checked_by is None:
-        instance._set_user_action(
-            'approved', instance._current_user)
-        instance._nullify_user_action('unapproved')
-        instance.origin_checked_by = instance._current_user
-
-    # Check for destination_movement_status change to FINISHED
-    if instance.pk and instance.destination_movement_status == StockMovementItem.CHECKED and instance.destination_checked_by is None:
-        instance._set_user_action(
-            'approved', instance._current_user)
-        instance._nullify_user_action('unapproved')
-        instance.destination_checked_by = instance.approved_by
+    if not instance.pk:
+        instance.origin_movement_status_before = StockMovementItem.WAITING
+        instance.destination_movement_status_before = StockMovementItem.WAITING
+    else:
+        sm_prev = StockMovementItem.objects.get(id=instance.pk)
+        instance.origin_movement_status_before = sm_prev.origin_movement_status
+        instance.destination_movement_status_before = sm_prev.destination_movement_status
 
 
 @receiver(post_save, sender=StockMovementItem)
@@ -266,11 +256,50 @@ def handle_movement_item_status_change_post(sender, instance, **kwargs):
         stock_movement.status = StockMovement.PREPARING
         stock_movement.save()
 
-    # Condition 2: Set StockMovement status to READY
+    # Condition 2: Set StockMovement status to ON_CHECK
+    if instance.destination_movement_status == StockMovementItem.ON_CHECK and stock_movement.status != StockMovement.ON_CHECK:
+        stock_movement.status = StockMovement.ON_CHECK
+        stock_movement.save()
+
+    # Condition 3: Set StockMovement status to READY
     all_items = stock_movement.items.all()
     if all(item.origin_movement_status == StockMovementItem.CHECKED for item in all_items):
         stock_movement.status = StockMovement.READY
         stock_movement.save()
+
+    # Condition 3: Set StockMovement status to CHECKED
+    all_items = stock_movement.items.all()
+    if all(item.destination_movement_status == StockMovementItem.CHECKED for item in all_items):
+        stock_movement.status = StockMovement.CHECKED
+        stock_movement.save()
+
+    # Condition 3: Set StockMovement status to PUT
+    all_items = stock_movement.items.all()
+    if all(item.destination_movement_status == StockMovementItem.PUT for item in all_items):
+        stock_movement.status = StockMovement.PUT
+        stock_movement.movement_date = timezone.now()
+        stock_movement.save()
+
+    # Condition 4: Check for origin_movement_status change to CHECKED
+    if instance.origin_movement_status == StockMovementItem.CHECKED and instance.origin_checked_by is None:
+        instance._set_user_action(
+            'approved', instance._current_user)
+        instance._nullify_user_action('unapproved')
+        instance.origin_checked_by = instance._current_user
+
+    # Condition 5: Check for destination_movement_status change to CHECKED
+    if instance.destination_movement_status == StockMovementItem.CHECKED and instance.destination_checked_by is None:
+        instance._set_user_action(
+            'approved', instance._current_user)
+        instance._nullify_user_action('unapproved')
+        instance.destination_checked_by = instance.approved_by
+    
+    # Condition 6: Check for destination_movement_status change to PUT
+    if instance.destination_movement_status == StockMovementItem.PUT:
+        instance._set_user_action(
+            'published', instance._current_user)
+        instance._nullify_user_action('unpublished')
+        handle_destination_warehouse(instance)
 
 
 @receiver(pre_save, sender=StockMovement)
@@ -280,7 +309,7 @@ def stock_movement_status_update(sender, instance, **kwargs):
     """
     # Condition 3: If StockMovement is DELIVERED and all its items' origin_movement_status is set to FINISHED
     prev_obj = StockMovement.objects.filter(pk=instance.pk).last()
-    if not pre_save:
+    if not prev_obj:
         return
     if prev_obj.status != StockMovement.DELIVERED and instance.status == StockMovement.DELIVERED:
         all_items = instance.items.all()

@@ -1,7 +1,7 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
-from inventory.models import Product, StockMovement, Unit
+from inventory.models import Product, StockMovement, Unit, Warehouse
 
 class Supplier(BaseModelGeneric):
     name = models.CharField(
@@ -90,6 +90,9 @@ class PurchaseOrder(BaseModelGeneric):
     )
     stock_movement = models.ForeignKey(
         StockMovement, blank=True, null=True, on_delete=models.SET_NULL)
+    destination_warehouse = models.ForeignKey(
+        Warehouse, blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     def __str__(self):
         return _("Purchase Order #{id32}").format(id32=self.id32)

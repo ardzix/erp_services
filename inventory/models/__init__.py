@@ -406,6 +406,9 @@ class StockMovement(BaseModelGeneric):
     ON_DELIVERY = 'on_delivery'
     DELIVERED = 'delivered'
     RETURNED = 'returned'
+    ON_CHECK = 'on_check'
+    CHECKED = 'checked'
+    PUT = 'put'
 
     MOVEMENT_STATUS = (
         (REQUESTED, _('Requested')),
@@ -415,6 +418,9 @@ class StockMovement(BaseModelGeneric):
         (ON_DELIVERY, _('On Delivery')),
         (DELIVERED, _('Delivered')),
         (RETURNED, _('Returned')),
+        (ON_CHECK, _('On Check in destination')),
+        (CHECKED, _('Checked in destination')),
+        (PUT, _('Has been put in destination warehouse')),
     )
 
     origin_type = models.ForeignKey(

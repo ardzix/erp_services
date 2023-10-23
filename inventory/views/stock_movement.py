@@ -6,7 +6,7 @@ from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from ..models import StockMovement, StockMovementItem
 from ..serializers.stock_movement import (StockMovementListSerializer, StockMovementDetailSerializer,
-                                          StockMovementCreateSerializer, StockMovementItemSerializer, StockMovementItemStatusUpdateSerializer)
+                                          StockMovementCreateSerializer, StockMovementItemSerializer, StockMovementItemUpdateSerializer)
 
 
 def get_model_from_name(model_name):
@@ -94,5 +94,5 @@ class StockMovementViewSet(viewsets.ModelViewSet):
 
 class StockMovementItemStatusUpdateViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
     queryset = StockMovementItem.objects.all()
-    serializer_class = StockMovementItemStatusUpdateSerializer
+    serializer_class = StockMovementItemUpdateSerializer
     lookup_field = 'id32'

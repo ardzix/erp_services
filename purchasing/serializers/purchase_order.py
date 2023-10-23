@@ -1,7 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from django.db import transaction
-from inventory.models import Product
+from inventory.models import Product, Warehouse
 from ..models import PurchaseOrder, PurchaseOrderItem, Supplier
 
 # PurchaseOrderItem Serializer
@@ -35,12 +35,13 @@ class PurchaseOrderListSerializer(serializers.ModelSerializer):
 # Nested serializer for detail and create views
 class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
     supplier = serializers.SlugRelatedField(slug_field='id32', queryset=Supplier.objects.all())
+    destination_warehouse = serializers.SlugRelatedField(slug_field='id32', queryset=Warehouse.objects.all(), required=False)
     supplier_name = serializers.StringRelatedField(source='supplier.name', read_only=True)
     items = PurchaseOrderItemSerializer(many=True, source='purchaseorderitem_set')
 
     class Meta:
         model = PurchaseOrder
-        fields = ['id32', 'supplier', 'supplier_name', 'order_date', 'items', 'approval']
+        fields = ['id32', 'supplier', 'supplier_name', 'destination_warehouse', 'order_date', 'items', 'approval']
         read_only_fields = ['id32', 'approval']
 
     @transaction.atomic
@@ -49,6 +50,6 @@ class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
         purchase_order = PurchaseOrder.objects.create(**validated_data)
         
         for item_data in items_data:
-            PurchaseOrderItem.objects.create(created_by=purchase_order.created_by, purchase_order=purchase_order, **item_data)
+            PurchaseOrderItem.objects.create(purchase_order=purchase_order, **item_data)
 
         return purchase_order

@@ -58,7 +58,7 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockMovementItem
-        fields = ['id32', 'product', 'product_id32', 'quantity', 'unit',
+        fields = ['id32', 'product', 'product_id32', 'quantity', 'unit', 'expire_date',
                   'unit_id32', 'order', 'origin_locations', 'destination_locations',
                   'origin_movement_status', 'destination_movement_status']
         read_only_fields = ['id32', 'stock_movement', 'product',
@@ -108,11 +108,11 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
         return representation
 
 
-class StockMovementItemStatusUpdateSerializer(serializers.ModelSerializer):
+class StockMovementItemUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockMovementItem
-        fields = ('origin_movement_status', 'destination_movement_status')
+        fields = ('origin_movement_status', 'destination_movement_status', 'expire_date', 'quantity')
 
 
 class StockMovementListSerializer(StockMovementSerializerMixin, serializers.ModelSerializer):
