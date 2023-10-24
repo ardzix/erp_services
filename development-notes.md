@@ -7,7 +7,7 @@ To Do:
 - Checker endpont ✅
 - StockMovementItem detail view ✅
 - Endpoint batch di stockmovement item ✅
-- Foto barang endpoint untuk complete checker sales
+- Foto barang endpoint untuk complete checker sales ✅
 - Surat jalan
 - Picker Checker untuk Taking Order
 - Endpoint barang tidak sesuai

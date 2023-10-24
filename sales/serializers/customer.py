@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.gis.geos import Point
 from django.utils.translation import gettext_lazy as _
 from common.models import File
+from libs.utils import validate_file_by_id32
 from ..models import Customer
 
 
@@ -116,41 +117,17 @@ class CustomerSerializer(serializers.ModelSerializer):
             }
         return None
 
-    def validate_file_by_id32(self, value, error_message):
-        """
-        Helper method to validate file existence by its id32.
-
-        Parameters:
-        - value (str): The id32 of the file to be validated.
-        - error_message (str): The error message template to be returned if validation fails.
-
-        Returns:
-        - File instance: The File instance if found.
-
-        Raises:
-        - serializers.ValidationError: If the file with the given id32 does not exist.
-        """
-        if not value:
-            return value
-
-        try:
-            file = File.objects.get(id32=value)
-            return file
-        except File.DoesNotExist:
-            raise serializers.ValidationError(
-                error_message.format(value=value))
-
     def validate_id_card_id32(self, value):
-        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the ID card.")
+        return validate_file_by_id32(value, "A file with id32 {value} does not exist for the ID card.")
 
     def validate_store_front_id32(self, value):
-        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the store front.")
+        return validate_file_by_id32(value, "A file with id32 {value} does not exist for the store front.")
 
     def validate_store_street_id32(self, value):
-        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the store street.")
+        return validate_file_by_id32(value, "A file with id32 {value} does not exist for the store street.")
 
     def validate_signature_id32(self, value):
-        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the signature.")
+        return validate_file_by_id32(value, "A file with id32 {value} does not exist for the signature.")
 
     def handle_location(self, validated_data):
         """

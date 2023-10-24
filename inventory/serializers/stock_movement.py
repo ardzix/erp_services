@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
+from libs.utils import validate_file_by_id32
 from ..models import StockMovement, StockMovementItem, Product, Unit, ProductLocation
 
 
@@ -84,7 +84,7 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['id32', 'stock_movement', 'product',
                             'unit', 'origin_locations', 'destination_locations',
                             'origin_movement_status', 'destination_movement_status']
-        
+
     def get_batches(self, obj):
         return BatchSerializer(obj.batches, many=True).data
 
@@ -160,8 +160,17 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
     class Meta:
         model = StockMovement
         fields = ['id32', 'created_at', 'origin', 'destination', 'origin_type',
-                  'destination_type', 'movement_date', 'status', 'items']
+                  'destination_type', 'movement_date', 'status', 'movement_evidence',
+                  'items']
         read_only_fields = ['id32', 'created_at']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.movement_evidence:
+            representation['movement_evidence'] = {
+                'id32': instance.movement_evidence.id32,
+                'url': instance.movement_evidence.file.url
+            }
 
 
 class StockMovementCreateSerializer(serializers.ModelSerializer):
@@ -171,13 +180,25 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         choices=['warehouse', 'supplier', 'customer'], write_only=True)
     origin_id32 = serializers.CharField(write_only=True)
     destination_id32 = serializers.CharField(write_only=True)
+    movement_evidence_id32 = serializers.CharField(
+        write_only=True, required=False)
     items = StockMovementItemSerializer(many=True)
 
     class Meta:
         model = StockMovement
         fields = ['id32', 'created_at', 'status', 'movement_date', 'destination_type',
-                  'destination_id32', 'origin_type', 'origin_id32', 'items']
-        read_only_fields = ['id32', 'created_at']
+                  'destination_id32', 'origin_type', 'origin_id32', 'movement_evidence_id32',
+                  'movement_evidence', 'items']
+        read_only_fields = ['id32', 'created_at', 'movement_evidence']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.movement_evidence:
+            representation['movement_evidence'] = {
+                'id32': instance.movement_evidence.id32,
+                'url': instance.movement_evidence.file.url
+            }
+        return representation
 
     def validate_origin_type(self, value):
         content_type = ContentType.objects.filter(model=value).first()
@@ -194,6 +215,9 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
                 "destination_type": _("Invalid content type for destination.")
             })
         return content_type
+
+    def validate_movement_evidence_id32(self, value):
+        return validate_file_by_id32(value, "A file with id32 {value} does not exist for the movement evidence.")
 
     def validate(self, data):
         if "origin_id32" in data and "origin_type" in data:
@@ -222,9 +246,18 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
+        movement_evidence = validated_data.pop('movement_evidence_id32')
+        validated_data['movement_evidence'] = movement_evidence
         stock_movement = StockMovement.objects.create(**validated_data)
         for item_data in items_data:
             StockMovementItem.objects.create(
                 stock_movement=stock_movement, **item_data)
 
         return stock_movement
+
+    def update(self, instance, validated_data):
+        if 'items' in validated_data:
+            validated_data.pop('items')
+        movement_evidence = validated_data.pop('movement_evidence_id32')
+        validated_data['movement_evidence'] = movement_evidence
+        return super().update(instance, validated_data)

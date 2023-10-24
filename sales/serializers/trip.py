@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from common.models import File
 from logistics.models import Vehicle
+from libs.utils import validate_file_by_id32
 from ..models import (
     TripTemplate,
     TripCustomer,
@@ -308,39 +309,14 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
 
         return representation
 
-
-    def validate_file_by_id32(self, value, error_message):
-        """
-        Helper method to validate file existence by its id32.
-
-        Parameters:
-        - value (str): The id32 of the file to be validated.
-        - error_message (str): The error message template to be returned if validation fails.
-
-        Returns:
-        - File instance: The File instance if found.
-
-        Raises:
-        - serializers.ValidationError: If the file with the given id32 does not exist.
-        """
-        if not value:
-            return value
-
-        try:
-            file = File.objects.get(id32=value)
-            return file
-        except File.DoesNotExist:
-            raise serializers.ValidationError(
-                error_message.format(value=value))
-
     def validate_visit_evidence_id32(self, value):
-        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the visit evidence.")
+        return validate_file_by_id32(value, "A file with id32 {value} does not exist for the visit evidence.")
 
     def validate_item_delivery_evidence_id32(self, value):
-        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the visit evidence.")
+        return validate_file_by_id32(value, "A file with id32 {value} does not exist for the visit evidence.")
 
     def validate_signature_id32(self, value):
-        return self.validate_file_by_id32(value, "A file with id32 {value} does not exist for the signature.")
+        return validate_file_by_id32(value, "A file with id32 {value} does not exist for the signature.")
 
     def handle_file_fields(self, validated_data, fields):
         """
