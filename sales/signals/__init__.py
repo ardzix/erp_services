@@ -395,8 +395,7 @@ def ensure_trip_status_on_progress(sender, instance, **kwargs):
 @receiver(pre_save, sender=CustomerVisit)
 def ensure_fields_present_when_skipped(sender, instance, **kwargs):
     # 4. CustomerVisit status cannot be changed to SKIPPED if notes, visit_evidence, or signature is null.
-    if instance.status == Trip.SKIPPED:
-        if not all([instance.notes, instance.visit_evidence, instance.signature]):
+    if instance.status == Trip.SKIPPED and not all([instance.notes, instance.visit_evidence, instance.signature]):
             raise ValidationError(
                 _('CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or signature are null.'))
 

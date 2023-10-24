@@ -12,6 +12,7 @@ APPROVED_BY = 'Approved by'
 APPROVED_AT = 'Approved at'
 APPROVED_AT_HELP_TEXT = 'Specify the date and time of approval'
 ORDER_OF_CUSTOMER_VISIT = 'Order of customer visit in the trip'
+ENTER_THE = 'Enter the '
 
 
 class Customer(BaseModelGeneric):
@@ -50,10 +51,10 @@ class Customer(BaseModelGeneric):
         verbose_name=_('Company Profile'),
         help_text=_('Select the company profile associated with the customer')
     )
-    administrative_lv1 = models.ForeignKey(AdministrativeLvl1, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_('Enter the '), _('Administrative Lvl 1')))
-    administrative_lv2 = models.ForeignKey(AdministrativeLvl2, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_('Enter the '), _('Administrative Lvl 2')))
-    administrative_lv3 = models.ForeignKey(AdministrativeLvl3, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_('Enter the '), _('Administrative Lvl 3')))
-    administrative_lv4 = models.ForeignKey(AdministrativeLvl4, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_('Enter the '), _('Administrative Lvl 4')))
+    administrative_lv1 = models.ForeignKey(AdministrativeLvl1, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 1')))
+    administrative_lv2 = models.ForeignKey(AdministrativeLvl2, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 2')))
+    administrative_lv3 = models.ForeignKey(AdministrativeLvl3, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 3')))
+    administrative_lv4 = models.ForeignKey(AdministrativeLvl4, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 4')))
     rt = models.CharField(max_length=5, blank=True, null=True)
     rw = models.CharField(max_length=5, blank=True, null=True)
     store_name = models.CharField(
