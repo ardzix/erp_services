@@ -218,16 +218,13 @@ def handle_destination_warehouse(instance):
         calculate_buy_price(instance)
 
 
-# @receiver(post_save, sender=StockMovement)
-# def update_warehouse_stock(sender, instance, **kwargs):
-#     """
-#     Updates stocks in origin or destination warehouses following changes in stock movement status.
-#     """
-#     if instance.origin_type == ContentType.objects.get_for_model(Warehouse):
-#         handle_origin_warehouse(instance)
-
-#     # if instance.destination_type == ContentType.objects.get_for_model(Warehouse):
-#     #     handle_destination_warehouse(instance)
+@receiver(post_save, sender=StockMovement)
+def update_warehouse_stock(sender, instance, **kwargs):
+    """
+    Updates stocks in origin warehouses following changes in stock movement status.
+    """
+    if instance.origin_type == ContentType.objects.get_for_model(Warehouse):
+        handle_origin_warehouse(instance)
 
 
 @receiver(pre_save, sender=StockMovementItem)

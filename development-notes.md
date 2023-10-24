@@ -3,6 +3,6 @@
 
 To Do:
 - Taking order endpoint direview lagi ✅
-- Picker endpoint
-- Checker endpont
+- Picker endpoint ✅
+- Checker endpont ✅
 - Trip Report endpoint
