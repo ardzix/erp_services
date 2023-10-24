@@ -3,8 +3,8 @@ from django.db import models
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
-from purchasing.models import Supplier
-from ..models import Product, ProductLog, StockMovement, WarehouseStock, Warehouse, StockMovementItem
+from ..models import Product, ProductLog, StockMovement, Warehouse, StockMovementItem
+from ..libs.stock_movement import handle_origin_warehouse, handle_destination_warehouse
 
 
 # Table of Content
@@ -15,11 +15,9 @@ from ..models import Product, ProductLog, StockMovement, WarehouseStock, Warehou
 # 5. calculate_product_log: Gathers the product's previous details before saving.
 # 6. create_product_log: Creates a log entry for product changes.
 # 7. check_sm_status_before: Logs the StockMovement's status before save.
-# 8. handle_origin_warehouse: Adjusts stock based on changes in stock movement status for the origin warehouse.
-# 9. handle_destination_warehouse: Adjusts stock for the destination warehouse based on stock movement status.
-# 10. check_movement_item_previous_status: Checks for status in movement item status before save.
-# 11. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
-# 12. stock_movement_status_update: Updates stock movement status based on associated item's status.
+# 8. check_movement_item_previous_status: Checks for status in movement item status before save.
+# 9. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
+# 10. stock_movement_status_update: Updates stock movement status based on associated item's status.
 
 
 def commit_base_price(product, buy_price):
@@ -113,110 +111,6 @@ def check_sm_status_before(sender, instance, **kwargs):
     sm = StockMovement.objects.filter(pk=instance.pk).last()
     instance.status_before = sm.status if sm else 0
 
-# Deducts the stock quantity of a given `WarehouseStock` instance by the provided amount.
-
-
-def deduct_stock(stock, quantity):
-    stock.quantity -= quantity
-    stock.save()
-
-# Adds to the stock quantity of a given `WarehouseStock` instance by the provided amount.
-
-
-def add_stock(stock, quantity):
-    stock.quantity += quantity
-    stock.save()
-
-# Adjusts the last buy price of a product based on an item's buy price and its unit conversion.
-
-
-def calculate_buy_price(item):
-    product = item.product
-    product.last_buy_price = item.buy_price / item.unit.conversion_to_top_level()
-    product.save()
-
-# Orders the `WarehouseStock` queryset based on the provided method: either 'lifo' or 'fifo'.
-
-
-def filter_stock_by_method(stocks, method):
-    order_field = '-created_at' if method == 'lifo' else 'created_at'
-    return stocks.order_by(order_field)
-
-
-def handle_origin_warehouse(instance):
-    """
-    Adjusts stock quantities in the origin warehouse based on changes in stock movement status.
-    """
-    for item in instance.items.all():
-        if is_dispatch_status_change(instance):
-            handle_dispatch_status_change(instance, item)
-        elif is_return_status_change(instance):
-            handle_return_status_change(instance, item)
-
-
-def is_dispatch_status_change(instance):
-    return instance.status in ['on_delivery', 'delivered'] and instance.status_before not in ['on_delivery', 'delivered']
-
-
-def is_return_status_change(instance):
-    return instance.status not in ['on_delivery', 'delivered'] and instance.status_before in ['on_delivery', 'delivered']
-
-
-def handle_dispatch_status_change(instance, item):
-    """
-    Adjusts stock quantities in the destination warehouse based on the current stock movement status.
-    """
-    stocks = get_filtered_stocks(instance, item)
-    quantity_remaining = item.quantity
-
-    for stock in stocks:
-        stock.dispatch_movement_items.add(item)
-        quantity = quantity_remaining if quantity_remaining <= stock.quantity else stock.quantity
-        deduct_stock(stock, quantity)
-        quantity_remaining -= quantity
-        if quantity_remaining <= 0:
-            break
-
-
-def handle_return_status_change(instance, item):
-    stocks = get_filtered_stocks(instance, item, for_dispatch=False)
-    stock = stocks.first()
-    if stock:
-        stock.dispatch_movement_items.remove(item)
-        add_stock(stock, item.quantity)
-
-
-def get_filtered_stocks(instance, item, for_dispatch=True):
-    basic_filter = {
-        'warehouse': instance.origin,
-        'product': item.product,
-        'unit': item.unit
-    }
-
-    if for_dispatch:
-        basic_filter['quantity__gt'] = 0
-    else:
-        basic_filter['dispatch_movement_items'] = item
-
-    stocks = WarehouseStock.objects.filter(**basic_filter)
-    return filter_stock_by_method(stocks, item.product.price_calculation)
-
-
-# Handle items inbound to a warehouse
-# This will create stocks to inbound occurs
-def handle_destination_warehouse(instance):
-    stock, created = WarehouseStock.objects.get_or_create(
-        warehouse=instance.stock_movement.destination,
-        product=instance.product,
-        inbound_movement_item=instance,
-        unit=instance.unit,
-        expire_date=instance.expire_date
-    )
-    if created:
-        add_stock(stock, instance.quantity)
-    if instance.stock_movement.origin_type == ContentType.objects.get_for_model(Supplier):
-        calculate_buy_price(instance)
-
 
 @receiver(post_save, sender=StockMovement)
 def update_warehouse_stock(sender, instance, **kwargs):
@@ -290,7 +184,7 @@ def handle_movement_item_status_change_post(sender, instance, **kwargs):
             'approved', instance._current_user)
         instance._nullify_user_action('unapproved')
         instance.destination_checked_by = instance.approved_by
-    
+
     # Condition 6: Check for destination_movement_status change to PUT
     if instance.destination_movement_status == StockMovementItem.PUT:
         instance._set_user_action(

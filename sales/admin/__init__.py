@@ -42,17 +42,12 @@ class OrderItemInline(admin.TabularInline):
 class SalesOrderAdmin(ApproveRejectMixin, BaseAdmin):
     inlines = [OrderItemInline]
     list_display = ['id32', 'customer', 'order_date',
-                    'approved_by', 'total_amount', 'status', 'type']
+                    'approved_by', 'status', 'type']
     list_filter = ['customer', 'order_date', 'approved_by']
     search_fields = ['id32', 'customer__name']
     fields = ['customer', 'order_date', 'approved_by', 'approved_at',
               'unapproved_by', 'unapproved_at', 'status', 'type', 'invoice']
     readonly_fields = ['invoice']
-
-    def total_amount(self, instance):
-        # total_amount = instance.orderitem_set.aggregate(total_price=Sum(F('price')*F('quantity'))).get('total_price')
-        total_amount = 0
-        return f'{total_amount:,.0f}'
 
 
 @admin.register(OrderItem)

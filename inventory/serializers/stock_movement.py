@@ -39,6 +39,25 @@ class SMProductLocationSerializer(serializers.ModelSerializer):
         read_only_fields = ['id32']
 
 
+class StockMovementItemListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StockMovementItem
+        fields = ['id32', 'product', 'quantity', 'unit']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['product'] = instance.product.name
+        representation['unit'] = instance.unit.symbol
+        return representation
+
+
+class BatchSerializer(serializers.Serializer):
+    id32 = serializers.CharField()
+    expire_date = serializers.DateField()
+    unit_symbol = serializers.CharField()
+    quantity = serializers.IntegerField()
+
+
 class StockMovementItemSerializer(serializers.ModelSerializer):
     product_id32 = serializers.SlugRelatedField(
         slug_field='id32',
@@ -55,15 +74,19 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
     origin_locations = SMProductLocationSerializer(many=True, read_only=True)
     destination_locations = SMProductLocationSerializer(
         many=True, read_only=True)
+    batches = serializers.SerializerMethodField()
 
     class Meta:
         model = StockMovementItem
         fields = ['id32', 'product', 'product_id32', 'quantity', 'unit', 'expire_date',
                   'unit_id32', 'order', 'origin_locations', 'destination_locations',
-                  'origin_movement_status', 'destination_movement_status']
+                  'origin_movement_status', 'destination_movement_status', 'batches']
         read_only_fields = ['id32', 'stock_movement', 'product',
                             'unit', 'origin_locations', 'destination_locations',
                             'origin_movement_status', 'destination_movement_status']
+        
+    def get_batches(self, obj):
+        return BatchSerializer(obj.batches, many=True).data
 
     def create(self, validated_data):
         # `SlugRelatedField` will automatically convert the 'id32' to the actual model instance for us.
@@ -112,7 +135,8 @@ class StockMovementItemUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockMovementItem
-        fields = ('origin_movement_status', 'destination_movement_status', 'expire_date', 'quantity')
+        fields = ('origin_movement_status',
+                  'destination_movement_status', 'expire_date', 'quantity')
 
 
 class StockMovementListSerializer(StockMovementSerializerMixin, serializers.ModelSerializer):
@@ -129,7 +153,7 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 
 
 class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.ModelSerializer):
-    items = StockMovementItemSerializer(many=True, read_only=True)
+    items = StockMovementItemListSerializer(many=True, read_only=True)
     origin_type = ContentTypeSerializer(read_only=True)
     destination_type = ContentTypeSerializer(read_only=True)
 

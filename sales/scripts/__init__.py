@@ -11,7 +11,7 @@ def generate_invoice_pdf_for_instance(instance):
     try:
         invoice = Invoice.objects.get(order=instance)
     except:
-        pass
+        return
     context = {
         'invoice': invoice,
         'items': instance.order_items.all()

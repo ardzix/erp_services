@@ -5,7 +5,7 @@ from rest_framework import viewsets, permissions, mixins, filters
 from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from ..models import StockMovement, StockMovementItem
-from ..serializers.stock_movement import (StockMovementListSerializer, StockMovementDetailSerializer,
+from ..serializers.stock_movement import (StockMovementListSerializer, StockMovementDetailSerializer, StockMovementItemListSerializer,
                                           StockMovementCreateSerializer, StockMovementItemSerializer, StockMovementItemUpdateSerializer)
 
 
@@ -80,7 +80,6 @@ class StockMovementViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination
-    serializer_class = StockMovementDetailSerializer
     filter_backends = (django_filters.DjangoFilterBackend,)
     filterset_class = StockMovementFilter
 
@@ -89,10 +88,14 @@ class StockMovementViewSet(viewsets.ModelViewSet):
             return StockMovementListSerializer
         elif self.action == 'create' or self.action == 'update' or self.action == 'partial_update':
             return StockMovementCreateSerializer
-        return super().get_serializer_class()
+        return StockMovementDetailSerializer
 
 
-class StockMovementItemStatusUpdateViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class StockMovementItemStatusUpdateViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     queryset = StockMovementItem.objects.all()
-    serializer_class = StockMovementItemUpdateSerializer
     lookup_field = 'id32'
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return StockMovementItemSerializer
+        return StockMovementItemUpdateSerializer

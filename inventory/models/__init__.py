@@ -351,7 +351,8 @@ class Warehouse(BaseModelGeneric):
     ]
     type = models.CharField(choices=TYPE_CHOICES,
                             max_length=20, default=BUILDING)
-    pic = models.ManyToManyField(User, blank=True, help_text=_('Select people in charge of this warehouse'))
+    pic = models.ManyToManyField(User, blank=True, help_text=_(
+        'Select people in charge of this warehouse'))
 
     def __str__(self):
         return _("Warehouse #{warehouse_id} - {warehouse_name}").format(
@@ -512,12 +513,12 @@ class StockMovementItem(BaseModelGeneric):
     origin_movement_status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default=WAITING, help_text=_("Item movement status in origin warehouse"))
     origin_checked_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
-                                    related_name="%(app_label)s_%(class)s_origin_checked_by")
+                                          related_name="%(app_label)s_%(class)s_origin_checked_by")
     destination_movement_status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default=WAITING, help_text=_("Item movement status in destination warehouse"))
     destination_checked_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
-                                    related_name="%(app_label)s_%(class)s_destination_checked_by")
-    
+                                               related_name="%(app_label)s_%(class)s_destination_checked_by")
+
     class Meta:
         ordering = ['order']
         verbose_name = _("Stock Movement Item")
@@ -537,6 +538,29 @@ class StockMovementItem(BaseModelGeneric):
         if not self.stock_movement.destination or self.stock_movement.destination_type.model != 'warehouse':
             return []
         return ProductLocation.objects.filter(warehouse=self.stock_movement.destination, product=self.product)
+
+    @property
+    def batches(self):
+        from ..libs.stock_movement import get_filtered_stocks
+        if not self.stock_movement.origin_type == ContentType.objects.get_for_model(Warehouse):
+            return None
+        warehouse = self.stock_movement.origin
+        stocks = get_filtered_stocks(warehouse, self)
+        quantity_remaining = self.quantity
+        batches = []
+        for stock in stocks:
+            quantity = quantity_remaining if quantity_remaining <= stock.quantity else stock.quantity
+            batch = {
+                'id32': stock.id32,
+                'expire_date': stock.expire_date,
+                'unit_symbol': stock.unit.symbol,
+                'quantity': stock.quantity,
+            }
+            batches.append(batch)
+            quantity_remaining -= quantity
+            if quantity_remaining <= 0:
+                break
+        return batches
 
 
 class WarehouseStock(BaseModelGeneric):
