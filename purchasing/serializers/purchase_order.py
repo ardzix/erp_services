@@ -48,17 +48,16 @@ class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
     destination_warehouse = serializers.SlugRelatedField(slug_field='id32', queryset=Warehouse.objects.all(), required=False)
     supplier_name = serializers.StringRelatedField(source='supplier.name', read_only=True)
     items = PurchaseOrderItemSerializer(many=True, source='purchaseorderitem_set')
-    invalid_items = InvalidPOItemSerializer(many=True, source='invalidpoitem_set')
+    invalid_items = InvalidPOItemSerializer(many=True, source='invalidpoitem_set', read_only=True)
 
     class Meta:
         model = PurchaseOrder
         fields = ['id32', 'supplier', 'supplier_name', 'destination_warehouse', 'order_date', 'approval', 'items', 'invalid_items']
-        read_only_fields = ['id32', 'approval']
+        read_only_fields = ['id32', 'approval', 'invalid_items']
 
     @transaction.atomic
     def create(self, validated_data):
         items_data = validated_data.pop('purchaseorderitem_set')
-        invalid_items_data = validated_data.pop('invalidpoitem_set')
         purchase_order = PurchaseOrder.objects.create(**validated_data)
         
         for item_data in items_data:
