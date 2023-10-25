@@ -10,7 +10,7 @@ from libs.pagination import CustomPagination
 from libs.permission import CanApprovePurchaseOrderPermission
 from rest_framework import viewsets
 from inventory.models import Product
-from ..models import Supplier, SupplierProduct, PurchaseOrder
+from ..models import Supplier, SupplierProduct, PurchaseOrder, InvalidPOItem
 from ..serializers.supplier import (
     SupplierListSerializer,
     SupplierDetailSerializer,
@@ -19,7 +19,8 @@ from ..serializers.supplier import (
     SupplierProductSerializer,
     BulkAddProductsSerializer
 )
-from ..serializers.purchase_order import PurchaseOrderListSerializer, PurchaseOrderDetailSerializer
+from ..serializers.purchase_order import (
+    PurchaseOrderListSerializer, PurchaseOrderDetailSerializer, InvalidPOItemSerializer)
 
 
 class SupplierFilter(CreatedAtFilterMixin):
@@ -148,3 +149,13 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
         instance.save()
 
         return Response({"detail": "Purchase Order unapproved successfully."})
+
+
+class InvalidPOItemViewSet(viewsets.ModelViewSet):
+    queryset = InvalidPOItem.objects.all()
+    serializer_class = InvalidPOItemSerializer
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
+    lookup_field = 'id32'
+    pagination_class = CustomPagination
+    http_method_names = ['post', 'patch', 'head', 'options']

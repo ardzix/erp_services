@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
 from inventory.models import Product, StockMovement, Unit, Warehouse
 
+
 class Supplier(BaseModelGeneric):
     name = models.CharField(
         max_length=100,
@@ -39,6 +40,7 @@ class Supplier(BaseModelGeneric):
         verbose_name = _("Supplier")
         verbose_name_plural = _("Suppliers")
 
+
 class SupplierProduct(BaseModelGeneric):
     supplier = models.ForeignKey(
         Supplier,
@@ -52,7 +54,8 @@ class SupplierProduct(BaseModelGeneric):
     )
     is_default_supplier = models.BooleanField(
         default=False,
-        help_text=_("Check if this supplier is the default supplier for the product")
+        help_text=_(
+            "Check if this supplier is the default supplier for the product")
     )
 
     def __str__(self):
@@ -63,6 +66,7 @@ class SupplierProduct(BaseModelGeneric):
         verbose_name = _("Supplier Product")
         verbose_name_plural = _("Supplier Products")
         unique_together = ['supplier', 'product']  # Ensure uniqueness
+
 
 class PurchaseOrder(BaseModelGeneric):
     supplier = models.ForeignKey(
@@ -102,6 +106,7 @@ class PurchaseOrder(BaseModelGeneric):
         verbose_name = _("Purchase Order")
         verbose_name_plural = _("Purchase Orders")
 
+
 class PurchaseOrderItem(BaseModelGeneric):
     purchase_order = models.ForeignKey(
         PurchaseOrder,
@@ -128,7 +133,8 @@ class PurchaseOrderItem(BaseModelGeneric):
         decimal_places=2,
         help_text=_("Enter the actual item price")
     )
-    unit = models.ForeignKey(Unit, blank=True, null=True, on_delete=models.SET_NULL)
+    unit = models.ForeignKey(
+        Unit, blank=True, null=True, on_delete=models.SET_NULL)
 
     # Add any other fields specific to your purchase order item model
 
@@ -139,6 +145,49 @@ class PurchaseOrderItem(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _("Purchase Order Item")
         verbose_name_plural = _("Purchase Order Items")
+
+
+class InvalidPOItem(BaseModelGeneric):
+    purchase_order = models.ForeignKey(
+        PurchaseOrder,
+        on_delete=models.CASCADE,
+        help_text=_("Select the purchase order associated with the item")
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        help_text=_("Select the product associated with the item")
+    )
+    price = models.DecimalField(
+        blank=True,
+        null=True,
+        max_digits=10,
+        decimal_places=2,
+        help_text=_("Enter the item price")
+    )
+    discount = models.DecimalField(
+        blank=True,
+        null=True,
+        max_digits=10,
+        decimal_places=2,
+        help_text=_("Enter the discount")
+    )
+    name = models.CharField(
+        max_length=100,
+        help_text=_("Enter the product name")
+    )
+    quantity = models.PositiveIntegerField(
+        help_text=_("Enter the item quantity")
+    )
+    unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True,
+                             blank=True, help_text=_("Select the unit for the product"))
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = _("Invalid Purchase Order Item")
+        verbose_name_plural = _("Invalid Purchase Order Items")
 
 class Shipment(BaseModelGeneric):
     purchase_order = models.ForeignKey(
@@ -159,14 +208,17 @@ class Shipment(BaseModelGeneric):
         verbose_name = _("Shipment")
         verbose_name_plural = _("Shipments")
 
+
 class VendorPerformance(BaseModelGeneric):
     supplier = models.ForeignKey(
         Supplier,
         on_delete=models.CASCADE,
-        help_text=_("Select the supplier associated with the vendor performance")
+        help_text=_(
+            "Select the supplier associated with the vendor performance")
     )
     rating = models.PositiveIntegerField(
-        choices=((1, _('Poor')), (2, _('Fair')), (3, _('Good')), (4, _('Very Good')), (5, _('Excellent'))),
+        choices=((1, _('Poor')), (2, _('Fair')), (3, _('Good')),
+                 (4, _('Very Good')), (5, _('Excellent'))),
         help_text=_("Select the rating for the vendor performance")
     )
     comments = models.TextField(
