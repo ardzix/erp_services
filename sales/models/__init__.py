@@ -6,7 +6,6 @@ from libs.base_model import BaseModelGeneric, User
 from common.models import File, AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
 from inventory.models import Product, StockMovement, Unit, Warehouse
 from identities.models import CompanyProfile
-from logistics.models import Vehicle
 
 APPROVED_BY = 'Approved by'
 APPROVED_AT = 'Approved at'
@@ -384,6 +383,8 @@ class TripTemplate(BaseModelGeneric):
         'Customers'), help_text=_('Select customers for this trip template'))
     pic = models.ManyToManyField(User, blank=True, help_text=_(
         'Select people in charge of this trip'))
+    vehicles = models.ManyToManyField('logistics.Vehicle', blank=True, help_text=_(
+        'Select vehicles prefered for this trip'))
 
     class Meta:
         ordering = ['-id']
@@ -460,7 +461,7 @@ class Trip(BaseModelGeneric):
     salesperson = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='canvasing_salesperson')
     vehicle = models.ForeignKey(
-        Vehicle, on_delete=models.SET_NULL, blank=True, null=True
+        'logistics.Vehicle', on_delete=models.SET_NULL, blank=True, null=True
     )
     type = models.CharField(
         max_length=50, choices=TYPE_CHOICES, default=TAKING_ORDER)

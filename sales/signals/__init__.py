@@ -4,9 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.db import models
 from django.dispatch import receiver
-from django.contrib.contenttypes.models import ContentType
-from inventory.models import (
-    StockMovement, Product, StockMovementItem, Warehouse, WarehouseStock)
+from inventory.models import Product, StockMovementItem, WarehouseStock
 from ..helpers.sales_order import (canvasing_create_stock_movement,
                                    taking_order_create_stock_movement, handle_unapproved_sales_order)
 from ..scripts import generate_invoice_pdf_for_instance
@@ -39,6 +37,7 @@ from ..models import (
 # 14. order_item_saved: Generate invoice PDF if `OrderItem` is saved
 # 15. set_sales_order_to_processing: Associate SalesOrder's status is set to 'PROCESSING' and its approve() method is called
 # 16. set_sales_order_to_completed: Set the associated CustomerVisit's SalesOrder's status is set to 'COMPLETED'
+# 17. assign_trip_default_vehicle: Assigns the first vehicle from the associated TripTemplate
 
 
 @receiver(pre_save, sender=OrderItem)
@@ -329,6 +328,22 @@ def set_sales_order_to_completed(sender, instance, **kwargs):
             instance.trip.type == Trip.CANVASING):
         instance.sales_order.status = SalesOrder.COMPLETED
         instance.sales_order.save()
+
+
+@receiver(post_save, sender=Trip)
+def assign_default_vehicle(sender, instance, created, **kwargs):
+    """
+    Assigns the first vehicle from the associated TripTemplate 
+    to the Trip instance if the vehicle is None.
+    """
+    if created and instance.vehicle is None:
+        # Fetch the first vehicle associated with the TripTemplate.
+        vehicle = instance.template.vehicles.first()
+
+        # If a vehicle was found, assign it to the Trip.
+        if vehicle:
+            instance.vehicle = vehicle
+            instance.save()
 
 
 # ==================================================================================

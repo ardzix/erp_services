@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.gis.db import models as gis_models
 from django.utils.translation import gettext_lazy as _
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from libs.base_model import BaseModelGeneric
 from inventory.models import StockMovement, Warehouse
 
@@ -14,7 +12,7 @@ class Vehicle(BaseModelGeneric):
     warehouse = models.ForeignKey(Warehouse, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return _("Vehicle #{vehicle_id} - {vehicle_name}").format(vehicle_id=self.id32, vehicle_name=self.name)
+        return _("Vehicle #{vehicle_id} - {vehicle_name} ({license_plate})").format(vehicle_id=self.id32, vehicle_name=self.name, license_plate=self.license_plate)
 
     class Meta:
         verbose_name = _("Vehicle")
@@ -36,13 +34,15 @@ class Driver(BaseModelGeneric):
 
 class Job(BaseModelGeneric):
     vehicle = models.ForeignKey('Vehicle', on_delete=models.CASCADE, related_name='jobs', help_text=_("Select the vehicle for this job"))
-    stock_movement = models.ForeignKey(StockMovement, on_delete=models.CASCADE, related_name='jobs', help_text=_("Select the stock movement for this job"))
+    trip = models.ForeignKey('sales.Trip', on_delete=models.CASCADE, related_name='jobs', help_text=_("Select the trip for this job"))
     assigned_driver = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_jobs', help_text=_("Select the assigned driver for this job"))
+    date = models.DateField(verbose_name=_(
+        'Date'), help_text=_('Date for the job trip'))
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return _("Job #{job_id} - {stock_movement}").format(job_id=self.id32, stock_movement=self.stock_movement)
+        return _("Job #{job_id} - {trip}").format(job_id=self.id32, trip=self.trip)
 
     class Meta:
         verbose_name = _("Job")

@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from inventory.models import StockMovement, StockMovementItem, Warehouse
-from ..models import CustomerVisit, SalesOrder, Customer
+from ..models import CustomerVisit, SalesOrder, Customer, Trip
 
 
 def canvasing_create_stock_movement(instance, visit):
@@ -32,14 +32,21 @@ def taking_order_create_stock_movement(instance):
     Handles the creation of StockMovement for SalesOrder instances that originate from taking orders.
     Sets the appropriate origin based on the warehouse details associated with the SalesOrder.
     """
+    trip = CustomerVisit.objects.filter(sales_order=instance).first().trip
+    warehouse_content_type = ContentType.objects.get_for_model(Warehouse)
     sm = StockMovement.objects.create(
-        origin_type=ContentType.objects.get_for_model(Warehouse),
+        origin_type=warehouse_content_type,
         origin_id=instance.warehouse.id,
         creator_type=ContentType.objects.get_for_model(SalesOrder),
         creator_id=instance.id,
     )
+    print(trip, trip.vehicle, trip.vehicle.warehouse)
+    if trip and trip.vehicle and trip.vehicle.warehouse:
+        sm.destination_type = warehouse_content_type
+        sm.destination_id = trip.vehicle.warehouse.id
     instance.stock_movement = sm
     instance.save()
+    sm.save()
     _create_stock_movement_items(instance)
 
 

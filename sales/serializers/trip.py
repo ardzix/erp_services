@@ -55,25 +55,49 @@ class UsernamesField(serializers.RelatedField):
                 f"User with username {data} does not exist.")
 
 
+class VehiclesField(serializers.RelatedField):
+    def to_representation(self, value):
+        return value.id32
+
+    def to_internal_value(self, data):
+        try:
+            return Vehicle.objects.get(id32=data)
+        except Vehicle.DoesNotExist:
+            raise serializers.ValidationError(
+                f"Vehicle with id32 {data} does not exist.")
+
+
 class TripTemplateDetailSerializer(serializers.ModelSerializer):
     trip_customers = TripCustomerSerializer(
         many=True, source='tripcustomer_set')
     pic_usernames = UsernamesField(
         source='pic', many=True, queryset=User.objects.all())
+    vehicle_id32s = VehiclesField(
+        source='vehicles', many=True, write_only=True, queryset=Vehicle.objects.all())
 
     class Meta:
         model = TripTemplate
-        fields = ['id32', 'name', 'trip_customers', 'pic_usernames']
-        read_only_fields = ['id32']
+        fields = ['id32', 'name', 'trip_customers',
+                  'pic_usernames', 'vehicle_id32s', 'vehicles']
+        read_only_fields = ['id32', 'vehicles']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['vehicles'] = [
+            {'id32': vehicle.id32, 'name': f'{vehicle.name} ({vehicle.license_plate})'} for vehicle in instance.vehicles.all()]
+        return representation
 
     def create(self, validated_data):
         trip_customers_data = validated_data.pop('tripcustomer_set', [])
         pic = validated_data.pop('pic', [])
+        vehicles = validated_data.pop('vehicles', [])
 
         trip_template = TripTemplate.objects.create(**validated_data)
 
         # Assign the provided users to pic
         trip_template.pic.set(pic)
+        # Assign the provided vehicles
+        trip_template.vehicles.set(vehicles)
 
         # For each trip customer data, create a TripCustomer instance linked to the TripTemplate
         for trip_customer_data in trip_customers_data:
@@ -85,6 +109,7 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         trip_customers_data = validated_data.pop('tripcustomer_set', [])
         pic = validated_data.pop('pic', [])
+        vehicles = validated_data.pop('vehicles', [])
 
         # Update the TripTemplate fields
         for attr, value in validated_data.items():
@@ -93,6 +118,8 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
 
         # Assign the provided users to pic
         instance.pic.set(pic)
+        # Assign the provided vehicles
+        instance.vehicles.set(vehicles)
 
         # Handle the nested TripCustomers
         existing_trip_customers = TripCustomer.objects.filter(

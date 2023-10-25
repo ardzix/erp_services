@@ -260,6 +260,7 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if 'items' in validated_data:
             validated_data.pop('items')
-        movement_evidence = validated_data.pop('movement_evidence_id32')
-        validated_data['movement_evidence'] = movement_evidence
+        if 'movement_evidence_id32' in validated_data:
+            movement_evidence = validated_data.pop('movement_evidence_id32')
+            validated_data['movement_evidence'] = movement_evidence
         return super().update(instance, validated_data)

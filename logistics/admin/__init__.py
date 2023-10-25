@@ -23,14 +23,14 @@ class DriverAdmin(BaseAdmin):
 
 @admin.register(Job)
 class JobAdmin(BaseAdmin):
-    list_display = ['id32', 'vehicle', 'stock_movement', 'assigned_driver']
+    list_display = ['id32', 'vehicle', 'trip', 'assigned_driver']
     list_filter = ['vehicle', 'assigned_driver']
-    search_fields = ['vehicle__name', 'stock_movement__id32']
-    fields = ['vehicle', 'stock_movement', 'assigned_driver', 'start_time', 'end_time']
-    raw_id_fields = ['vehicle', 'assigned_driver']
+    search_fields = ['vehicle__name', 'trip__id32']
+    fields = ['vehicle', 'trip', 'assigned_driver', 'date', 'start_time', 'end_time']
+    raw_id_fields = ['vehicle', 'assigned_driver', 'trip']
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "stock_movement":
+        if db_field.name == "trip":
             kwargs["queryset"] = StockMovement.objects.filter(
                 origin_id__isnull=False,
                 destination_id__isnull=False,
