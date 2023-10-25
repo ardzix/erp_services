@@ -9,7 +9,7 @@ To Do:
 - Endpoint batch di stockmovement item ✅
 - Foto barang endpoint untuk complete checker sales ✅
 - Surat jalan
-- Picker Checker untuk Taking Order
+- Picker Checker untuk Taking Order ✅
 - Endpoint barang tidak sesuai
 - Endbpoint batch product inbound beserta expire date nya
 - Endpoint sisa penjualan

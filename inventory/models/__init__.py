@@ -542,7 +542,7 @@ class StockMovementItem(BaseModelGeneric):
 
     @property
     def batches(self):
-        from ..libs.stock_movement import get_filtered_stocks
+        from ..helpers.stock_movement import get_filtered_stocks
         if not self.stock_movement.origin_type == ContentType.objects.get_for_model(Warehouse):
             return None
         warehouse = self.stock_movement.origin

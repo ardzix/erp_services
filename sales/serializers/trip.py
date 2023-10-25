@@ -42,6 +42,7 @@ class TripTemplateListSerializer(serializers.ModelSerializer):
         fields = ['id32', 'name']
         read_only_fields = ['id32']
 
+
 class UsernamesField(serializers.RelatedField):
     def to_representation(self, value):
         return value.username
@@ -50,12 +51,15 @@ class UsernamesField(serializers.RelatedField):
         try:
             return User.objects.get(username=data)
         except User.DoesNotExist:
-            raise serializers.ValidationError(f"User with username {data} does not exist.")
+            raise serializers.ValidationError(
+                f"User with username {data} does not exist.")
+
 
 class TripTemplateDetailSerializer(serializers.ModelSerializer):
     trip_customers = TripCustomerSerializer(
         many=True, source='tripcustomer_set')
-    pic_usernames = UsernamesField(source='pic', many=True, queryset=User.objects.all())
+    pic_usernames = UsernamesField(
+        source='pic', many=True, queryset=User.objects.all())
 
     class Meta:
         model = TripTemplate
@@ -73,7 +77,8 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
 
         # For each trip customer data, create a TripCustomer instance linked to the TripTemplate
         for trip_customer_data in trip_customers_data:
-            TripCustomer.objects.create(template=trip_template, **trip_customer_data)
+            TripCustomer.objects.create(
+                template=trip_template, **trip_customer_data)
 
         return trip_template
 
@@ -185,10 +190,10 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
 
     class Meta:
         model = Trip
-        fields = ['id32', 'template', 'date', 'type',
-                  'salesperson', 'vehicle', 
-                  'status', 'customer_visits']
-        read_only_fields = ['id32', 'vehicle', 'salesperson', 'customer_visits', 'template']
+        fields = ['id32', 'template', 'date', 'type', 'salesperson',
+                  'vehicle', 'status', 'customer_visits', 'stock_movement_id32s']
+        read_only_fields = ['id32', 'vehicle',
+                            'salesperson', 'customer_visits', 'template']
 
 
 class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer):
@@ -197,14 +202,16 @@ class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer)
 
     class Meta:
         model = Trip
-        fields = ['date', 'type', 'salesperson_username', 'vehicle_id32', 'status']
+        fields = ['date', 'type', 'salesperson_username',
+                  'vehicle_id32', 'status']
 
     def update(self, instance, validated_data):
         if 'vehicle_id32' in validated_data:
             validated_data['vehicle'] = validated_data.pop('vehicle_id32')
 
         if 'salesperson_username' in validated_data:
-            validated_data['sales_person'] = validated_data.pop('salesperson_username')
+            validated_data['sales_person'] = validated_data.pop(
+                'salesperson_username')
 
         try:
             return super().update(instance, validated_data)
@@ -240,7 +247,7 @@ class GenerateTripsSerializer(serializers.Serializer):
     start_date = serializers.DateField()
     end_date = serializers.DateField()
     salesperson_username = serializers.CharField(write_only=True)
-    vehicle_id32 = serializers.CharField(write_only=True)
+    vehicle_id32 = serializers.CharField(write_only=True, required=False)
     type = serializers.ChoiceField(choices=Trip.TYPE_CHOICES)
 
     def validate(self, data):
@@ -268,8 +275,10 @@ class GenerateTripsSerializer(serializers.Serializer):
 
 class CustomerVisitStatusSerializer(serializers.ModelSerializer):
     sales_order_id32 = serializers.CharField(write_only=True, required=False)
-    visit_evidence_id32 = serializers.CharField(write_only=True, required=False)
-    item_delivery_evidence_id32 = serializers.CharField(write_only=True, required=False)
+    visit_evidence_id32 = serializers.CharField(
+        write_only=True, required=False)
+    item_delivery_evidence_id32 = serializers.CharField(
+        write_only=True, required=False)
     signature_id32 = serializers.CharField(write_only=True, required=False)
 
     class Meta:
@@ -278,7 +287,8 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
                   'item_delivery_evidence_id32', 'item_delivery_evidence',
                   'visit_evidence_id32', 'visit_evidence',
                   'signature_id32', 'signature']
-        read_only_fields = ['id32', 'sales_order', 'visit_evidence', 'item_delivery_evidence', 'signature']
+        read_only_fields = ['id32', 'sales_order',
+                            'visit_evidence', 'item_delivery_evidence', 'signature']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -308,6 +318,14 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
                 }
 
         return representation
+
+    def validate_sales_order_id32(self, value):
+        try:
+            SalesOrder.objects.get(id32=value)
+        except SalesOrder.DoesNotExist:
+            raise serializers.ValidationError(
+                _("SalesOrder with this id32 does not exist."))
+        return value
 
     def validate_visit_evidence_id32(self, value):
         return validate_file_by_id32(value, "A file with id32 {value} does not exist for the visit evidence.")
@@ -340,7 +358,7 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
             sales_order_id32 = validated_data.pop('sales_order_id32')
             sales_order = SalesOrder.objects.get(id32=sales_order_id32)
             validated_data['sales_order'] = sales_order
-        
+
         file_fields = {
             'item_delivery_evidence_id32': 'item_delivery_evidence',
             'visit_evidence_id32': 'visit_evidence',

@@ -5,7 +5,10 @@ from django.utils import timezone
 from django.db import models
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
-from inventory.models import StockMovement, Product, StockMovementItem, Warehouse, WarehouseStock
+from inventory.models import (
+    StockMovement, Product, StockMovementItem, Warehouse, WarehouseStock)
+from ..helpers.sales_order import (canvasing_create_stock_movement,
+                                   taking_order_create_stock_movement, handle_unapproved_sales_order)
 from ..scripts import generate_invoice_pdf_for_instance
 from ..models import (
     OrderItem,
@@ -91,38 +94,20 @@ def check_salesorder_before_approved(sender, instance, **kwargs):
 def create_stock_movement(sender, instance, **kwargs):
     """
     Creates a StockMovement entry when a SalesOrder is approved.
-    Deletes the StockMovement if a SalesOrder is unapproved and its status is below or equal to 4.
+    Deletes the StockMovement if a SalesOrder is unapproved.
     """
-    if not instance.approved_before and instance.approved_at:
-        sm = StockMovement.objects.create(
-            destination_type=ContentType.objects.get_for_model(Customer),
-            destination_id=instance.customer.id,
-            creator_type=ContentType.objects.get_for_model(SalesOrder),
-            creator_id=instance.id,
-        )
-        instance.stock_movement = sm
-        visit = CustomerVisit.objects.filter(sales_order=instance).last()
-        if visit and visit.trip and visit.trip.vehicle and visit.trip.vehicle.warehouse:
-            sm.origin_type = ContentType.objects.get_for_model(Warehouse)
-            sm.origin_id = visit.trip.vehicle.warehouse.id
-            instance.type = visit.trip.type
-        instance.save()
-        sm.save()
+    visit = instance.customer_visits.filter(
+        trip__type__in=[Trip.CANVASING, Trip.TAKING_ORDER]).last()
+    visit_type = visit.trip.type if visit else None
 
-        for item in OrderItem.objects.filter(order=instance).all():
-            smi, created = StockMovementItem.objects.get_or_create(
-                product_id=item.product.pk,
-                stock_movement=instance.stock_movement,
-                created_by=item.created_by
-            )
-            smi.quantity = item.quantity
-            smi.unit = item.unit
-            smi.save()
+    if not instance.approved_before and instance.approved_at and visit_type is not None:
+        if visit_type == Trip.CANVASING:
+            canvasing_create_stock_movement(instance, visit)
+        elif visit_type == Trip.TAKING_ORDER:
+            taking_order_create_stock_movement(instance)
 
     if not instance.unapproved_before and instance.unapproved_at:
-        sm = instance.stock_movement
-        if sm and sm.status <= 4:
-            sm.delete()
+        handle_unapproved_sales_order(instance)
 
 
 @receiver(post_save, sender=OrderItem)
@@ -255,7 +240,6 @@ def create_invoice_on_order_submit(sender, instance, **kwargs):
         )
 
 
-
 @receiver(post_save, sender=CustomerVisit)
 def handle_customer_visit_completed(sender, instance, **kwargs):
     """
@@ -271,27 +255,6 @@ def handle_customer_visit_completed(sender, instance, **kwargs):
             sales_order.warehouse = instance.trip.vehicle.warehouse
         # assuming the approve method updates and saves the model
         sales_order.approve(user=instance.trip.updated_by)
-
-        # Get content types for 'customer' and 'warehouse'
-        customer_content_type = ContentType.objects.get(model='customer')
-        warehouse_content_type = ContentType.objects.get(model='warehouse')
-
-        # Get the stock movement with the specified destination_type and destination_id
-        stock_movements = StockMovement.objects.filter(
-            destination_type=customer_content_type,
-            destination_id=sales_order.customer.id
-        )
-
-        # Update origin_type and origin_id for the fetched stock movements
-        for stock_movement in stock_movements:
-            stock_movement.origin_type = warehouse_content_type
-            stock_movement.origin_id = instance.trip.vehicle.warehouse.id
-            if instance.trip.type == Trip.CANVASING:
-                stock_movement.status = 'delivered'
-                stock_movement.movement_date = instance.updated_at
-            if instance.trip.type == Trip.TAKING_ORDER:
-                stock_movement.status = 'requested'
-            stock_movement.save()
 
 
 @receiver(post_save, sender=SalesOrder)
@@ -372,8 +335,8 @@ def set_sales_order_to_completed(sender, instance, **kwargs):
 # Model Validator
 @receiver(pre_save, sender=Trip)
 def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
-    # 1. Trip status cannot be changed if its vehicle warehouse is null.
-    if instance.status != Trip.WAITING:
+    # 1. Trip status cannot be changed if its vehicle warehouse is null in canvassing.
+    if instance.status != Trip.WAITING and instance.type == Trip.CANVASING:
         # If a trip vehicle is not specified
         if not instance.vehicle:
             raise ValidationError(
@@ -396,8 +359,8 @@ def ensure_trip_status_on_progress(sender, instance, **kwargs):
 def ensure_fields_present_when_skipped(sender, instance, **kwargs):
     # 4. CustomerVisit status cannot be changed to SKIPPED if notes, visit_evidence, or signature is null.
     if instance.status == Trip.SKIPPED and not all([instance.notes, instance.visit_evidence, instance.signature]):
-            raise ValidationError(
-                _('CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or signature are null.'))
+        raise ValidationError(
+            _('CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or signature are null.'))
 
 
 @receiver(pre_save, sender=CustomerVisit)
@@ -429,7 +392,7 @@ def check_sales_order_status(instance):
         raise ValidationError(
             _("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED.")
         )
-    
+
     if sales_order.customer_visits.exclude(id=instance.id).exists():
         raise ValidationError(
             _(f"Sales Order is already associated with a customer visit #{sales_order.customer_visits.last()}.")
@@ -468,8 +431,8 @@ def check_canvasing_requirements(instance):
 
     for item in instance.sales_order.order_items.all():
         stocks = WarehouseStock.objects.filter(
-            product=item.product, 
-            unit=item.unit, 
+            product=item.product,
+            unit=item.unit,
             warehouse=instance.trip.vehicle.warehouse
         ).values('product', 'unit').annotate(quantity=models.Sum('quantity'))
 
@@ -488,7 +451,6 @@ def check_taking_order_requirements(instance):
         raise ValidationError(
             _('CustomerVisit status cannot be set to COMPLETED if sales_order and signature are null.')
         )
-
 
 
 @receiver(pre_save, sender=SalesPayment)

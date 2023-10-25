@@ -51,10 +51,14 @@ class Customer(BaseModelGeneric):
         verbose_name=_('Company Profile'),
         help_text=_('Select the company profile associated with the customer')
     )
-    administrative_lv1 = models.ForeignKey(AdministrativeLvl1, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 1')))
-    administrative_lv2 = models.ForeignKey(AdministrativeLvl2, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 2')))
-    administrative_lv3 = models.ForeignKey(AdministrativeLvl3, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 3')))
-    administrative_lv4 = models.ForeignKey(AdministrativeLvl4, blank=True, null=True, on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 4')))
+    administrative_lv1 = models.ForeignKey(AdministrativeLvl1, blank=True, null=True,
+                                           on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 1')))
+    administrative_lv2 = models.ForeignKey(AdministrativeLvl2, blank=True, null=True,
+                                           on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 2')))
+    administrative_lv3 = models.ForeignKey(AdministrativeLvl3, blank=True, null=True,
+                                           on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 3')))
+    administrative_lv4 = models.ForeignKey(AdministrativeLvl4, blank=True, null=True,
+                                           on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 4')))
     rt = models.CharField(max_length=5, blank=True, null=True)
     rw = models.CharField(max_length=5, blank=True, null=True)
     store_name = models.CharField(
@@ -73,10 +77,14 @@ class Customer(BaseModelGeneric):
         null=True
     )
 
-    id_card = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_id_card', blank=True, null=True, on_delete=models.SET_NULL)
-    store_front = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_store_front', blank=True, null=True, on_delete=models.SET_NULL)
-    store_street = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_store_street', blank=True, null=True, on_delete=models.SET_NULL)
-    signature = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
+    id_card = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_id_card',
+                                blank=True, null=True, on_delete=models.SET_NULL)
+    store_front = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_store_front', blank=True, null=True, on_delete=models.SET_NULL)
+    store_street = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_store_street', blank=True, null=True, on_delete=models.SET_NULL)
+    signature = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
 
     @property
     def location_coordinate(self):
@@ -162,7 +170,8 @@ class SalesOrder(BaseModelGeneric):
     type = models.CharField(
         max_length=50, choices=TYPE_CHOICES, default=TAKING_ORDER)
     invoice_pdf_generated = models.BooleanField(default=False)
-    warehouse = models.ForeignKey(Warehouse, blank=True, null=True, on_delete=models.SET_NULL)
+    warehouse = models.ForeignKey(
+        Warehouse, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)
@@ -179,7 +188,7 @@ class SalesOrder(BaseModelGeneric):
     @property
     def invoice(self):
         return Invoice.objects.filter(oerder=self).last()
-    
+
     @property
     def customer_visits(self):
         return self.customervisit_set.all().order_by('-created_at')
@@ -252,15 +261,16 @@ class Invoice(BaseModelGeneric):
     )
     # Add any other fields specific to your invoice model
     vat = models.DecimalField(
-        max_digits=5, 
-        decimal_places=4, 
+        max_digits=5,
+        decimal_places=4,
         validators=[
             MinValueValidator(0),  # minimum value is 0
             MaxValueValidator(1)   # maximum value is 1
         ],
         default=0.11,
         help_text=_('Value Added Tax percentage in decimal'))
-    attachment = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_attachment', blank=True, null=True, on_delete=models.SET_NULL)
+    attachment = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_attachment', blank=True, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ['-id']
@@ -274,22 +284,22 @@ class Invoice(BaseModelGeneric):
     def payment_status(self):
         payment = SalesPayment.objects.filter(invoice=self).last()
         return payment.status if payment else None
-    
+
     @property
     def subtotal(self):
         amount = 0
         for item in self.order.order_items.all():
             amount += item.price * item.quantity
         return amount
-    
+
     @property
     def vat_percent(self):
         return self.vat * 100
-    
+
     @property
     def vat_amount(self):
         return self.vat * self.subtotal
-    
+
     @property
     def total(self):
         return self.subtotal + self.vat_amount
@@ -329,7 +339,7 @@ class SalesPayment(BaseModelGeneric):
         help_text=_('Select the invoice associated with the payment')
     )
     amount = models.DecimalField(
-        max_digits=10,
+        max_digits=19,
         decimal_places=2,
         help_text=_('Enter the payment amount')
     )
@@ -349,7 +359,8 @@ class SalesPayment(BaseModelGeneric):
         verbose_name=_(APPROVED_AT),
         help_text=_(APPROVED_AT_HELP_TEXT)
     )
-    payment_evidence = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_payment_evidence', blank=True, null=True, on_delete=models.SET_NULL)
+    payment_evidence = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_payment_evidence', blank=True, null=True, on_delete=models.SET_NULL)
     status = models.CharField(
         max_length=255,  # Adjusting for the added descriptions
         choices=STATUS_CHOICES,
@@ -371,7 +382,8 @@ class TripTemplate(BaseModelGeneric):
         'Name'), help_text=_('Enter the name for the canvasing trip template'))
     customers = models.ManyToManyField(Customer, through='TripCustomer', verbose_name=_(
         'Customers'), help_text=_('Select customers for this trip template'))
-    pic = models.ManyToManyField(User, blank=True, help_text=_('Select people in charge of this trip'))
+    pic = models.ManyToManyField(User, blank=True, help_text=_(
+        'Select people in charge of this trip'))
 
     class Meta:
         ordering = ['-id']
@@ -416,16 +428,6 @@ class TripCustomer(BaseModelGeneric):
 
 
 class Trip(BaseModelGeneric):
-    template = models.ForeignKey(
-        TripTemplate, on_delete=models.CASCADE)
-    date = models.DateField(verbose_name=_(
-        'Date'), help_text=_('Date for the canvasing trip'))
-    salesperson = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='canvasing_salesperson')
-    vehicle = models.ForeignKey(
-        Vehicle, on_delete=models.SET_NULL, blank=True, null=True
-    )
-
     CANVASING = 'canvasing'
     TAKING_ORDER = 'taking_order'
     COLLECTING = 'collecting'
@@ -436,8 +438,6 @@ class Trip(BaseModelGeneric):
         (COLLECTING, _('Collecting')),
         (DELIVERING, _('Delivering'))
     ]
-    type = models.CharField(
-        max_length=50, choices=TYPE_CHOICES, default=TAKING_ORDER)
 
     WAITING = 'waiting'
     ON_PROGRESS = 'on_progress'
@@ -453,8 +453,20 @@ class Trip(BaseModelGeneric):
         (SKIPPED, _('Skipped'))
     ]
 
+    template = models.ForeignKey(
+        TripTemplate, on_delete=models.CASCADE)
+    date = models.DateField(verbose_name=_(
+        'Date'), help_text=_('Date for the canvasing trip'))
+    salesperson = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='canvasing_salesperson')
+    vehicle = models.ForeignKey(
+        Vehicle, on_delete=models.SET_NULL, blank=True, null=True
+    )
+    type = models.CharField(
+        max_length=50, choices=TYPE_CHOICES, default=TAKING_ORDER)
     status = models.CharField(
         max_length=50, choices=STATUS_CHOICES, default=WAITING)
+    is_delivery_processed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-id']
@@ -463,7 +475,14 @@ class Trip(BaseModelGeneric):
 
     def __str__(self):
         return f'{self.template.name} on {self.date}'
-
+    
+    @property
+    def stock_movement_id32s(self):
+        visits = self.customervisit_set
+        if not visits.exists():
+            return None
+        sales_order_ids = visits.values_list('sales_order', flat=True)
+        return SalesOrder.objects.filter(id__in=sales_order_ids).values_list('stock_movement__id32',flat=True)
 
 class CustomerVisit(BaseModelGeneric):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
@@ -475,9 +494,12 @@ class CustomerVisit(BaseModelGeneric):
     order = models.PositiveIntegerField(verbose_name=_(
         'Order'), help_text=_(ORDER_OF_CUSTOMER_VISIT))
 
-    visit_evidence = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_visit_evidence', blank=True, null=True, on_delete=models.SET_NULL)
-    item_delivery_evidence = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_item_delivery_evidence', blank=True, null=True, on_delete=models.SET_NULL)
-    signature = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
+    visit_evidence = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_visit_evidence', blank=True, null=True, on_delete=models.SET_NULL)
+    item_delivery_evidence = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_item_delivery_evidence', blank=True, null=True, on_delete=models.SET_NULL)
+    signature = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
     notes = models.TextField(blank=True, null=True)
 
     class Meta:

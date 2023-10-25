@@ -1,7 +1,9 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_filters import rest_framework as filters
 from libs.pagination import CustomPagination
+from libs.filter import CreatedAtFilterMixin
 from ..models import TripTemplate, Trip, CustomerVisitReport, CustomerVisit
 from ..serializers.trip import (
     TripTemplateListSerializer,
@@ -15,14 +17,16 @@ from ..serializers.trip import (
     CustomerVisitStatusSerializer
 )
 
+
 class TripTemplateViewSet(viewsets.ModelViewSet):
     queryset = TripTemplate.objects.all()
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination 
+    pagination_class = CustomPagination
     serializer_class = TripTemplateDetailSerializer
     http_method_names = ['get', 'post', 'delete', 'head', 'options', 'put']
-    
+
     def get_serializer_class(self):
         if self.action == 'list':
             return TripTemplateListSerializer
@@ -30,12 +34,8 @@ class TripTemplateViewSet(viewsets.ModelViewSet):
             return GenerateTripsSerializer
         return TripTemplateDetailSerializer
 
-
-    
-
-
     @action(detail=True, methods=['post'])
-    def generate_trips(self, request, id32=None):    
+    def generate_trips(self, request, id32=None):
         trip_template = self.get_object()
         serializer = GenerateTripsSerializer(data=request.data)
         if not serializer.is_valid():
@@ -44,19 +44,44 @@ class TripTemplateViewSet(viewsets.ModelViewSet):
         start_date = serializer.validated_data['start_date']
         end_date = serializer.validated_data['end_date']
         salesperson = serializer.validated_data['salesperson_username']
-        vehicle = serializer.validated_data['vehicle_id32']
+        vehicle = serializer.validated_data['vehicle_id32'] if 'vehicle_id32' in serializer.validated_data else None
         trip_type = serializer.validated_data['type']
 
-        trips = trip_template.generate_trips(start_date, end_date, salesperson, vehicle, trip_type)
+        trips = trip_template.generate_trips(
+            start_date, end_date, salesperson, vehicle, trip_type)
 
         return Response(TripListSerializer(trips, many=True).data)
 
+
+class TripFilter(CreatedAtFilterMixin):
+    MOVEMENT_CHOICES = [
+        ('all', 'All'),
+        ('true', 'Ready to deliver from sales order')
+    ]
+
+    delivery_ready = filters.ChoiceFilter(
+        method='filter_delivery_ready', choices=MOVEMENT_CHOICES, label='Delivery Ready Status'
+    )
+
+    class Meta:
+        model = Trip
+        fields = ['delivery_ready', 'created_at_range']
+
+    def filter_delivery_ready(self, queryset, name, value):
+        if value == 'true':
+            return queryset.filter(status=Trip.COMPLETED, type=Trip.TAKING_ORDER, is_delivery_processed=False)
+        return queryset
+
+
 class TripViewSet(viewsets.ModelViewSet):
     queryset = Trip.objects.all()
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination 
+    pagination_class = CustomPagination
     serializer_class = TripDetailSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = TripFilter
     http_method_names = ['get', 'patch', 'delete', 'head', 'options', 'put']
 
     def get_serializer_class(self):
@@ -66,42 +91,38 @@ class TripViewSet(viewsets.ModelViewSet):
             return TripUpdateSerializer
         return TripDetailSerializer
 
-
-    
-
-
     @action(detail=True, methods=['post'])
     def generate_report(self, request, pk=None):
         trip = self.get_object()
 
         # Your method to generate the report
-        report_data = trip.generate_report()  # Placeholder, define this method on the CanvassingTrip model
+        # Placeholder, define this method on the CanvassingTrip model
+        report_data = trip.generate_report()
 
         # Storing report data in CanvassingReport model
-        report = CustomerVisitReport.objects.create(trip=trip, **report_data)
-        
+        report, created = CustomerVisitReport.objects.get_or_create(
+            trip=trip, **report_data)
+
         return Response(CustomerVisitReportSerializer(report).data)
+
 
 class CustomerVisitViewSet(viewsets.ModelViewSet):
     queryset = CustomerVisit.objects.all()
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination 
+    pagination_class = CustomPagination
     serializer_class = CustomerVisitSerializer
-
-
-    
 
 
 class ReportViewSet(viewsets.ModelViewSet):
     queryset = CustomerVisitReport.objects.all()
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
     lookup_field = 'id32'
-    pagination_class = CustomPagination 
+    pagination_class = CustomPagination
     serializer_class = CustomerVisitReportSerializer
 
-
-    
 
 class CustomerVisitStatusUpdateViewSet(viewsets.GenericViewSet):
     """
@@ -115,14 +136,15 @@ class CustomerVisitStatusUpdateViewSet(viewsets.GenericViewSet):
     """
 
     queryset = CustomerVisit.objects.all()
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
     serializer_class = CustomerVisitStatusSerializer
     lookup_field = 'id32'
 
     def partial_update(self, request, id32=None):
         """
         Handle updates to an existing Customer Visit's status and sales order.
-        
+
         Parameters:
         - request: The request containing the data to be updated.
         - id32: The unique identifier for the Customer Visit to be updated.

@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from ..models import Product, ProductLog, StockMovement, Warehouse, StockMovementItem
-from ..libs.stock_movement import handle_origin_warehouse, handle_destination_warehouse
+from ..helpers.stock_movement import handle_origin_warehouse, handle_destination_warehouse
 
 
 # Table of Content

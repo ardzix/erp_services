@@ -32,11 +32,12 @@ class StockMovementFilter(CreatedAtFilterMixin):
     destination_filter = django_filters.CharFilter(method='filter_destination', help_text=_(
         'Put destionation in this format: "destination_type,destination_id32". Example: "warehouse,A"'))
     status = django_filters.ChoiceFilter(choices=StockMovement.MOVEMENT_STATUS)
+    id32s = django_filters.CharFilter(method='filter_by_id32s')
 
     class Meta:
         model = StockMovement
         fields = ['created_at_range', 'movement_date_range', 'origin_type', 'destination_type',
-                  'origin_filter', 'destination_filter', 'status']
+                  'origin_filter', 'destination_filter', 'status', 'id32s']
 
     def filter_origin(self, queryset, name, value):
         if value:
@@ -72,6 +73,12 @@ class StockMovementFilter(CreatedAtFilterMixin):
                 start_date, end_date = dates
                 return queryset.filter(movement_date__gte=start_date, movement_date__lte=end_date)
         return queryset
+
+    def filter_by_id32s(self, queryset, name, value):
+        # Split the comma-separated string to get the list of values
+        values_list = value.split(',')
+        return queryset.filter(id32__in=values_list).order_by('created_at')
+
 
 
 class StockMovementViewSet(viewsets.ModelViewSet):

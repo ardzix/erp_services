@@ -172,6 +172,8 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
                 'url': instance.movement_evidence.file.url
             }
 
+        return representation
+
 
 class StockMovementCreateSerializer(serializers.ModelSerializer):
     origin_type = serializers.ChoiceField(
