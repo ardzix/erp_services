@@ -47,10 +47,27 @@ class StockMovementItemListSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['product'] = instance.product.name
-        representation['unit'] = instance.unit.symbol
-        representation['origin_movement_status'] = dict(StockMovementItem.STATUS_CHOICES).get(instance.origin_movement_status, "")
-        representation['destination_movement_status'] = dict(StockMovementItem.STATUS_CHOICES).get(instance.destination_movement_status, "")
+        representation['product'] = {
+            'id32': instance.product.id32,
+            'name': instance.product.name
+        }
+        representation['unit'] = {
+            'id32': instance.unit.id32,
+            'symbol': instance.unit.symbol
+        }
+
+        origin_movement_status_dict = dict(StockMovementItem.STATUS_CHOICES)
+        representation['origin_movement_status'] = {
+            'key': instance.origin_movement_status,
+            'value': origin_movement_status_dict.get(instance.origin_movement_status, ""),
+        }
+
+        destination_movement_status_dict = dict(
+            StockMovementItem.STATUS_CHOICES)
+        representation['destination_movement_status'] = {
+            'key': instance.destination_movement_status,
+            'value': destination_movement_status_dict.get(instance.destination_movement_status, ""),
+        }
         return representation
 
 
@@ -133,6 +150,7 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
         }
         return representation
 
+
 class StockMovementItemUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -164,7 +182,7 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
         fields = ['id32', 'created_at', 'origin', 'destination', 'origin_type',
                   'destination_type', 'movement_date', 'status', 'movement_evidence',
                   'items', 'last_purchase_order']
-        read_only_fields = ['id32', 'created_at','last_purchase_order']
+        read_only_fields = ['id32', 'created_at', 'last_purchase_order']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
