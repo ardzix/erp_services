@@ -473,7 +473,7 @@ class StockMovement(BaseModelGeneric):
 
     @property
     def last_purchase_order(self):
-        return self.purchaseorder_set.first()
+        return self.purchaseorder_set.order_by('id').last()
 
 
 class StockMovementItem(BaseModelGeneric):
