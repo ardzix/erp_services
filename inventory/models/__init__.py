@@ -471,6 +471,10 @@ class StockMovement(BaseModelGeneric):
         verbose_name = _("Stock Movement")
         verbose_name_plural = _("Stock Movements")
 
+    @property
+    def last_purchase_order(self):
+        return self.purchaseorder_set.first()
+
 
 class StockMovementItem(BaseModelGeneric):
     WAITING = 'waiting'

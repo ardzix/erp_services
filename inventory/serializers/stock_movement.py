@@ -163,8 +163,8 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
         model = StockMovement
         fields = ['id32', 'created_at', 'origin', 'destination', 'origin_type',
                   'destination_type', 'movement_date', 'status', 'movement_evidence',
-                  'items']
-        read_only_fields = ['id32', 'created_at']
+                  'items', 'last_purchase_order']
+        read_only_fields = ['id32', 'created_at','last_purchase_order']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -173,7 +173,11 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
                 'id32': instance.movement_evidence.id32,
                 'url': instance.movement_evidence.file.url
             }
-
+        if instance.last_purchase_order:
+            representation['last_purchase_order'] = {
+                'id32': instance.last_purchase_order.id32,
+                'supplier': instance.last_purchase_order.supplier.__str__(),
+            }
         return representation
 
 
