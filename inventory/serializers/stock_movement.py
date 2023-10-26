@@ -42,12 +42,15 @@ class SMProductLocationSerializer(serializers.ModelSerializer):
 class StockMovementItemListSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockMovementItem
-        fields = ['id32', 'product', 'quantity', 'unit']
+        fields = ['id32', 'product', 'quantity', 'unit',
+                  'origin_movement_status', 'destination_movement_status']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['product'] = instance.product.name
         representation['unit'] = instance.unit.symbol
+        representation['origin_movement_status'] = dict(StockMovementItem.STATUS_CHOICES).get(instance.origin_movement_status, "")
+        representation['destination_movement_status'] = dict(StockMovementItem.STATUS_CHOICES).get(instance.destination_movement_status, "")
         return representation
 
 
@@ -129,7 +132,6 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
             'value': destination_movement_status_dict.get(instance.destination_movement_status, ""),
         }
         return representation
-
 
 class StockMovementItemUpdateSerializer(serializers.ModelSerializer):
 
