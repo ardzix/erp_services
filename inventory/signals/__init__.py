@@ -112,15 +112,6 @@ def check_sm_status_before(sender, instance, **kwargs):
     instance.status_before = sm.status if sm else 0
 
 
-@receiver(post_save, sender=StockMovement)
-def update_warehouse_stock(sender, instance, **kwargs):
-    """
-    Updates stocks in origin warehouses following changes in stock movement status.
-    """
-    if instance.origin_type == ContentType.objects.get_for_model(Warehouse):
-        handle_origin_warehouse(instance)
-
-
 @receiver(pre_save, sender=StockMovementItem)
 def check_movement_item_previous_status(sender, instance, **kwargs):
     """
@@ -141,7 +132,7 @@ def handle_movement_item_status_change_post(sender, instance, **kwargs):
     Executes actions after saving the StockMovementItem, based on its origin movement status and its parent StockMovement's status.
     """
     stock_movement = instance.stock_movement
-
+    print(instance.origin_movement_status, stock_movement.status, stock_movement)
     # Condition 1: Set StockMovement status to PREPARING
     if instance.origin_movement_status == StockMovementItem.ON_PROGRESS and stock_movement.status != StockMovement.PREPARING:
         stock_movement.status = StockMovement.PREPARING
@@ -177,6 +168,7 @@ def handle_movement_item_status_change_post(sender, instance, **kwargs):
             'approved', instance._current_user)
         instance._nullify_user_action('unapproved')
         instance.origin_checked_by = instance._current_user
+        handle_origin_warehouse(instance)
 
     # Condition 5: Check for destination_movement_status change to CHECKED
     if instance.destination_movement_status == StockMovementItem.CHECKED and instance.destination_checked_by is None:
