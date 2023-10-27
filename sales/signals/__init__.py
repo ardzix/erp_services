@@ -4,9 +4,11 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.db import models
 from django.dispatch import receiver
-from inventory.models import Product, StockMovementItem, WarehouseStock
+from django.contrib.contenttypes.models import ContentType
+from inventory.models import Product, StockMovementItem, WarehouseStock, Warehouse, StockMovement
 from ..helpers.sales_order import (canvasing_create_stock_movement,
-                                   taking_order_create_stock_movement, handle_unapproved_sales_order)
+                                   taking_order_create_stock_movement, handle_unapproved_sales_order,
+                                   has_completed_status_changed, create_stock_movement_for_trip)
 from ..scripts import generate_invoice_pdf_for_instance
 from ..models import (
     OrderItem,
@@ -38,6 +40,7 @@ from ..models import (
 # 15. set_sales_order_to_processing: Associate SalesOrder's status is set to 'PROCESSING' and its approve() method is called
 # 16. set_sales_order_to_completed: Set the associated CustomerVisit's SalesOrder's status is set to 'COMPLETED'
 # 17. assign_trip_default_vehicle: Assigns the first vehicle from the associated TripTemplate
+# 18. create_trip_return_stock_movement: Create stock movement from remaining trip stock if the trip is completed
 
 
 @receiver(pre_save, sender=OrderItem)
@@ -331,7 +334,7 @@ def set_sales_order_to_completed(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Trip)
-def assign_default_vehicle(sender, instance, created, **kwargs):
+def assign_trip_default_vehicle(sender, instance, created, **kwargs):
     """
     Assigns the first vehicle from the associated TripTemplate 
     to the Trip instance if the vehicle is None.
@@ -345,6 +348,18 @@ def assign_default_vehicle(sender, instance, created, **kwargs):
             instance.vehicle = vehicle
             instance.save()
 
+@receiver(pre_save, sender=Trip)
+def create_trip_return_stock_movement(sender, instance, **kwargs):
+    """
+    Create stock movement from remaining trip stock if the trip is completed
+    """
+    if not instance.pk:
+        return
+
+    old_status = Trip.objects.only('status').get(pk=instance.pk).status
+
+    if has_completed_status_changed(old_status, instance.status):
+        create_stock_movement_for_trip(instance)
 
 # ==================================================================================
 # Model Validator

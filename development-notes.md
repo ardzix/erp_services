@@ -11,7 +11,9 @@ To Do:
 - Surat jalan
 - Picker Checker untuk Taking Order ✅
 - Endpoint barang tidak sesuai ✅
+- Endpoint sisa penjualan ✅
 - Endbpoint batch product inbound beserta expire date nya
-- Endpoint sisa penjualan
 - Keluarin SKU di stock movement item
 - Trip Report endpoint
+- handle_origin_warehouse bug: Harusnya hanya deduct jika sales canvasing dan destination customer
+(STOCK MOVEMENT add and deduct stock harus dicek lagi flow nya, beberapa deprecated)

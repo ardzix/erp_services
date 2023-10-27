@@ -23,8 +23,14 @@ class CustomerAdmin(BaseAdmin):
                     'contact_number', 'address', 'show_location']
     list_filter = ['company_profile']
     search_fields = ['name', 'contact_number', 'address']
-    fields = ['name', 'contact_number',
-              'address', 'location', 'company_profile']
+
+    fields = ['name', 'contact_number', 'company_profile',
+              'administrative_lv1', 'administrative_lv2', 'administrative_lv3', 'administrative_lv4',
+              'rt', 'rw', 'store_name', 'payment_type', 'store_type',
+              'id_card', 'store_front', 'store_street', 'signature',
+              'address', 'location'
+    ]
+    raw_id_fields = ['administrative_lv1', 'administrative_lv2', 'administrative_lv3', 'administrative_lv4']
 
     def show_location(self, obj):
         return f"Latitude: {obj.location.y}, Longitude: {obj.location.x}"
