@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from libs.utils import validate_file_by_id32
+from purchasing.models import PurchaseOrderItem
 from ..models import StockMovement, StockMovementItem, Product, Unit, ProductLocation
 
 
@@ -149,6 +150,32 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
             'value': destination_movement_status_dict.get(instance.destination_movement_status, ""),
         }
         return representation
+
+
+class StockMovementItemPOBatchSerializer(serializers.ModelSerializer):
+    product_id32 = serializers.SlugRelatedField(
+        slug_field='id32',
+        queryset=Product.objects.all(),
+        source='product'
+    )
+    po_item_id32 = serializers.SlugRelatedField(
+        slug_field='id32',
+        queryset=PurchaseOrderItem.objects.all(),
+        source='po_item'
+    )
+
+    class Meta:
+        model = StockMovementItem
+        fields = ['product_id32', 'po_item_id32', 'quantity', 'expire_date', 'buy_price', 'order']
+
+
+    def save(self, **kwargs):
+        # Extract stock_movement from context and set it to the instance before saving
+        stock_movement = self.context.get('stock_movement')
+        if stock_movement:
+            self.validated_data['stock_movement'] = stock_movement
+        self.validated_data['unit'] = self.validated_data.get('product').purchasing_unit
+        return super().save(**kwargs)
 
 
 class StockMovementItemUpdateSerializer(serializers.ModelSerializer):

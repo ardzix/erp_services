@@ -1,11 +1,13 @@
 from django_filters import rest_framework as django_filters
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from rest_framework import viewsets, permissions, mixins, filters
+from rest_framework import viewsets, permissions, mixins, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from ..models import StockMovement, StockMovementItem
-from ..serializers.stock_movement import (StockMovementListSerializer, StockMovementDetailSerializer, StockMovementItemListSerializer,
+from ..serializers.stock_movement import (StockMovementListSerializer, StockMovementDetailSerializer, StockMovementItemPOBatchSerializer,
                                           StockMovementCreateSerializer, StockMovementItemSerializer, StockMovementItemUpdateSerializer)
 
 
@@ -80,7 +82,6 @@ class StockMovementFilter(CreatedAtFilterMixin):
         return queryset.filter(id32__in=values_list).order_by('created_at')
 
 
-
 class StockMovementViewSet(viewsets.ModelViewSet):
     queryset = StockMovement.objects.all()
     permission_classes = [permissions.IsAuthenticated,
@@ -95,10 +96,28 @@ class StockMovementViewSet(viewsets.ModelViewSet):
             return StockMovementListSerializer
         elif self.action == 'create' or self.action == 'update' or self.action == 'partial_update':
             return StockMovementCreateSerializer
+        elif self.action == 'new_item_batch':
+            return StockMovementItemPOBatchSerializer
         return StockMovementDetailSerializer
 
+    @action(detail=True, methods=['post'])
+    def new_item_batch(self, request, id32=None):
+        """
+        Add new stock movement item batch.
+        """
+        stock_movement = self.get_object()
+        serializer = StockMovementItemPOBatchSerializer(
+            data=request.data, 
+            context={'stock_movement': stock_movement}  # Pass the stock_movement to serializer's context
+        )
 
-class StockMovementItemStatusUpdateViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StockMovementItemViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     queryset = StockMovementItem.objects.all()
     lookup_field = 'id32'
 

@@ -77,15 +77,6 @@ def create_stock_movement(sender, instance, **kwargs):
         )
         instance.stock_movement = sm
         instance.save()
-        for item in PurchaseOrderItem.objects.filter(purchase_order=instance).all():
-            StockMovementItem.objects.create(
-                product_id=item.product.pk,
-                stock_movement=instance.stock_movement,
-                unit =  item.product.purchasing_unit,
-                quantity = item.quantity,
-                buy_price = item.actual_price if item.actual_price else item.po_price,
-                created_by=item.created_by
-            )
     if not instance.unapproved_before and instance.unapproved_at:
         sm = instance.stock_movement
         if sm.status not in ['on_delivery', 'delivered', 'returned']:

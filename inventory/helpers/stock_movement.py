@@ -161,7 +161,7 @@ def handle_destination_warehouse(item):
         expire_date=item.expire_date
     )
     if created:
-        stock.inbound_movement_item = item,
+        stock.inbound_movement_item = item
     add_stock(stock, item.quantity)
     if item.stock_movement.origin_type == ContentType.objects.get_for_model(Supplier):
         calculate_buy_price(item)
