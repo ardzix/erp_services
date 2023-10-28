@@ -52,7 +52,6 @@ class ApproveRejectMixin:
 
         # Check if the Purchase Order is already approved
         obj = self.get_object(request, object_id)
-        print(request, object_id, self, obj)
         is_approved = obj.approved_by is not None
 
         if is_approved:

@@ -8,7 +8,9 @@ from django.contrib.contenttypes.models import ContentType
 from inventory.models import Product, StockMovementItem, WarehouseStock, Warehouse, StockMovement
 from ..helpers.sales_order import (canvasing_create_stock_movement,
                                    taking_order_create_stock_movement, handle_unapproved_sales_order,
-                                   has_completed_status_changed, create_stock_movement_for_trip)
+                                   has_completed_status_changed, create_stock_movement_for_trip_completed,
+                                   all_visits_completed_or_skipped,update_trip_status_to_completed,
+                                   handle_canvasing_trip,set_salesperson_able_to_checkout)
 from ..scripts import generate_invoice_pdf_for_instance
 from ..models import (
     OrderItem,
@@ -31,7 +33,7 @@ from ..models import (
 # 6. restore_product_quantity: Restores the product's quantity when an OrderItem is deleted.
 # 7. populate_trip_customer_from_template: Populates the trip's customers from a template when a new Trip instance is created.
 # 8. generate_canvasing_report: Generates or updates a CustomerVisitReport when a CustomerVisit's status is either completed or skipped.
-# 9. update_canvasing_trip_status: Updates the associated canvasing trip's status to completed if all associated CustomerVisits are completed or skipped.
+# 9. update_trip_status_if_visit_completed: Updates the associated canvasing trip's status to completed if all associated CustomerVisits are completed or skipped.
 # 10. update_order_status: Before saving a `SalesOrder`, this signal checks if the approval status of the order has changed.
 # 11. create_invoice_on_order_submit: After saving a `SalesOrder`, if the order's status is 'SUBMITTED' and there isn't already an associated invoice,this signal creates a new `Invoice` entry associated with the given order.
 # 12. handle_customer_visit_completed: Handle logic of if customer visit is completed
@@ -86,10 +88,12 @@ def check_salesorder_before_approved(sender, instance, **kwargs):
     """
     instance.approved_before = False
     instance.unapproved_before = False
+    instance.visit_before = False
     so_before = SalesOrder.objects.filter(pk=instance.pk).last()
     if so_before:
         instance.approved_before = True if so_before.approved_at and so_before.approved_by else False
         instance.unapproved_before = True if so_before.unapproved_at and so_before.unapproved_by else False
+        instance.visit_before = True if so_before.visit else False
 
 
 @receiver(post_save, sender=SalesOrder)
@@ -98,13 +102,13 @@ def create_stock_movement(sender, instance, **kwargs):
     Creates a StockMovement entry when a SalesOrder is approved.
     Deletes the StockMovement if a SalesOrder is unapproved.
     """
-    visit = instance.customer_visits.filter(
-        trip__type__in=[Trip.CANVASING, Trip.TAKING_ORDER]).last()
-    visit_type = visit.trip.type if visit else None
+    if not instance.pk:
+        return
 
-    if not instance.approved_before and instance.approved_at and visit_type is not None:
+    if not instance.visit_before and instance.visit:
+        visit_type = instance.visit.trip.type
         if visit_type == Trip.CANVASING:
-            canvasing_create_stock_movement(instance, visit)
+            canvasing_create_stock_movement(instance)
         elif visit_type == Trip.TAKING_ORDER:
             taking_order_create_stock_movement(instance)
 
@@ -180,28 +184,16 @@ def generate_canvasing_report(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=CustomerVisit)
-def update_canvasing_trip_status(sender, instance, **kwargs):
+def update_trip_status_if_visit_completed(sender, instance, **kwargs):
     """
     Updates the associated canvasing trip's status to completed if all associated CustomerVisits are completed or skipped.
     Enables the trip's salesperson to check out if all visits are done.
     """
-    from hr.models import Attendance
-    visits = CustomerVisit.objects.filter(trip=instance.trip)
-    trip_count = visits.count()
-    completed_count = visits.filter(
-        status__in=[Trip.COMPLETED, Trip.SKIPPED]).count()
-    if trip_count == completed_count:
-        canvasing_trip = instance.trip
-        canvasing_trip.status = Trip.COMPLETED
-        canvasing_trip.updated_by = instance.updated_by
-        canvasing_trip.save()
+    if all_visits_completed_or_skipped(instance.trip):
+        update_trip_status_to_completed(instance)
+        handle_canvasing_trip(instance)
+        set_salesperson_able_to_checkout(instance)
 
-        user = instance.trip.salesperson
-        attendance = Attendance.objects.filter(
-            employee__user=user, clock_out__isnull=True).last()
-        if attendance:
-            attendance.able_checkout = True
-            attendance.save()
 
 
 @receiver(pre_save, sender=SalesOrder)
@@ -250,6 +242,7 @@ def handle_customer_visit_completed(sender, instance, **kwargs):
     Based on the trip type, the related stock movements are also updated with respect to their origin and status.
     """
     sales_order = instance.sales_order
+    sales_order.visit = instance
     # Check if the sales order is completed and call the approve method
     if instance.status == Trip.COMPLETED:
         if instance.trip.type == Trip.CANVASING:
@@ -348,21 +341,11 @@ def assign_trip_default_vehicle(sender, instance, created, **kwargs):
             instance.vehicle = vehicle
             instance.save()
 
-@receiver(pre_save, sender=Trip)
-def create_trip_return_stock_movement(sender, instance, **kwargs):
-    """
-    Create stock movement from remaining trip stock if the trip is completed
-    """
-    if not instance.pk:
-        return
-
-    old_status = Trip.objects.only('status').get(pk=instance.pk).status
-
-    if has_completed_status_changed(old_status, instance.status):
-        create_stock_movement_for_trip(instance)
 
 # ==================================================================================
 # Model Validator
+
+
 @receiver(pre_save, sender=Trip)
 def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
     # 1. Trip status cannot be changed if its vehicle warehouse is null in canvassing.
@@ -405,7 +388,6 @@ def check_completed_customer_visit_requirements(sender, instance, **kwargs):
 
     elif instance.trip.type == Trip.TAKING_ORDER:
         check_taking_order_requirements(instance)
-        print(instance.customer.payment_type)
         if instance.customer.payment_type == Customer.CBD:
             check_invoice_and_payment(instance.sales_order.invoice)
 

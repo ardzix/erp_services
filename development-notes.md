@@ -16,7 +16,7 @@
 - Endpoint barang tidak sesuai ✅
 - Endpoint sisa penjualan ✅
 - handle_origin_warehouse bug: Harusnya hanya deduct jika sales canvasing dan destination customer
-(STOCK MOVEMENT add and deduct stock harus dicek lagi flow nya, beberapa deprecated)
+(STOCK MOVEMENT add and deduct stock harus dicek lagi flow nya, beberapa deprecated) ✅
 - Endbpoint batch product inbound beserta expire date nya
 - Keluarin SKU di stock movement item
 - Trip Report endpoint

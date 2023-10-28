@@ -77,6 +77,32 @@ def filter_stock_by_method(stocks, method):
     return stocks.order_by(order_field)
 
 
+def is_dispatch_status_change(stock_movement):
+    """
+    Check if a given StockMovement has transitioned to 'on_delivery' or 'delivered' status.
+
+    Args:
+    - stock_movement (Instance): The StockMovement instance to check.
+
+    Returns:
+    - bool: True if the instance has transitioned, else False.
+    """
+    return stock_movement.status in ['on_delivery', 'delivered'] and stock_movement.status_before not in ['on_delivery', 'delivered']
+
+
+def is_return_status_change(stock_movement):
+    """
+    Check if a given StockMovement instance has transitioned away from 'on_delivery' or 'delivered' status.
+
+    Args:
+    - stock_movement (Instance): The StockMovement instance to check.
+
+    Returns:
+    - bool: True if the instance has transitioned, else False.
+    """
+    return stock_movement.status not in ['on_delivery', 'delivered'] and stock_movement.status_before in ['on_delivery', 'delivered']
+
+
 def handle_return_status_change(stock_movement, item):
     """
     Modify stock quantities based on the return status of an item.
@@ -127,17 +153,30 @@ def handle_destination_warehouse(item):
     Args:
     - item (Instance): The inbound stock movement item.
     """
+    stock_movement = item.stock_movement
     stock, created = WarehouseStock.objects.get_or_create(
         warehouse=item.stock_movement.destination,
         product=item.product,
-        inbound_movement_item=item,
         unit=item.unit,
         expire_date=item.expire_date
     )
     if created:
-        add_stock(stock, item.quantity)
+        stock.inbound_movement_item = item,
+    add_stock(stock, item.quantity)
     if item.stock_movement.origin_type == ContentType.objects.get_for_model(Supplier):
         calculate_buy_price(item)
+
+    if stock_movement.origin_type.model == 'warehouse':
+        stocks = get_filtered_stocks(stock_movement.origin, item)
+        quantity_remaining = item.quantity
+
+        for stock in stocks:
+            stock.dispatch_movement_items.add(item)
+            quantity = quantity_remaining if quantity_remaining <= stock.quantity else stock.quantity
+            deduct_stock(stock, quantity)
+            quantity_remaining -= quantity
+            if quantity_remaining <= 0:
+                break
 
 
 def handle_origin_warehouse(item):
