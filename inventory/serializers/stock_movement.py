@@ -50,7 +50,8 @@ class StockMovementItemListSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['product'] = {
             'id32': instance.product.id32,
-            'name': instance.product.name
+            'name': instance.product.name,
+            'sku': instance.product.sku
         }
         representation['unit'] = {
             'id32': instance.unit.id32,

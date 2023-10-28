@@ -143,7 +143,7 @@ class Product(BaseModelGeneric):
         max_length=100, help_text=_("Enter the product name"))
     alias = models.CharField(max_length=100, blank=True, null=True, help_text=_(
         "Enter the product alias name"))
-    sku = models.CharField(max_length=100, help_text=_(
+    sku = models.CharField(max_length=100, unique=True, help_text=_(
         "Enter the product stock keeping unit or barcode"))
     description = models.TextField(
         blank=True,

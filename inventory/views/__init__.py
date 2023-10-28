@@ -1,6 +1,5 @@
 from django_filters import rest_framework as django_filters
 from django.utils.translation import gettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -12,6 +11,15 @@ from ..serializers.unit import UnitCreateUpdateSerializer, UnitDetailSerializer,
 from ..serializers.category import CategoryListSerializer, CategoryDetailSerializer
 from ..serializers.warehouse import WarehouseSerializer, WarehouseListSerializer
 
+class ProductFilter(django_filters.FilterSet):
+    sku = django_filters.CharFilter(lookup_expr='iexact')
+    category = django_filters.NumberFilter(field_name='category__id')
+    product_type = django_filters.ChoiceFilter(choices=Product.PRODUCT_TYPE_CHOICES)
+    is_active = django_filters.BooleanFilter()
+
+    class Meta:
+        model = Product
+        fields = ['sku', 'category', 'product_type', 'is_active']
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -19,6 +27,9 @@ class ProductViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination
+    filter_backends = (filters.SearchFilter, django_filters.DjangoFilterBackend,)
+    filterset_class = ProductFilter
+    search_fields = ['name',]
 
     def get_serializer_class(self):
         if self.action == 'list':
