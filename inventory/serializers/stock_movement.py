@@ -167,15 +167,16 @@ class StockMovementItemPOBatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockMovementItem
-        fields = ['product_id32', 'po_item_id32', 'quantity', 'expire_date', 'buy_price', 'order']
-
+        fields = ['product_id32', 'po_item_id32',
+                  'quantity', 'expire_date', 'buy_price', 'order']
 
     def save(self, **kwargs):
         # Extract stock_movement from context and set it to the instance before saving
         stock_movement = self.context.get('stock_movement')
         if stock_movement:
             self.validated_data['stock_movement'] = stock_movement
-        self.validated_data['unit'] = self.validated_data.get('product').purchasing_unit
+        self.validated_data['unit'] = self.validated_data.get(
+            'product').purchasing_unit
         return super().save(**kwargs)
 
 
@@ -300,7 +301,8 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
-        movement_evidence = validated_data.pop('movement_evidence_id32')
+        movement_evidence = validated_data.pop(
+            'movement_evidence_id32') if 'movement_evidence_id32' in validated_data else None
         validated_data['movement_evidence'] = movement_evidence
         stock_movement = StockMovement.objects.create(**validated_data)
         for item_data in items_data:
