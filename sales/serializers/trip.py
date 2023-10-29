@@ -71,9 +71,9 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
     trip_customers = TripCustomerSerializer(
         many=True, source='tripcustomer_set')
     pic_usernames = UsernamesField(
-        source='pic', many=True, queryset=User.objects.all())
+        source='pic', many=True,  required=False, queryset=User.objects.all())
     vehicle_id32s = VehiclesField(
-        source='vehicles', many=True, write_only=True, queryset=Vehicle.objects.all())
+        source='vehicles', many=True, write_only=True, required=False, queryset=Vehicle.objects.all())
 
     class Meta:
         model = TripTemplate
