@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from common.models import File
 from logistics.models import Vehicle
-from libs.utils import validate_file_by_id32
+from libs.utils import validate_file_by_id32, handle_file_fields
 from ..models import (
     TripTemplate,
     TripCustomer,
@@ -363,23 +363,6 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
     def validate_signature_id32(self, value):
         return validate_file_by_id32(value, "A file with id32 {value} does not exist for the signature.")
 
-    def handle_file_fields(self, validated_data, fields):
-        """
-        Handle file fields in the validated data.
-
-        Parameters:
-        - validated_data (dict): The data validated by the serializer.
-        - fields (dict): The mapping of the field name in validated data to its model name.
-
-        Returns:
-        - dict: The validated data with file fields mapped to their respective models.
-        """
-        for field_name, model_name in fields.items():
-            if field_name in validated_data:
-                file_object = validated_data.pop(field_name)
-                validated_data[model_name] = file_object
-        return validated_data
-
     def update(self, instance, validated_data):
         if 'sales_order_id32' in validated_data:
             sales_order_id32 = validated_data.pop('sales_order_id32')
@@ -391,7 +374,7 @@ class CustomerVisitStatusSerializer(serializers.ModelSerializer):
             'visit_evidence_id32': 'visit_evidence',
             'signature_id32': 'signature'
         }
-        validated_data = self.handle_file_fields(validated_data, file_fields)
+        validated_data = handle_file_fields(validated_data, file_fields)
         try:
             return super().update(instance, validated_data)
         except DjangoCoreValidationError as e:

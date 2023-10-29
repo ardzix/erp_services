@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
+from common.models import File
 from inventory.models import Product, StockMovement, Unit, Warehouse
 
 
@@ -97,6 +98,8 @@ class PurchaseOrder(BaseModelGeneric):
     destination_warehouse = models.ForeignKey(
         Warehouse, blank=True, null=True, on_delete=models.SET_NULL
     )
+    invalid_item_evidence = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_invalid_item_evidence', blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return _("Purchase Order #{id32}").format(id32=self.id32)

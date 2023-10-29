@@ -1,14 +1,20 @@
 from django.utils.translation import gettext_lazy as _
-from rest_framework import serializers
 from django.db import transaction
+from django.core.exceptions import ValidationError as DjangoCoreValidationError
+from rest_framework import serializers
+from libs.utils import validate_file_by_id32, handle_file_fields
 from inventory.models import Product, Warehouse, Unit
 from ..models import PurchaseOrder, PurchaseOrderItem, Supplier, InvalidPOItem
 
 # PurchaseOrderItem Serializer
+
+
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
-    product_name = serializers.StringRelatedField(source='product.name', read_only=True)
-    product = serializers.SlugRelatedField(slug_field='id32', queryset=Product.objects.all())
-    
+    product_name = serializers.StringRelatedField(
+        source='product.name', read_only=True)
+    product = serializers.SlugRelatedField(
+        slug_field='id32', queryset=Product.objects.all())
+
     class Meta:
         model = PurchaseOrderItem
         fields = ['id32', 'product', 'product_name', 'quantity', 'po_price']
@@ -22,45 +28,96 @@ class PurchaseOrderItemSerializer(serializers.ModelSerializer):
         return product
 
 # InvalidPOItem Serializer
+
+
 class InvalidPOItemSerializer(serializers.ModelSerializer):
-    product = serializers.SlugRelatedField(slug_field='id32', queryset=Product.objects.all(), required=False)
-    unit = serializers.SlugRelatedField(slug_field='id32', queryset=Unit.objects.all(), required=False)
-    purchase_order = serializers.SlugRelatedField(slug_field='id32', queryset=PurchaseOrder.objects.all(), required=False, write_only=True)
-    
+    product = serializers.SlugRelatedField(
+        slug_field='id32', queryset=Product.objects.all(), required=False)
+    unit = serializers.SlugRelatedField(
+        slug_field='id32', queryset=Unit.objects.all(), required=False)
+    purchase_order = serializers.SlugRelatedField(
+        slug_field='id32', queryset=PurchaseOrder.objects.all(), required=False, write_only=True)
+
     class Meta:
         model = InvalidPOItem
-        fields = ['id32', 'purchase_order', 'product', 'name', 'quantity', 'price', 'unit', 'discount']
+        fields = ['id32', 'purchase_order', 'product',
+                  'name', 'quantity', 'price', 'unit', 'discount']
         read_only_fields = ['id32']
 
 # PurchaseOrder Serializer
 # Simple serializer for list views
+
+
 class PurchaseOrderListSerializer(serializers.ModelSerializer):
-    supplier = serializers.SlugRelatedField(slug_field='id32', queryset=Supplier.objects.all())
-    supplier_name = serializers.StringRelatedField(source='supplier.name', read_only=True)
+    supplier = serializers.SlugRelatedField(
+        slug_field='id32', queryset=Supplier.objects.all())
+    supplier_name = serializers.StringRelatedField(
+        source='supplier.name', read_only=True)
+
     class Meta:
         model = PurchaseOrder
-        fields = ['id32', 'supplier', 'supplier_name', 'order_date', 'approval']
+        fields = ['id32', 'supplier',
+                  'supplier_name', 'order_date', 'approval']
         read_only_fields = ['id32', 'approval']
 
 # Nested serializer for detail and create views
+
+
 class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
-    supplier = serializers.SlugRelatedField(slug_field='id32', queryset=Supplier.objects.all())
-    destination_warehouse = serializers.SlugRelatedField(slug_field='id32', queryset=Warehouse.objects.all(), required=False)
-    supplier_name = serializers.StringRelatedField(source='supplier.name', read_only=True)
-    items = PurchaseOrderItemSerializer(many=True, source='purchaseorderitem_set')
-    invalid_items = InvalidPOItemSerializer(many=True, source='invalidpoitem_set', read_only=True)
+    supplier = serializers.SlugRelatedField(
+        slug_field='id32', queryset=Supplier.objects.all())
+    destination_warehouse = serializers.SlugRelatedField(
+        slug_field='id32', queryset=Warehouse.objects.all(), required=False)
+    supplier_name = serializers.StringRelatedField(
+        source='supplier.name', read_only=True)
+    items = PurchaseOrderItemSerializer(
+        many=True, source='purchaseorderitem_set')
+    invalid_items = InvalidPOItemSerializer(
+        many=True, source='invalidpoitem_set', read_only=True)
+    invalid_item_evidence_id32 = serializers.CharField(
+        write_only=True, required=False)
 
     class Meta:
         model = PurchaseOrder
-        fields = ['id32', 'supplier', 'supplier_name', 'destination_warehouse', 'order_date', 'approval', 'items', 'invalid_items']
-        read_only_fields = ['id32', 'approval', 'invalid_items']
+        fields = ['id32', 'supplier', 'supplier_name', 'destination_warehouse', 'order_date',
+                  'approval', 'items', 'invalid_items', 'invalid_item_evidence_id32', 'invalid_item_evidence']
+        read_only_fields = ['id32', 'approval',
+                            'invalid_items', 'invalid_item_evidence']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        file_fields = ['invalid_item_evidence']
+        for field in file_fields:
+            attr_instance = getattr(instance, field)
+            if attr_instance:
+                representation[field] = {
+                    'id32': attr_instance.id32,
+                    'url': attr_instance.file.url
+                }
+
+        return representation
+
+    def validate_invalid_item_evidence_id32(self, value):
+        return validate_file_by_id32(value, "A file with id32 {value} does not exist for the visit evidence.")
 
     @transaction.atomic
     def create(self, validated_data):
         items_data = validated_data.pop('purchaseorderitem_set')
         purchase_order = PurchaseOrder.objects.create(**validated_data)
-        
+
         for item_data in items_data:
-            PurchaseOrderItem.objects.create(purchase_order=purchase_order, **item_data)
+            PurchaseOrderItem.objects.create(
+                purchase_order=purchase_order, **item_data)
 
         return purchase_order
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        file_fields = {
+            'invalid_item_evidence_id32': 'invalid_item_evidence'
+        }
+        validated_data = handle_file_fields(validated_data, file_fields)
+        try:
+            return super().update(instance, validated_data)
+        except DjangoCoreValidationError as e:
+            raise serializers.ValidationError(e.messages)

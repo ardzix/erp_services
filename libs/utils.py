@@ -24,3 +24,21 @@ def validate_file_by_id32(value, error_message):
     except File.DoesNotExist:
         raise serializers.ValidationError(
             error_message.format(value=value))
+    
+
+def handle_file_fields(validated_data, fields):
+    """
+    Handle file fields in the validated data.
+
+    Parameters:
+    - validated_data (dict): The data validated by the serializer.
+    - fields (dict): The mapping of the field name in validated data to its model name.
+
+    Returns:
+    - dict: The validated data with file fields mapped to their respective models.
+    """
+    for field_name, model_name in fields.items():
+        if field_name in validated_data:
+            file_object = validated_data.pop(field_name)
+            validated_data[model_name] = file_object
+    return validated_data
