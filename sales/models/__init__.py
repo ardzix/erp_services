@@ -485,7 +485,8 @@ class Trip(BaseModelGeneric):
         if not visits.exists():
             return []
         sales_order_ids = visits.values_list('sales_order', flat=True)
-        return SalesOrder.objects.filter(id__in=sales_order_ids).values_list('stock_movement__id32',flat=True)
+        sales_order = SalesOrder.objects.filter(id__in=sales_order_ids)
+        return sales_order.values_list('stock_movement__id32',flat=True) if sales_order else []
 
 class CustomerVisit(BaseModelGeneric):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
