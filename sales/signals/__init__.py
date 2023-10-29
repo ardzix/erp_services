@@ -242,6 +242,8 @@ def handle_customer_visit_completed(sender, instance, **kwargs):
     Based on the trip type, the related stock movements are also updated with respect to their origin and status.
     """
     sales_order = instance.sales_order
+    if not sales_order:
+        return
     sales_order.visit = instance
     # Check if the sales order is completed and call the approve method
     if instance.status == Trip.COMPLETED:
