@@ -483,7 +483,7 @@ class Trip(BaseModelGeneric):
     def stock_movement_id32s(self):
         visits = self.customervisit_set
         if not visits.exists():
-            return None
+            return []
         sales_order_ids = visits.values_list('sales_order', flat=True)
         return SalesOrder.objects.filter(id__in=sales_order_ids).values_list('stock_movement__id32',flat=True)
 

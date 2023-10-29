@@ -30,3 +30,18 @@
 - Surat jalan (diprint dimana?) - diprint di admin per customer
 - Dokumen serah terima barang (diprint dimana?) - diprint di admin, untuk semua barang di mobil
 - Market oportunity for catering: sales commision
+
+Stock Opname:
+- Gudang
+- Barang apa aja
+- Quantity berapa
+
+Admin stock opname gak bisa lihat quantity data, cuman bisa opname
+
+Audit:
+- Histori penjualan
+- Histori piutang
+  - Daftar nunggak
+- Audit stok barang (stock opname)
+
+

@@ -117,7 +117,7 @@ def update_warehouse_stock(sender, instance, **kwargs):
     """
     Updates stocks in origin warehouses following changes in stock movement status of sales.
     """
-    # need to fix this:
+    # need to fix this [temp]:
     if not instance.destination_type:
         return
     if instance.destination_type.model != 'customer':
