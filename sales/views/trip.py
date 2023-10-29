@@ -1,7 +1,8 @@
+from django_filters import rest_framework as filters
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django_filters import rest_framework as filters
+from rest_framework.filters import SearchFilter
 from libs.pagination import CustomPagination
 from libs.filter import CreatedAtFilterMixin
 from ..models import TripTemplate, Trip, CustomerVisitReport, CustomerVisit
@@ -65,7 +66,7 @@ class TripFilter(CreatedAtFilterMixin):
 
     class Meta:
         model = Trip
-        fields = ['delivery_ready', 'created_at_range']
+        fields = ['delivery_ready', 'created_at_range', 'status', 'type', 'date']
 
     def filter_delivery_ready(self, queryset, name, value):
         if value == 'true':
@@ -80,8 +81,9 @@ class TripViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
     pagination_class = CustomPagination
     serializer_class = TripDetailSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend, SearchFilter,)
     filterset_class = TripFilter
+    search_fields = ['salesperson__username', 'vehicle__name', 'template__name']
     http_method_names = ['get', 'patch', 'delete', 'head', 'options', 'put']
 
     def get_serializer_class(self):
