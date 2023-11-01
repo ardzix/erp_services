@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
 from libs.pagination import CustomPagination
 from libs.filter import CreatedAtFilterMixin
+from libs.constants import COMPLETED
 from ..models import TripTemplate, Trip, CustomerVisitReport, CustomerVisit
 from ..serializers.trip import (
     TripTemplateListSerializer,
@@ -70,7 +71,7 @@ class TripFilter(CreatedAtFilterMixin):
 
     def filter_delivery_ready(self, queryset, name, value):
         if value == 'true':
-            return queryset.filter(status=Trip.COMPLETED, type=Trip.TAKING_ORDER, is_delivery_processed=False)
+            return queryset.filter(status=COMPLETED, type=Trip.TAKING_ORDER, is_delivery_processed=False)
         return queryset
 
 

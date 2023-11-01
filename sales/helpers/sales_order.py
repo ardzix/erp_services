@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Sum
 from django.utils import timezone
+from libs.constants import COMPLETED, SKIPPED
 from inventory.models import StockMovement, StockMovementItem, Warehouse
 from hr.models import Attendance
 from ..models import CustomerVisit, SalesOrder, Customer, Trip
@@ -31,6 +32,8 @@ def taking_order_create_stock_movement(instance):
         instance (SalesOrder): Instance of SalesOrder.
     """
     trip = CustomerVisit.objects.filter(sales_order=instance).first().trip
+    if not trip:
+        return
     warehouse_content_type = ContentType.objects.get_for_model(Warehouse)
     sm = StockMovement.objects.create(
         origin_type=warehouse_content_type,
@@ -133,7 +136,7 @@ def handle_unapproved_sales_order(instance):
 
 def has_completed_status_changed(old_status, new_status):
     """Check if the status has changed from non-completed to completed."""
-    return old_status != Trip.COMPLETED and new_status == Trip.COMPLETED
+    return old_status != COMPLETED and new_status == COMPLETED
 
 
 def create_stock_movement_for_trip_completed(trip_instance):
@@ -203,7 +206,7 @@ def all_visits_completed_or_skipped(trip):
     visits = CustomerVisit.objects.filter(trip=trip)
     total_visits = visits.count()
     completed_visits = visits.filter(
-        status__in=[Trip.COMPLETED, Trip.SKIPPED]).count()
+        status__in=[COMPLETED, SKIPPED]).count()
 
     return total_visits == completed_visits
 
@@ -214,7 +217,7 @@ def update_trip_status_to_completed(visit_instance):
     :param visit_instance: The CustomerVisit instance whose trip needs to be updated.
     """
     trip = visit_instance.trip
-    trip.status = Trip.COMPLETED
+    trip.status = COMPLETED
     trip.updated_by = visit_instance.updated_by
     trip.save()
 

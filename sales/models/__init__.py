@@ -1,8 +1,9 @@
-from datetime import timedelta, date
+from datetime import timedelta
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from libs.base_model import BaseModelGeneric, User
+from libs.constants import (WAITING, ON_PROGRESS, ARRIVED, COMPLETED, SKIPPED)
 from common.models import File, AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
 from inventory.models import Product, StockMovement, Unit, Warehouse
 from identities.models import CompanyProfile
@@ -442,11 +443,6 @@ class Trip(BaseModelGeneric):
         (DELIVERING, _('Delivering'))
     ]
 
-    WAITING = 'waiting'
-    ON_PROGRESS = 'on_progress'
-    ARRIVED = 'arrived'
-    COMPLETED = 'completed'
-    SKIPPED = 'skipped'
 
     STATUS_CHOICES = [
         (WAITING, _('Waiting')),
@@ -494,7 +490,7 @@ class CustomerVisit(BaseModelGeneric):
     sales_order = models.ForeignKey(
         SalesOrder, null=True, blank=True, on_delete=models.SET_NULL)
     status = models.CharField(
-        max_length=50, choices=Trip.STATUS_CHOICES, default=Trip.WAITING)
+        max_length=50, choices=Trip.STATUS_CHOICES, default=WAITING)
     order = models.PositiveIntegerField(verbose_name=_(
         'Order'), help_text=_(ORDER_OF_CUSTOMER_VISIT))
 

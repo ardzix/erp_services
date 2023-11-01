@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.db import models
 from django.dispatch import receiver
-from django.contrib.contenttypes.models import ContentType
+from libs.constants import WAITING, ON_PROGRESS, COMPLETED, SKIPPED
 from inventory.models import Product, StockMovementItem, WarehouseStock, Warehouse, StockMovement
 from ..helpers.sales_order import (canvasing_create_stock_movement,
                                    taking_order_create_stock_movement, handle_unapproved_sales_order,
@@ -151,7 +151,7 @@ def populate_trip_customer_from_template(sender, instance, created, **kwargs):
             CustomerVisit.objects.create(
                 trip=instance,
                 customer=trip_customer.customer,
-                status=Trip.WAITING,
+                status=WAITING,
                 order=trip_customer.order,
                 created_by=instance.created_by
             )
@@ -163,7 +163,7 @@ def generate_canvasing_report(sender, instance, **kwargs):
     Generates or updates a CustomerVisitReport when a CustomerVisit's status is either completed or skipped.
     Adds sold products to the report if there's an associated SalesOrder.
     """
-    if instance.status in [Trip.COMPLETED, Trip.SKIPPED]:
+    if instance.status in [COMPLETED, SKIPPED]:
         # If there's an existing report, just update. Else, create a new one.
         report, created = CustomerVisitReport.objects.get_or_create(
             customer_visit=instance,
@@ -246,7 +246,7 @@ def handle_customer_visit_completed(sender, instance, **kwargs):
         return
     sales_order.visit = instance
     # Check if the sales order is completed and call the approve method
-    if instance.status == Trip.COMPLETED:
+    if instance.status == COMPLETED:
         if instance.trip.type == Trip.CANVASING:
             sales_order.status = 'completed'
             sales_order.warehouse = instance.trip.vehicle.warehouse
@@ -319,10 +319,10 @@ def set_sales_order_to_completed(sender, instance, **kwargs):
         return
 
     # This checks if the 'status' field has been modified in the most recent save
-    if not instance.status == Trip.COMPLETED:
+    if not instance.status == COMPLETED:
         return
 
-    if (models.F('status') != Trip.COMPLETED and
+    if (models.F('status') != COMPLETED and
             instance.trip.type == Trip.CANVASING):
         instance.sales_order.status = SalesOrder.COMPLETED
         instance.sales_order.save()
@@ -351,7 +351,7 @@ def assign_trip_default_vehicle(sender, instance, created, **kwargs):
 @receiver(pre_save, sender=Trip)
 def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
     # 1. Trip status cannot be changed if its vehicle warehouse is null in canvassing.
-    if instance.status != Trip.WAITING and instance.type == Trip.CANVASING:
+    if instance.status != WAITING and instance.type == Trip.CANVASING:
         # If a trip vehicle is not specified
         if not instance.vehicle:
             raise ValidationError(
@@ -365,7 +365,7 @@ def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
 @receiver(pre_save, sender=CustomerVisit)
 def ensure_trip_status_on_progress(sender, instance, **kwargs):
     # 2. CustomerVisit status can only be changed if Trip status is ON_PROGRESS.
-    if instance.status != Trip.WAITING and instance.trip.status != Trip.ON_PROGRESS:
+    if instance.status != WAITING and instance.trip.status != ON_PROGRESS:
         raise ValidationError(
             _('CustomerVisit status can only be changed if associated Trip status is ON_PROGRESS.'))
 
@@ -373,7 +373,7 @@ def ensure_trip_status_on_progress(sender, instance, **kwargs):
 @receiver(pre_save, sender=CustomerVisit)
 def ensure_fields_present_when_skipped(sender, instance, **kwargs):
     # 4. CustomerVisit status cannot be changed to SKIPPED if notes, visit_evidence, or signature is null.
-    if instance.status == Trip.SKIPPED and not all([instance.notes, instance.visit_evidence, instance.signature]):
+    if instance.status == SKIPPED and not all([instance.notes, instance.visit_evidence, instance.signature]):
         raise ValidationError(
             _('CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or signature are null.'))
 
@@ -381,7 +381,7 @@ def ensure_fields_present_when_skipped(sender, instance, **kwargs):
 @receiver(pre_save, sender=CustomerVisit)
 def check_completed_customer_visit_requirements(sender, instance, **kwargs):
     # 5. Ensure necessary requirements are met when marking a CustomerVisit as COMPLETED.
-    if instance.status != Trip.COMPLETED:
+    if instance.status != COMPLETED:
         return
 
     if instance.trip.type == Trip.CANVASING:
