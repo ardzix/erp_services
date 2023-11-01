@@ -81,6 +81,7 @@ class MeSerializer(serializers.ModelSerializer):
     check_in = serializers.SerializerMethodField()
     last_attendance = serializers.SerializerMethodField()
     sales_trips = serializers.SerializerMethodField()
+    driver_jobs = serializers.SerializerMethodField()
     header_text = serializers.SerializerMethodField()
     has_request_item = serializers.SerializerMethodField()
     trip_template_id32s = serializers.SerializerMethodField()
@@ -88,7 +89,7 @@ class MeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'groups', 'check_in', 'last_attendance', 'sales_trips',
+        fields = ['username', 'email', 'groups', 'check_in', 'last_attendance', 'sales_trips', 'driver_jobs',
                   'header_text', 'has_request_item', 'trip_template_id32s', 'warehouse_assignment_id32s']
 
     def get_check_in(self, instance):
@@ -120,20 +121,27 @@ class MeSerializer(serializers.ModelSerializer):
 
         trips = Trip.objects.filter(salesperson=instance, date=date.today())
         return TripListSerializer(trips, many=True).data
-    
+
+    def get_driver_jobs(self, instance):
+        from logistics.models import Job
+        from logistics.serializers.job import JobListSerializer
+
+        jobs = Job.objects.filter(assigned_driver__owned_by=instance, date=date.today())
+        return JobListSerializer(jobs, many=True).data
+
     def get_header_text(self, instance):
         return 'Toko Rizz Grosir\nJalan Pelajar Pejuang no 13'
-    
+
     def get_has_request_item(self, instance):
         from inventory.models import StockMovement
         today = date.today()
         tomorrow = today + timedelta(days=1)
         return StockMovement.objects.filter(created_by=instance, movement_date__gte=tomorrow).exists()
-    
+
     def get_trip_template_id32s(self, instance):
         from sales.models import TripTemplate
         return TripTemplate.objects.filter(pic=instance).values_list('id32', flat=True)
-    
+
     def get_warehouse_assignment_id32s(self, instance):
         from inventory.models import Warehouse
         return Warehouse.objects.filter(pic=instance).values_list('id32', flat=True)

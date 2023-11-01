@@ -18,7 +18,7 @@ class VehicleAdmin(BaseAdmin):
 class DriverAdmin(BaseAdmin):
     list_display = ['id32', 'name', 'device_gps']
     search_fields = ['name']
-    fields = ['name', 'phone_number', 'device_gps']
+    fields = ['name', 'phone_number', 'device_gps', 'owned_by']
 
 
 

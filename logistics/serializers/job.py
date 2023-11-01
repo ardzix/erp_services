@@ -118,24 +118,7 @@ class DropUpdateSerializer(FileMixin, serializers.ModelSerializer):
         except DjangoCoreValidationError as e:
             raise serializers.ValidationError(e.messages)
 
-
-class JobListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Job
-        fields = ['id32', 'vehicle', 'trip',
-                  'assigned_driver', 'date', 'status']
-
-
-class JobDetailSerializer(serializers.ModelSerializer):
-    drops = DropListSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Job
-        fields = [
-            'id32', 'vehicle', 'trip', 'assigned_driver', 'date', 'start_time', 'end_time', 'status', 'drops'
-        ]
-        read_only_fields = ['id32', 'vehicle', 'trip', 'assigned_driver']
-
+class JobRepresentationMixin:
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['vehicle'] = {
@@ -156,3 +139,20 @@ class JobDetailSerializer(serializers.ModelSerializer):
             'value': status_dict.get(instance.status, ""),
         }
         return representation
+
+class JobListSerializer(JobRepresentationMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = ['id32', 'vehicle', 'trip',
+                  'assigned_driver', 'date', 'status']
+
+
+class JobDetailSerializer(JobRepresentationMixin, serializers.ModelSerializer):
+    drops = DropListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Job
+        fields = [
+            'id32', 'vehicle', 'trip', 'assigned_driver', 'date', 'start_time', 'end_time', 'status', 'drops'
+        ]
+        read_only_fields = ['id32', 'vehicle', 'trip', 'assigned_driver']
