@@ -129,10 +129,11 @@ class JobRepresentationMixin:
             'id32': instance.trip.id32,
             'str': instance.trip.__str__()
         }
-        representation['assigned_driver'] = {
-            'id32': instance.assigned_driver.id32,
-            'str': instance.assigned_driver.__str__()
-        }
+        if 'assigned_driver' in representation:
+            representation['assigned_driver'] = {
+                'id32': instance.assigned_driver.id32,
+                'str': instance.assigned_driver.__str__()
+            }
         status_dict = dict(STATUS_CHOICES)
         representation['status'] = {
             'key': instance.status,
