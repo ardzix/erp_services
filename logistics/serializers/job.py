@@ -129,7 +129,7 @@ class JobRepresentationMixin:
             'id32': instance.trip.id32,
             'str': instance.trip.__str__()
         }
-        if 'assigned_driver' in representation:
+        if instance.assigned_driver:
             representation['assigned_driver'] = {
                 'id32': instance.assigned_driver.id32,
                 'str': instance.assigned_driver.__str__()
