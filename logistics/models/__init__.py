@@ -109,9 +109,12 @@ class Drop(BaseModelGeneric):
         return f'{self.job} - {self.location_name}'
 
     @property
+    def sales_order(self):
+        return self.sales_visit.sales_order if self.sales_visit else None
+
+    @property
     def items(self):
         return self.sales_visit.sales_order.order_items.all() if self.sales_visit and self.sales_visit.sales_order else []
-
 
 class DriverMovement(BaseModelGeneric):
     driver = models.ForeignKey('Driver', on_delete=models.CASCADE, related_name='movements', help_text=_(

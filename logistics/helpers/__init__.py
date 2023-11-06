@@ -22,5 +22,6 @@ def create_drops_from_visits(job, customer_visits):
             location_name=f"{visit.customer.name} - {visit.customer.store_name}",
             address=visit.customer.address,
             location=visit.customer.location,
-            order=visit.order
+            order=visit.order,
+            sales_visit=visit
         )

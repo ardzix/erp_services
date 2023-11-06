@@ -16,7 +16,6 @@ def create_job_on_canvasing(sender, instance, created, **kwargs):
         create_job_from_trip(instance)
 
 
-
 @receiver(pre_save, sender=Trip)
 def create_job_on_taking_order_complete(sender, instance, **kwargs):
     """
