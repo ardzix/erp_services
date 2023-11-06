@@ -17,7 +17,7 @@ class Employee(BaseModelGeneric):
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, help_text=_("The department the employee belongs to"))
 
     def __str__(self):
-        return _("Employee #{emp_id} - {emp_name}").format(emp_id=self.id32, emp_name=self.user.get_full_name())
+        return _("Employee #{emp_id} - {emp_name}").format(emp_id=self.id32, emp_name=self.user.username)
 
     class Meta:
         verbose_name = _("Employee")
