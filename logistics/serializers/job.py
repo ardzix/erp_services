@@ -1,8 +1,10 @@
-from django.core.exceptions import ValidationError as DjangoCoreValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError as DjangoCoreValidationError
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from libs.utils import validate_file_by_id32, handle_file_fields
 from sales.serializers.sales import OrderItemSerializer
-from ..models import Drop, Job, STATUS_CHOICES
+from sales.models import Trip
+from ..models import Drop, Job, Vehicle, STATUS_CHOICES
 
 
 class LocationMixin:
@@ -118,6 +120,7 @@ class DropUpdateSerializer(FileMixin, serializers.ModelSerializer):
         except DjangoCoreValidationError as e:
             raise serializers.ValidationError(e.messages)
 
+
 class JobRepresentationMixin:
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -141,6 +144,7 @@ class JobRepresentationMixin:
         }
         return representation
 
+
 class JobListSerializer(JobRepresentationMixin, serializers.ModelSerializer):
     class Meta:
         model = Job
@@ -150,10 +154,42 @@ class JobListSerializer(JobRepresentationMixin, serializers.ModelSerializer):
 
 class JobDetailSerializer(JobRepresentationMixin, serializers.ModelSerializer):
     drops = DropListSerializer(many=True, read_only=True)
+    vehicle_id32 = serializers.CharField(write_only=True)
+    trip_id32 = serializers.CharField(write_only=True)
 
     class Meta:
         model = Job
         fields = [
-            'id32', 'vehicle', 'trip', 'assigned_driver', 'date', 'start_time', 'end_time', 'status', 'drops'
+            'id32', 'vehicle', 'vehicle_id32', 'trip', 'trip_id32', 'assigned_driver', 'date', 'start_time', 'end_time', 'status', 'drops'
         ]
         read_only_fields = ['id32', 'vehicle', 'trip', 'assigned_driver']
+
+    def validate_id32(self, id32, model, error_msg):
+        try:
+            return model.objects.get(id32=id32)
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(error_msg)
+
+    def validate_vehicle_id32(self, value):
+        return self.validate_id32(value, Vehicle, _("Provided vehicle_id32 does not match any Vehicle records."))
+
+    def validate_trip_id32(self, value):
+        return self.validate_id32(value, Trip, _("Provided trip_id32 does not match any Trip records."))
+
+    def handle_related_object(self, validated_data, field_name, obj):
+        if obj:
+            validated_data[field_name] = obj
+
+    def create(self, validated_data):
+        self.handle_related_object(
+            validated_data, 'vehicle', validated_data.pop('vehicle_id32', None))
+        self.handle_related_object(
+            validated_data, 'trip', validated_data.pop('trip_id32', None))
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        self.handle_related_object(
+            validated_data, 'vehicle', validated_data.pop('vehicle_id32', None))
+        self.handle_related_object(
+            validated_data, 'trip', validated_data.pop('trip_id32', None))
+        return super().update(instance, validated_data)

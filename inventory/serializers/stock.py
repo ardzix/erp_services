@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from ..models import WarehouseStock, Warehouse, Product, Unit, StockMovementItem
 
