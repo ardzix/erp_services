@@ -13,14 +13,32 @@ from ..serializers.attendance import (ClockInSerializer, ClockOutSerializer,
 
 
 class AttendanceFilter(django_filters.FilterSet):
-    year_month = django_filters.CharFilter(
-        field_name='clock_in', lookup_expr='year_month', required=True, help_text=_('Year and month in YYYY-MM format'))
-    employee_search = django_filters.CharFilter()
+    year_month = django_filters.CharFilter(method='filter_year_month', help_text=_('Year and month in YYYY-MM format'))
+    employee_search = django_filters.CharFilter(method='filter_employee')
 
     class Meta:
         model = Attendance
         fields = ['year_month']
 
+
+    def filter_year_month(self, queryset, name, value):
+        # Split the value into year and month
+        try:
+            year, month = map(int, value.split('-'))
+            # Filter based on year and month
+            return queryset.filter(
+                Q(clock_in__year=year) & Q(clock_in__month=month)
+            )
+        except ValueError:
+            # In case of an invalid format, return an empty queryset or handle as needed
+            return queryset.none()
+
+    def filter_employee(self, queryset, name, value):
+        return queryset.filter(
+            Q(employee__user__username__icontains=value) |
+            Q(employee__user__first_name__icontains=value) |
+            Q(employee__user__last_name__icontains=value)
+        )
 
 class AttendanceViewSet(mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin,
