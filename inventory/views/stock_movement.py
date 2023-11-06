@@ -88,7 +88,7 @@ class StockMovementViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination
-    filter_backends = (django_filters.DjangoFilterBackend,)
+    filter_backends = (django_filters.DjangoFilterBackend, django_filters.OrderingFilter)
     filterset_class = StockMovementFilter
 
     def get_serializer_class(self):

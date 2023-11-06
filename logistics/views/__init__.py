@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from libs.pagination import CustomPagination
 from libs.filter import CreatedAtFilterMixin
 from ..models import Vehicle, Driver, Job, Drop, STATUS_CHOICES
@@ -13,16 +13,20 @@ from ..serializers.job import JobDetailSerializer, JobListSerializer, DropDetail
 class VehicleViewSet(viewsets.ModelViewSet):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
-    lookup_field = 'id32'
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
     pagination_class = CustomPagination 
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ['name', 'license_plate']
+    lookup_field = 'id32'
 
 class DriverViewSet(viewsets.ModelViewSet):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
-    lookup_field = 'id32'
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
     pagination_class = CustomPagination 
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ['name', 'phone_number']
+    lookup_field = 'id32'
 
 
 
@@ -50,9 +54,12 @@ class JobFilter(CreatedAtFilterMixin):
 class JobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.all()
     serializer_class = JobDetailSerializer
-    lookup_field = 'id32'
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
     pagination_class = CustomPagination 
+    filterset_class = JobFilter
+    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ['vehicle__name', 'assigned_driver__name', 'trip__template__name']
+    lookup_field = 'id32'
 
     def get_serializer_class(self):
         if self.action == 'list':

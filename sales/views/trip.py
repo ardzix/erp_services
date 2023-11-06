@@ -82,8 +82,8 @@ class TripViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
     pagination_class = CustomPagination
     serializer_class = TripDetailSerializer
-    filter_backends = (filters.DjangoFilterBackend, SearchFilter,)
     filterset_class = TripFilter
+    filter_backends = (filters.DjangoFilterBackend, SearchFilter,)
     search_fields = ['salesperson__username', 'vehicle__name', 'template__name']
     http_method_names = ['get', 'patch', 'delete', 'head', 'options', 'put']
 

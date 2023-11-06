@@ -2,7 +2,7 @@ import django_filters
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Sum, F, DurationField, When, Case, Q
 from django.utils.translation import gettext_lazy as _
-from rest_framework import viewsets, mixins, status, permissions
+from rest_framework import viewsets, mixins, status, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from libs.pagination import CustomPagination
@@ -50,7 +50,7 @@ class AttendanceViewSet(mixins.CreateModelMixin,
                           permissions.DjangoModelPermissions]
     pagination_class = CustomPagination
     filterset_class = AttendanceFilter
-    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     lookup_field = 'id32'
 
     def get_serializer_class(self):

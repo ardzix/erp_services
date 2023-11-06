@@ -27,8 +27,8 @@ class ProductViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination
-    filter_backends = (filters.SearchFilter, django_filters.DjangoFilterBackend,)
     filterset_class = ProductFilter
+    filter_backends = (filters.SearchFilter, django_filters.DjangoFilterBackend, filters.OrderingFilter,)
     search_fields = ['name',]
 
     def get_serializer_class(self):
@@ -65,6 +65,8 @@ class UnitViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ['name', 'symbol']
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -80,6 +82,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ['name']
 
     def get_serializer_class(self):
         if self.action == 'list':

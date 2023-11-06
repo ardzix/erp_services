@@ -4,11 +4,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.response import Response
 from django.utils import timezone
-from django_filters import rest_framework as filters
+from django_filters import rest_framework as django_filters
 from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from libs.permission import CanApprovePurchaseOrderPermission
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from inventory.models import Product
 from ..models import Supplier, SupplierProduct, PurchaseOrder, InvalidPOItem
 from ..serializers.supplier import (
@@ -33,10 +33,11 @@ class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     permission_classes = [permissions.IsAuthenticated,
                           permissions.DjangoModelPermissions]
-    lookup_field = 'id32'
     pagination_class = CustomPagination
-    filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = SupplierFilter
+    filter_backends = (django_filters.DjangoFilterBackend, django_filters.OrderingFilter, filters.SearchFilter)
+    search_fields = ['name', 'contact_number', 'address']
+    lookup_field = 'id32'
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -55,8 +56,10 @@ class SupplierProductViewSet(viewsets.ModelViewSet):
     serializer_class = SupplierProductSerializer
     permission_classes = [permissions.IsAuthenticated,
                           permissions.DjangoModelPermissions]
-    lookup_field = 'id32'
     pagination_class = CustomPagination
+    filter_backends = (django_filters.DjangoFilterBackend, django_filters.OrderingFilter, filters.SearchFilter)
+    search_fields = ['supplier__name', 'product__name']
+    lookup_field = 'id32'
 
     @action(detail=False, methods=['post'], serializer_class=BulkAddProductsSerializer)
     def bulk_add(self, request, *args, **kwargs):
@@ -75,7 +78,7 @@ class SupplierProductViewSet(viewsets.ModelViewSet):
         return Response({"detail": "Products added successfully to the supplier."})
 
 
-class PurchaseOrderFilter(CreatedAtFilterMixin, filters.FilterSet):
+class PurchaseOrderFilter(CreatedAtFilterMixin, django_filters.FilterSet):
     APPROVAL_CHOICES = [
         ('all', 'All'),
         ('requested', 'Requested'),
@@ -83,7 +86,7 @@ class PurchaseOrderFilter(CreatedAtFilterMixin, filters.FilterSet):
         ('rejected', 'Rejected'),
     ]
 
-    approval = filters.ChoiceFilter(
+    approval = django_filters.ChoiceFilter(
         method='filter_approval', choices=APPROVAL_CHOICES, label='Approval Status'
     )
 
@@ -108,10 +111,11 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
     serializer_class = PurchaseOrderDetailSerializer
     permission_classes = [permissions.IsAuthenticated,
                           permissions.DjangoModelPermissions]
-    lookup_field = 'id32'
     pagination_class = CustomPagination
-    filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = PurchaseOrderFilter
+    filter_backends = (django_filters.DjangoFilterBackend, django_filters.OrderingFilter, filters.SearchFilter)
+    search_fields = ['supplier__name']
+    lookup_field = 'id32'
 
     def get_serializer_class(self):
         if self.action == 'list':

@@ -28,13 +28,14 @@ class WarehouseStockViewSet(viewsets.ModelViewSet):
     queryset = WarehouseStock.objects.filter(quantity__gt=0)
     serializer_class = WarehouseStockSerializer
     filter_backends = (filters.OrderingFilter,
-                       django_filters.DjangoFilterBackend)
+                       django_filters.DjangoFilterBackend,
+                       filters.SearchFilter)
     filterset_class = WarehouseStockFilter
     permission_classes = [permissions.IsAuthenticated,
                           permissions.DjangoModelPermissions]
-    lookup_field = 'id32'
     pagination_class = CustomPagination
-    ordering_fields = ['id32']
+    lookup_field = 'id32'
+    search_fields = ['warehouse__name', 'product__name']
 
     def get_serializer_class(self):
         if self.action == 'distinct':
