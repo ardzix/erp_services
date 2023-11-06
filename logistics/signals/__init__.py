@@ -27,6 +27,7 @@ def create_job_on_taking_order_complete(sender, instance, **kwargs):
         if instance.type == Trip.TAKING_ORDER and instance.status == COMPLETED and old_instance.status != COMPLETED:
             create_job_from_trip(instance)
 
+
 @receiver(post_save, sender=Job)
 def generate_drops_for_job(sender, instance, created, **kwargs):
     """
