@@ -70,3 +70,15 @@ class AdministrativeLvl4(AdministrativeBaseModel):
 
     class Meta:
         verbose_name = _("Administrative Lvl 4")
+
+
+class Configuration(models.Model):
+    key = models.CharField(max_length=255, unique=True, help_text="The name of the configuration setting")
+    value = models.TextField(help_text="The value of the configuration setting")
+
+    def __str__(self):
+        return f"{self.key}: {self.value}"
+
+    class Meta:
+        verbose_name = "Configuration"
+        verbose_name_plural = "Configurations"

@@ -1,5 +1,14 @@
 from rest_framework import serializers
-from common.models import File
+from common.models import File, Configuration
+
+TRUE = ['true', 'True', 1, True]
+
+def get_config_value(key):
+    try:
+        return Configuration.objects.get(key=key).value
+    except Configuration.DoesNotExist:
+        return None
+
 
 def validate_file_by_id32(value, error_message):
     """

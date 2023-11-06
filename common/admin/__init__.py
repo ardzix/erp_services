@@ -1,8 +1,8 @@
 from django.contrib import admin
-from libs.admin import ApproveRejectMixin, BaseAdmin
+from libs.admin import BaseAdmin
 
 # Register your models here.
-from ..models import File
+from ..models import File, Configuration
 
 
 
@@ -17,3 +17,9 @@ class FileAdmin(BaseAdmin):
         super().save_model(request, obj, form, change)
 
 admin.site.register(File, FileAdmin)
+
+
+@admin.register(Configuration)
+class ConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('key', 'value')
+    search_fields = ('key',)

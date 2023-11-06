@@ -1,0 +1,17 @@
+[
+    {
+      "model": "logistics.configuration",
+      "fields": {
+        "key": "driver_work_only_weekday",
+        "value": "true"
+      }
+    },
+    {
+      "model": "logistics.configuration",
+      "fields": {
+        "key": "sales_work_only_weekday",
+        "value": "true"
+      }
+    }
+  ]
+  
