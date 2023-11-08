@@ -1,5 +1,6 @@
 from datetime import timedelta
 from libs.utils import get_config_value, TRUE
+from sales.models import Customer
 from ..models import Job, Drop
 
 def add_one_day(trip_date):
@@ -37,6 +38,7 @@ def create_drops_from_visits(job, customer_visits):
             location_name=f"{visit.customer.name} - {visit.customer.store_name}",
             address=visit.customer.address,
             location=visit.customer.location,
+            retrieve_payment=True if visit.customer.payment_type == Customer.COD else False,
             order=visit.order,
             sales_visit=visit
         )
