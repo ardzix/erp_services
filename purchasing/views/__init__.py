@@ -1,14 +1,11 @@
-from rest_framework import viewsets, permissions
+from django_filters import rest_framework as django_filters
+from django.utils import timezone
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.response import Response
-from django.utils import timezone
-from django_filters import rest_framework as django_filters
 from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from libs.permission import CanApprovePurchaseOrderPermission
-from rest_framework import viewsets, filters
 from inventory.models import Product
 from ..models import Supplier, SupplierProduct, PurchaseOrder, InvalidPOItem
 from ..serializers.supplier import (
@@ -35,7 +32,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     pagination_class = CustomPagination
     filterset_class = SupplierFilter
-    filter_backends = (django_filters.DjangoFilterBackend, django_filters.OrderingFilter, filters.SearchFilter)
+    filter_backends = (django_filters.DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter)
     search_fields = ['name', 'contact_number', 'address']
     lookup_field = 'id32'
 
@@ -57,7 +54,7 @@ class SupplierProductViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,
                           permissions.DjangoModelPermissions]
     pagination_class = CustomPagination
-    filter_backends = (django_filters.DjangoFilterBackend, django_filters.OrderingFilter, filters.SearchFilter)
+    filter_backends = (django_filters.DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter)
     search_fields = ['supplier__name', 'product__name']
     lookup_field = 'id32'
 
@@ -113,7 +110,7 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     pagination_class = CustomPagination
     filterset_class = PurchaseOrderFilter
-    filter_backends = (django_filters.DjangoFilterBackend, django_filters.OrderingFilter, filters.SearchFilter)
+    filter_backends = (django_filters.DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter)
     search_fields = ['supplier__name']
     lookup_field = 'id32'
 

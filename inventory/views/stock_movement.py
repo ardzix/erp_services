@@ -1,7 +1,7 @@
 from django_filters import rest_framework as django_filters
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from rest_framework import viewsets, permissions, mixins, status
+from rest_framework import viewsets, permissions, mixins, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from libs.filter import CreatedAtFilterMixin
@@ -88,7 +88,7 @@ class StockMovementViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination
-    filter_backends = (django_filters.DjangoFilterBackend, django_filters.OrderingFilter)
+    filter_backends = (django_filters.DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = StockMovementFilter
 
     def get_serializer_class(self):
