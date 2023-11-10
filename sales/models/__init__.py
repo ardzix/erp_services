@@ -473,7 +473,7 @@ class Trip(BaseModelGeneric):
         verbose_name_plural = _('Trips')
 
     def __str__(self):
-        return f'{self.template.name} on {self.date}'
+        return f'#{self.id32} {self.template.name} on {self.date}'
     
     @property
     def stock_movement_id32s(self):

@@ -8,7 +8,6 @@ from libs.constants import WAITING, ON_PROGRESS, COMPLETED, SKIPPED
 from inventory.models import Product, StockMovementItem, WarehouseStock, Warehouse, StockMovement
 from ..helpers.sales_order import (canvasing_create_stock_movement,
                                    taking_order_create_stock_movement, handle_unapproved_sales_order,
-                                   has_completed_status_changed, create_stock_movement_for_trip_completed,
                                    all_visits_completed_or_skipped,update_trip_status_to_completed,
                                    handle_canvasing_trip,set_salesperson_able_to_checkout)
 from ..scripts import generate_invoice_pdf_for_instance

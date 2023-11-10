@@ -38,15 +38,6 @@ class JobAdmin(BaseAdmin):
     raw_id_fields = ['vehicle', 'assigned_driver', 'trip']
     inlines = [DropInline]  # Add the inline to your admin
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "trip":
-            kwargs["queryset"] = StockMovement.objects.filter(
-                origin_id__isnull=False,
-                destination_id__isnull=False,
-                status=4
-            )
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 
 @admin.register(DriverMovement)
