@@ -82,6 +82,7 @@ class MeSerializer(serializers.ModelSerializer):
     last_attendance = serializers.SerializerMethodField()
     sales_trips = serializers.SerializerMethodField()
     driver_jobs = serializers.SerializerMethodField()
+    collector_trips = serializers.SerializerMethodField()
     header_text = serializers.SerializerMethodField()
     has_request_item = serializers.SerializerMethodField()
     trip_template_id32s = serializers.SerializerMethodField()
@@ -90,7 +91,7 @@ class MeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'groups', 'check_in', 'last_attendance', 'sales_trips', 'driver_jobs',
-                  'header_text', 'has_request_item', 'trip_template_id32s', 'warehouse_assignment_id32s']
+                  'collector_trips', 'header_text', 'has_request_item', 'trip_template_id32s', 'warehouse_assignment_id32s']
 
     def get_check_in(self, instance):
         from hr.models import Attendance
@@ -126,8 +127,16 @@ class MeSerializer(serializers.ModelSerializer):
         from logistics.models import Job
         from logistics.serializers.job import JobListSerializer
 
-        jobs = Job.objects.filter(assigned_driver__owned_by=instance, date=date.today())
+        jobs = Job.objects.filter(
+            assigned_driver__owned_by=instance, date=date.today())
         return JobListSerializer(jobs, many=True).data
+    
+    def get_collector_trips(self, instance):
+        from sales.models import Trip
+        from sales.serializers.trip import TripListSerializer
+
+        trips = Trip.objects.filter(salesperson=instance, date=date.today())
+        return TripListSerializer(trips, many=True).data
 
     def get_header_text(self, instance):
         return 'Toko Rizz Grosir\nJalan Pelajar Pejuang no 13'

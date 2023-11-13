@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from common.models import File, Configuration
+from datetime import timedelta
 
 TRUE = ['true', 'True', 1, True]
 
@@ -51,3 +52,17 @@ def handle_file_fields(validated_data, fields):
             file_object = validated_data.pop(field_name)
             validated_data[model_name] = file_object
     return validated_data
+
+
+def add_one_day(date):
+    new_date = date + timedelta(days=1)
+
+    if get_config_value('driver_work_only_weekday') in TRUE:
+        # If the new_date falls on a Saturday (5), add two more days to make it Monday
+        if new_date.weekday() == 5:
+            new_date += timedelta(days=2)
+        # If the new_date falls on a Sunday (6), add one more day to make it Monday
+        elif new_date.weekday() == 6:
+            new_date += timedelta(days=1)
+
+    return new_date

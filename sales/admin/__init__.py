@@ -109,16 +109,16 @@ class CustomerVisitInline(admin.TabularInline):
 @admin.register(TripTemplate)
 class TripTemplateAdmin(BaseAdmin):
     list_display = ('id32', 'name')
-    fields = ('name', 'pic', 'vehicles')
+    fields = ('name', 'pic', 'collector_pic', 'vehicles')
     search_fields = ('name',)
-    raw_id_fields = ('pic', 'vehicles')
+    raw_id_fields = ('pic', 'vehicles', 'collector_pic')
     inlines = [TripCustomerInline]
 
 
 @admin.register(Trip)
 class TripAdmin(BaseAdmin):
     list_display = ('id32', 'template', 'date',
-                    'salesperson', 'vehicle', 'status')
+                    'salesperson', 'collector', 'vehicle', 'status')
     fields = ('template', 'date', 'salesperson', 'vehicle', 'status')
     list_filter = ('status', 'date')
     search_fields = ('template__name',

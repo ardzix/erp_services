@@ -72,13 +72,16 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
         many=True, source='tripcustomer_set')
     pic_usernames = UsernamesField(
         source='pic', many=True,  required=False, queryset=User.objects.all())
+    collector_pic_usernames = UsernamesField(
+        source='collector_pic', many=True,  required=False, queryset=User.objects.all())
     vehicle_id32s = VehiclesField(
         source='vehicles', many=True, write_only=True, required=False, queryset=Vehicle.objects.all())
 
     class Meta:
         model = TripTemplate
         fields = ['id32', 'name', 'trip_customers',
-                  'pic_usernames', 'vehicle_id32s', 'vehicles']
+                  'pic_usernames', 'collector_pic_usernames', 
+                  'vehicle_id32s', 'vehicles']
         read_only_fields = ['id32', 'vehicles']
 
     def to_representation(self, instance):
@@ -90,12 +93,14 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         trip_customers_data = validated_data.pop('tripcustomer_set', [])
         pic = validated_data.pop('pic', [])
+        collector_pic = validated_data.pop('collector_pic', [])
         vehicles = validated_data.pop('vehicles', [])
 
         trip_template = TripTemplate.objects.create(**validated_data)
 
         # Assign the provided users to pic
         trip_template.pic.set(pic)
+        trip_template.pic.set(collector_pic)
         # Assign the provided vehicles
         trip_template.vehicles.set(vehicles)
 
@@ -109,6 +114,7 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         trip_customers_data = validated_data.pop('tripcustomer_set', [])
         pic = validated_data.pop('pic', [])
+        collector_pic = validated_data.pop('collector_pic', [])
         vehicles = validated_data.pop('vehicles', [])
 
         # Update the TripTemplate fields
@@ -118,6 +124,7 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
 
         # Assign the provided users to pic
         instance.pic.set(pic)
+        instance.pic.set(collector_pic)
         # Assign the provided vehicles
         instance.vehicles.set(vehicles)
 
@@ -173,6 +180,11 @@ class TripRepresentationMixin():
                 'username': instance.salesperson.username,
                 'full_name': f'{instance.salesperson.first_name} {instance.salesperson.last_name}'
             }
+        if instance.collector:
+            representation['collector'] = {
+                'username': instance.collector.username,
+                'full_name': f'{instance.collector.first_name} {instance.collector.last_name}'
+            }
 
         return representation
 
@@ -206,7 +218,7 @@ class TripListSerializer(TripRepresentationMixin, serializers.ModelSerializer):
     class Meta:
         model = Trip
         fields = ['id32', 'template', 'date',
-                  'salesperson', 'vehicle', 'status']
+                  'salesperson', 'collector', 'vehicle', 'status']
         read_only_fields = ['id32']
 
 
@@ -217,7 +229,7 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
 
     class Meta:
         model = Trip
-        fields = ['id32', 'template', 'date', 'type', 'salesperson',
+        fields = ['id32', 'template', 'date', 'type', 'salesperson', 'collector',
                   'vehicle', 'status', 'customer_visits', 'stock_movement_id32s']
         read_only_fields = ['id32', 'vehicle',
                             'salesperson', 'customer_visits', 'template']
@@ -225,11 +237,12 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
 
 class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer):
     salesperson_username = serializers.CharField(write_only=True)
+    colletor_username = serializers.CharField(write_only=True)
     vehicle_id32 = serializers.CharField(write_only=True)
 
     class Meta:
         model = Trip
-        fields = ['date', 'type', 'salesperson_username',
+        fields = ['date', 'type', 'salesperson_username', 'colletor_username',
                   'vehicle_id32', 'status']
 
     def update(self, instance, validated_data):
@@ -237,8 +250,12 @@ class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer)
             validated_data['vehicle'] = validated_data.pop('vehicle_id32')
 
         if 'salesperson_username' in validated_data:
-            validated_data['sales_person'] = validated_data.pop(
+            validated_data['salesperson'] = validated_data.pop(
                 'salesperson_username')
+
+        if 'colletor_username' in validated_data:
+            validated_data['collector'] = validated_data.pop(
+                'colletor_username')
 
         try:
             return super().update(instance, validated_data)
@@ -251,6 +268,14 @@ class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer)
         except User.DoesNotExist:
             raise serializers.ValidationError(
                 _("Salesperson with this username does not exist."))
+        return user
+
+    def validate_colletor_username(self, value):
+        try:
+            user = User.objects.get(username=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                _("Collector with this username does not exist."))
         return user
 
     def validate_vehicle_id32(self, value):

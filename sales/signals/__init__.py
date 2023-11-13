@@ -5,11 +5,14 @@ from django.utils import timezone
 from django.db import models
 from django.dispatch import receiver
 from libs.constants import WAITING, ON_PROGRESS, COMPLETED, SKIPPED
-from inventory.models import Product, StockMovementItem, WarehouseStock, Warehouse, StockMovement
+from libs.utils import add_one_day
+from inventory.models import Product, StockMovementItem, WarehouseStock
 from ..helpers.sales_order import (canvasing_create_stock_movement,
                                    taking_order_create_stock_movement, handle_unapproved_sales_order,
-                                   all_visits_completed_or_skipped,update_trip_status_to_completed,
-                                   handle_canvasing_trip,set_salesperson_able_to_checkout)
+                                   all_visits_completed_or_skipped, update_trip_status_to_completed,
+                                   handle_canvasing_trip, set_salesperson_able_to_checkout)
+from ..helpers.trip import (create_collector_trip,
+                          create_customer_visits_for_collector_trip)
 from ..scripts import generate_invoice_pdf_for_instance
 from ..models import (
     OrderItem,
@@ -36,12 +39,12 @@ from ..models import (
 # 10. update_order_status: Before saving a `SalesOrder`, this signal checks if the approval status of the order has changed.
 # 11. create_invoice_on_order_submit: After saving a `SalesOrder`, if the order's status is 'SUBMITTED' and there isn't already an associated invoice,this signal creates a new `Invoice` entry associated with the given order.
 # 12. handle_customer_visit_completed: Handle logic of if customer visit is completed
-# 13. sales_order_saved: Generate invoice PDF if `SalesOrder` is saved
-# 14. order_item_saved: Generate invoice PDF if `OrderItem` is saved
+# 13. generate_invoice_pdf_from_sales_order: Generate invoice PDF if `SalesOrder` is saved
+# 14. generate_invoice_pdf_from_order_items: Generate invoice PDF if `OrderItem` is saved
 # 15. set_sales_order_to_processing: Associate SalesOrder's status is set to 'PROCESSING' and its approve() method is called
 # 16. set_sales_order_to_completed: Set the associated CustomerVisit's SalesOrder's status is set to 'COMPLETED'
 # 17. assign_trip_default_vehicle: Assigns the first vehicle from the associated TripTemplate
-# 18. create_trip_return_stock_movement: Create stock movement from remaining trip stock if the trip is completed
+# 18. create_collector_trip_on_taking_order_complete: Create Trip for collector after the taking order completed
 
 
 @receiver(pre_save, sender=OrderItem)
@@ -194,7 +197,6 @@ def update_trip_status_if_visit_completed(sender, instance, **kwargs):
         set_salesperson_able_to_checkout(instance)
 
 
-
 @receiver(pre_save, sender=SalesOrder)
 def update_order_status(sender, instance, **kwargs):
     """
@@ -254,7 +256,7 @@ def handle_customer_visit_completed(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=SalesOrder)
-def sales_order_saved(sender, instance, **kwargs):
+def generate_invoice_pdf_from_sales_order(sender, instance, **kwargs):
     """
     After saving a `SalesOrder`, if the invoice PDF hasn't been generated and there are associated order items, 
     this signal triggers the generation of an invoice PDF for the order.
@@ -267,7 +269,7 @@ def sales_order_saved(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=OrderItem)
-def order_item_saved(sender, instance, **kwargs):
+def generate_invoice_pdf_from_order_items(sender, instance, **kwargs):
     """
     After saving an `OrderItem`, this signal checks the associated `SalesOrder` to determine if an invoice PDF needs to be generated.
     If the PDF hasn't been generated for the order, it triggers its generation.
@@ -341,6 +343,25 @@ def assign_trip_default_vehicle(sender, instance, created, **kwargs):
         if vehicle:
             instance.vehicle = vehicle
             instance.save()
+
+
+@receiver(pre_save, sender=Trip)
+def create_collector_trip_on_taking_order_complete(sender, instance, **kwargs):
+    """
+    Create a Collector Trip when a Trip with type 'TAKING_ORDER' changes status to 'COMPLETED'.
+    Only applicable for trips where a customer with payment type credit exists.
+    """
+    if instance.pk and instance.status == COMPLETED and instance.type == Trip.TAKING_ORDER:
+        old_instance = Trip.objects.filter(pk=instance.pk).first()
+
+        if old_instance and old_instance.status != COMPLETED:
+            credit_type_visits = instance.customervisit_set.filter(
+                customer__payment_type=Customer.CREDIT)
+
+            if credit_type_visits.exists():
+                collector_trip = create_collector_trip(instance)
+                create_customer_visits_for_collector_trip(
+                    credit_type_visits, collector_trip)
 
 
 # ==================================================================================

@@ -384,8 +384,10 @@ class TripTemplate(BaseModelGeneric):
         'Name'), help_text=_('Enter the name for the canvasing trip template'))
     customers = models.ManyToManyField(Customer, through='TripCustomer', verbose_name=_(
         'Customers'), help_text=_('Select customers for this trip template'))
-    pic = models.ManyToManyField(User, blank=True, help_text=_(
-        'Select people in charge of this trip'))
+    pic = models.ManyToManyField(User, blank=True, related_name='%(app_label)s_%(class)s_pic',
+                                 help_text=_('Select people in charge of this trip'))
+    collector_pic = models.ManyToManyField(User, blank=True, related_name='%(app_label)s_%(class)s_collector_pic',
+                                           help_text=_('Select people in charge of this trip'))
     vehicles = models.ManyToManyField('logistics.Vehicle', blank=True, help_text=_(
         'Select vehicles prefered for this trip'))
 
@@ -435,14 +437,11 @@ class Trip(BaseModelGeneric):
     CANVASING = 'canvasing'
     TAKING_ORDER = 'taking_order'
     COLLECTING = 'collecting'
-    DELIVERING = 'delivering'
     TYPE_CHOICES = [
         (CANVASING, _('Canvasing')),
         (TAKING_ORDER, _('Taking Order')),
         (COLLECTING, _('Collecting')),
-        (DELIVERING, _('Delivering'))
     ]
-
 
     STATUS_CHOICES = [
         (WAITING, _('Waiting')),
@@ -455,9 +454,11 @@ class Trip(BaseModelGeneric):
     template = models.ForeignKey(
         TripTemplate, on_delete=models.CASCADE)
     date = models.DateField(verbose_name=_(
-        'Date'), help_text=_('Date for the canvasing trip'))
+        'Date'), help_text=_('Date for the trip'))
     salesperson = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='canvasing_salesperson')
+        User, on_delete=models.CASCADE, related_name='trip_salesperson')
+    collector = models.ForeignKey(
+        User, on_delete=models.SET_NULL, blank=True, null=True, related_name='trip_collector')
     vehicle = models.ForeignKey(
         'logistics.Vehicle', on_delete=models.SET_NULL, blank=True, null=True
     )
@@ -466,6 +467,7 @@ class Trip(BaseModelGeneric):
     status = models.CharField(
         max_length=50, choices=STATUS_CHOICES, default=WAITING)
     is_delivery_processed = models.BooleanField(default=False)
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         ordering = ['-id']
@@ -473,8 +475,8 @@ class Trip(BaseModelGeneric):
         verbose_name_plural = _('Trips')
 
     def __str__(self):
-        return f'#{self.id32} {self.template.name} on {self.date}'
-    
+        return f'#{self.id32} {self.type} of {self.template.name} on {self.date}'
+
     @property
     def stock_movement_id32s(self):
         visits = self.customervisit_set
@@ -482,7 +484,8 @@ class Trip(BaseModelGeneric):
             return []
         sales_order_ids = visits.values_list('sales_order', flat=True)
         sales_order = SalesOrder.objects.filter(id__in=sales_order_ids)
-        return sales_order.values_list('stock_movement__id32',flat=True) if sales_order else []
+        return sales_order.values_list('stock_movement__id32', flat=True) if sales_order else []
+
 
 class CustomerVisit(BaseModelGeneric):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
