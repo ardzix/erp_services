@@ -2,8 +2,9 @@ from datetime import timedelta
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
+from libs.utils import get_config_value
 from libs.base_model import BaseModelGeneric, User
-from libs.constants import (WAITING, ON_PROGRESS, ARRIVED, COMPLETED, SKIPPED)
+from libs.constants import (WAITING, ON_PROGRESS, ARRIVED, COMPLETED, SKIPPED, VAT_DEFAULT)
 from common.models import File, AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
 from inventory.models import Product, StockMovement, Unit, Warehouse
 from identities.models import CompanyProfile
@@ -195,6 +196,22 @@ class SalesOrder(BaseModelGeneric):
     def customer_visits(self):
         return self.customervisit_set.all().order_by('-created_at')
 
+    @property
+    def subtotal(self):
+       return self.invoice.subtotal
+    
+    @property
+    def vat_percent(self):
+        return self.invoice.vat_percent
+
+    @property
+    def vat_amount(self):
+        return self.invoice.vat_amount
+
+    @property
+    def total(self):
+        return self.invoice.total
+
 
 class OrderItem(BaseModelGeneric):
     order = models.ForeignKey(
@@ -261,7 +278,6 @@ class Invoice(BaseModelGeneric):
         verbose_name=_(APPROVED_AT),
         help_text=_(APPROVED_AT_HELP_TEXT)
     )
-    # Add any other fields specific to your invoice model
     vat = models.DecimalField(
         max_digits=5,
         decimal_places=4,
@@ -269,7 +285,6 @@ class Invoice(BaseModelGeneric):
             MinValueValidator(0),  # minimum value is 0
             MaxValueValidator(1)   # maximum value is 1
         ],
-        default=0.11,
         help_text=_('Value Added Tax percentage in decimal'))
     attachment = models.ForeignKey(
         File, related_name='%(app_label)s_%(class)s_attachment', blank=True, null=True, on_delete=models.SET_NULL)
@@ -278,6 +293,13 @@ class Invoice(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _('Invoice')
         verbose_name_plural = _('Invoices')
+
+    def save(self, *args, **kwargs):
+        # Check if vat is None and set default value
+        if self.vat is None:
+            self.vat = get_config_value('vat_percent', VAT_DEFAULT)
+
+        super(Invoice, self).save(*args, **kwargs)
 
     def __str__(self):
         return _('Invoice #{id32} - {order}').format(id32=self.id32, order=self.order)
@@ -304,6 +326,7 @@ class Invoice(BaseModelGeneric):
 
     @property
     def total(self):
+        print(self.subtotal, self.vat_amount)
         return self.subtotal + self.vat_amount
 
     @property

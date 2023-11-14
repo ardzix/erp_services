@@ -64,6 +64,8 @@ class TripFilter(CreatedAtFilterMixin):
     delivery_ready = filters.ChoiceFilter(
         method='filter_delivery_ready', choices=MOVEMENT_CHOICES, label='Delivery Ready Status'
     )
+    salesperson_username = filters.CharFilter(field_name="salesperson__username")
+    collector_username = filters.CharFilter(field_name="collector__username")
 
     class Meta:
         model = Trip

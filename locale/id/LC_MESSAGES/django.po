@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-07 05:08+0700\n"
+"POT-Creation-Date: 2023-11-14 09:54+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,188 +18,209 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: accounting/models/__init__.py:13 crm/models/__init__.py:51
+#: accounting/models/__init__.py:14 crm/models/__init__.py:51
 #, python-brace-format
 msgid "Account #{account_id} - {account_name}"
 msgstr "Akun #{account_id} - {account_name}"
 
-#: accounting/models/__init__.py:16 crm/models/__init__.py:54
+#: accounting/models/__init__.py:17 crm/models/__init__.py:54
 msgid "Account"
 msgstr "Akun"
 
-#: accounting/models/__init__.py:17 crm/models/__init__.py:55
+#: accounting/models/__init__.py:18 crm/models/__init__.py:55
 msgid "Accounts"
 msgstr "Akun"
 
-#: accounting/models/__init__.py:24
+#: accounting/models/__init__.py:25
 #, python-brace-format
 msgid "Tax #{tax_id} - {tax_name}"
 msgstr "Pajak #{tax_id} - {tax_name}"
 
-#: accounting/models/__init__.py:27
+#: accounting/models/__init__.py:28
 msgid "Tax"
 msgstr "Pajak"
 
-#: accounting/models/__init__.py:28
+#: accounting/models/__init__.py:29
 msgid "Taxes"
 msgstr "Pajak-pajak"
 
-#: accounting/models/__init__.py:33
+#: accounting/models/__init__.py:34
 msgid "Sale"
 msgstr "Penjualan"
 
-#: accounting/models/__init__.py:34
+#: accounting/models/__init__.py:35
 msgid "Purchase"
 msgstr "Pembelian"
 
-#: accounting/models/__init__.py:35
+#: accounting/models/__init__.py:36
 msgid "Transfer"
 msgstr "Transfer"
 
-#: accounting/models/__init__.py:36
+#: accounting/models/__init__.py:37
 msgid "Adjustment"
 msgstr "Penyesuaian"
 
-#: accounting/models/__init__.py:37
+#: accounting/models/__init__.py:38
 msgid "Expense"
 msgstr "Pengeluaran"
 
-#: accounting/models/__init__.py:38
+#: accounting/models/__init__.py:39
 msgid "Income"
 msgstr "Pendapatan"
 
-#: accounting/models/__init__.py:39
+#: accounting/models/__init__.py:40
 msgid "Deposit"
 msgstr "Deposit"
 
-#: accounting/models/__init__.py:40
+#: accounting/models/__init__.py:41
 msgid "Withdrawal"
 msgstr "Penarikan"
 
-#: accounting/models/__init__.py:41
+#: accounting/models/__init__.py:42
 msgid "Refund"
 msgstr "Pengembalian"
 
-#: accounting/models/__init__.py:42
+#: accounting/models/__init__.py:43
 msgid "Reconciliation"
 msgstr "Rekonsiliasi"
 
-#: accounting/models/__init__.py:43
+#: accounting/models/__init__.py:44
 msgid "Loan Payment"
 msgstr "Pembayaran Hutang"
 
-#: accounting/models/__init__.py:44
+#: accounting/models/__init__.py:45
 msgid "Loan Receipt"
 msgstr "Faktur Hutang"
 
-#: accounting/models/__init__.py:45
+#: accounting/models/__init__.py:46
 msgid "Tax Payment"
 msgstr "Pembayaran Pajak"
 
-#: accounting/models/__init__.py:46
+#: accounting/models/__init__.py:47
 msgid "Tax Refund"
 msgstr "Pengembalian Pajak"
 
-#: accounting/models/__init__.py:47
+#: accounting/models/__init__.py:48
 msgid "Interest Income"
 msgstr "Pendapatan Bunga"
 
-#: accounting/models/__init__.py:48
+#: accounting/models/__init__.py:49
 msgid "Interest Expense"
 msgstr "Pengeluaran Bunga"
 
-#: accounting/models/__init__.py:49
+#: accounting/models/__init__.py:50
 msgid "Dividend"
 msgstr "Bagi Hasil"
 
-#: accounting/models/__init__.py:50
+#: accounting/models/__init__.py:51
 msgid "Fee"
 msgstr "Biaya"
 
-#: accounting/models/__init__.py:51
+#: accounting/models/__init__.py:52
 msgid "Commission"
 msgstr "Komisi"
 
-#: accounting/models/__init__.py:52
+#: accounting/models/__init__.py:53
 msgid "Write Off"
 msgstr ""
 
-#: accounting/models/__init__.py:53
+#: accounting/models/__init__.py:54
 msgid "Other"
 msgstr "Lainnya"
 
-#: accounting/models/__init__.py:64
+#: accounting/models/__init__.py:65
 #, python-brace-format
 msgid "Transaction #{transaction_id} - {transaction_account}"
 msgstr "Transaksi #{transaction_id} - {transaction_account}"
 
-#: accounting/models/__init__.py:67
+#: accounting/models/__init__.py:68
 msgid "Transaction"
 msgstr "Transaksi"
 
-#: accounting/models/__init__.py:68
+#: accounting/models/__init__.py:69
 msgid "Transactions"
 msgstr "Transaksi"
 
-#: accounting/models/__init__.py:73
+#: accounting/models/__init__.py:74
 msgid "Debit"
 msgstr "Debit"
 
-#: accounting/models/__init__.py:74 sales/models/__init__.py:25
+#: accounting/models/__init__.py:75 sales/models/__init__.py:25
 msgid "Credit"
 msgstr "Kredit"
 
-#: accounting/models/__init__.py:82
+#: accounting/models/__init__.py:83
 #, python-brace-format
 msgid "Journal Entry #{entry_id} - {entry_transaction}"
 msgstr "Entri Jurnal #{entry_id} - {entry_transaction}"
 
-#: accounting/models/__init__.py:85
+#: accounting/models/__init__.py:86
 msgid "Journal Entry"
 msgstr "Entri Jurnal"
 
-#: accounting/models/__init__.py:86
+#: accounting/models/__init__.py:87
 msgid "Journal Entries"
 msgstr "Entri Jurnal"
 
-#: accounting/models/__init__.py:94
+#: accounting/models/__init__.py:95
 #, python-brace-format
 msgid "General Ledger #{ledger_id} - {ledger_account}"
 msgstr "Buku Besar Umum #{ledger_id} - {ledger_account}"
 
-#: accounting/models/__init__.py:97
+#: accounting/models/__init__.py:98
 msgid "General Ledger"
 msgstr "Buku Besar Umum"
 
-#: accounting/models/__init__.py:98
+#: accounting/models/__init__.py:99
 msgid "General Ledgers"
 msgstr "Buku Besar Umum"
 
-#: accounting/models/__init__.py:106
+#: accounting/models/__init__.py:107
 #, python-brace-format
 msgid "Financial Statement #{statement_id} - {statement_name}"
 msgstr "Laporan Keuangan #{statement_id} - {statement_name}"
 
-#: accounting/models/__init__.py:109
+#: accounting/models/__init__.py:110
 msgid "Financial Statement"
 msgstr "Laporan Keuangan"
 
-#: accounting/models/__init__.py:110
+#: accounting/models/__init__.py:111
 msgid "Financial Statements"
 msgstr "Laporan Keuangan"
 
-#: accounting/models/__init__.py:120
+#: accounting/models/__init__.py:121
 #, python-brace-format
 msgid "Financial Entry #{entry_id} - {entry_statement}"
 msgstr "Entri Keuangan #{entry_id} - {entry_statement}"
 
-#: accounting/models/__init__.py:123
+#: accounting/models/__init__.py:124
 msgid "Financial Entry"
 msgstr "Entri Keuangan"
 
-#: accounting/models/__init__.py:124
+#: accounting/models/__init__.py:125
 msgid "Financial Entries"
 msgstr "Entri Keuangan"
+
+#: accounting/signals/sales.py:20
+#, python-brace-format
+msgid "Sales of #{instance.order.id32} (Inv #{instance.id32})"
+msgstr ""
+
+#: accounting/signals/sales.py:24
+#, python-brace-format
+msgid "Tax liability of invoice #{instance.id32}"
+msgstr ""
+
+#: accounting/signals/sales.py:28
+#, python-brace-format
+msgid "Account receivable of invoice #{instance.id32}"
+msgstr ""
+
+#: accounting/signals/sales.py:41 accounting/signals/sales.py:44
+#, python-brace-format
+msgid ""
+"Payment of invoice #{instance.invoice.id32} (Payment id32 #{instance.id32})"
+msgstr ""
 
 #: common/models/__init__.py:36
 msgid "File"
@@ -1239,23 +1260,23 @@ msgstr ""
 "Masukkan rentang tanggal dengan format: tanggal_mulai,tanggal_selesai [YYYY-"
 "MM-DD,YYYY-MM-DD]"
 
-#: logistics/models/__init__.py:11 sales/models/__init__.py:448
+#: logistics/models/__init__.py:11 sales/models/__init__.py:468
 msgid "Waiting"
 msgstr "Menunggu"
 
-#: logistics/models/__init__.py:12 sales/models/__init__.py:449
+#: logistics/models/__init__.py:12 sales/models/__init__.py:469
 msgid "On Progress"
 msgstr "Sedang Berlangsung"
 
-#: logistics/models/__init__.py:13 sales/models/__init__.py:450
+#: logistics/models/__init__.py:13 sales/models/__init__.py:470
 msgid "Arrived"
 msgstr "Tiba"
 
-#: logistics/models/__init__.py:14 sales/models/__init__.py:451
+#: logistics/models/__init__.py:14 sales/models/__init__.py:471
 msgid "Completed"
 msgstr "Selesai"
 
-#: logistics/models/__init__.py:15 sales/models/__init__.py:452
+#: logistics/models/__init__.py:15 sales/models/__init__.py:472
 msgid "Skipped"
 msgstr "Dilewati"
 
@@ -1317,7 +1338,7 @@ msgstr "Pilih trip untuk pekerjaan ini"
 msgid "Select the assigned driver for this job"
 msgstr "Pilih pengemudi yang ditugaskan untuk pekerjaan ini"
 
-#: logistics/models/__init__.py:61 sales/models/__init__.py:458
+#: logistics/models/__init__.py:61 sales/models/__init__.py:478
 msgid "Date"
 msgstr "Tanggal"
 
@@ -1353,7 +1374,7 @@ msgid "Enter the location coordinates"
 msgstr "Masukkan koordinat lokasi"
 
 #: logistics/models/__init__.py:88 sales/models/__init__.py:183
-#: sales/models/__init__.py:422 sales/models/__init__.py:495
+#: sales/models/__init__.py:445 sales/models/__init__.py:519
 msgid "Order"
 msgstr "Pesanan"
 
@@ -1392,7 +1413,8 @@ msgstr "Pergerakan-pergerakan Pengemudi"
 
 #: logistics/serializers/job.py:185
 msgid "Provided vehicle_id32 does not match any Vehicle records."
-msgstr "vehicle_id32 yang diberikan tidak cocok dengan catatan Kendaraan manapun."
+msgstr ""
+"vehicle_id32 yang diberikan tidak cocok dengan catatan Kendaraan manapun."
 
 #: logistics/serializers/job.py:188
 msgid "Provided trip_id32 does not match any Trip records."
@@ -1664,12 +1686,12 @@ msgid "Select the purchase order associated with the item"
 msgstr "Pilih pesanan pembelian yang terkait dengan item tersebut"
 
 #: purchasing/models/__init__.py:122 purchasing/models/__init__.py:164
-#: sales/models/__init__.py:210
+#: sales/models/__init__.py:226
 msgid "Select the product associated with the item"
 msgstr "Pilih produk yang terkait dengan item tersebut"
 
 #: purchasing/models/__init__.py:125 purchasing/models/__init__.py:185
-#: sales/models/__init__.py:213
+#: sales/models/__init__.py:229
 msgid "Enter the item quantity"
 msgstr "Masukkan jumlah item"
 
@@ -1833,7 +1855,7 @@ msgstr "Pilih tipe toko"
 msgid "Customer #{id32} [{name}]"
 msgstr "Pelanggan #{id32} [{name}]"
 
-#: sales/models/__init__.py:104 sales/models/__init__.py:386
+#: sales/models/__init__.py:104 sales/models/__init__.py:407
 msgid "Customers"
 msgstr "Pelanggan-pelanggan"
 
@@ -1888,11 +1910,11 @@ msgstr "Selesai: Semua aspek dari pesanan telah selesai, dan dianggap ditutup."
 msgid "Canceled: Order was terminated before reaching completion."
 msgstr "Dibatalkan: Pesanan dihentikan sebelum mencapai selesai."
 
-#: sales/models/__init__.py:135 sales/models/__init__.py:440
+#: sales/models/__init__.py:135 sales/models/__init__.py:462
 msgid "Canvasing"
 msgstr ""
 
-#: sales/models/__init__.py:136 sales/models/__init__.py:441
+#: sales/models/__init__.py:136 sales/models/__init__.py:463
 msgid "Taking Order"
 msgstr ""
 
@@ -1917,76 +1939,76 @@ msgstr "Pesanan #{id32} - {customer}"
 msgid "Orders"
 msgstr "Pesanan-pesanan"
 
-#: sales/models/__init__.py:205
+#: sales/models/__init__.py:221
 msgid "Select the order associated with the item"
 msgstr "Pilih pesanan yang terkait dengan item tersebut"
 
-#: sales/models/__init__.py:217
+#: sales/models/__init__.py:233
 msgid "Enter the item price in IDR (Rp)"
 msgstr "Masukkan harga item dalam IDR (Rp)"
 
-#: sales/models/__init__.py:224
+#: sales/models/__init__.py:240
 #, python-brace-format
 msgid "Order Item #{id32} - [#{product_id32}]{product} ({quantity}{unit})"
 msgstr "Item Pesanan #{id32} - [#{product_id32}]{product} ({quantity}{unit})"
 
-#: sales/models/__init__.py:238
+#: sales/models/__init__.py:254
 msgid "Order Item"
 msgstr "Item Pesanan"
 
-#: sales/models/__init__.py:239
+#: sales/models/__init__.py:255
 msgid "Order Items"
 msgstr "Item-item Pesanan"
 
-#: sales/models/__init__.py:246
+#: sales/models/__init__.py:262
 msgid "Select the order associated with the invoice"
 msgstr "Pilih pesanan yang terkait dengan faktur"
 
-#: sales/models/__init__.py:248
+#: sales/models/__init__.py:264
 msgid "Enter the invoice date"
 msgstr "Masukkan tanggal faktur"
 
-#: sales/models/__init__.py:256
+#: sales/models/__init__.py:272
 msgid "Select the user who approved the invoice"
 msgstr "Pilih pengguna yang menyetujui faktur"
 
-#: sales/models/__init__.py:273
+#: sales/models/__init__.py:287
 msgid "Value Added Tax percentage in decimal"
 msgstr "Persentase Pajak Pertambahan Nilai dalam desimal"
 
-#: sales/models/__init__.py:279
+#: sales/models/__init__.py:293
 msgid "Invoice"
 msgstr "Faktur"
 
-#: sales/models/__init__.py:280
+#: sales/models/__init__.py:294
 msgid "Invoices"
 msgstr "Faktur-faktur"
 
-#: sales/models/__init__.py:283
+#: sales/models/__init__.py:304
 #, python-brace-format
 msgid "Invoice #{id32} - {order}"
 msgstr "Faktur #{id32} - {order}"
 
-#: sales/models/__init__.py:327
+#: sales/models/__init__.py:348
 msgid "Authorize: The payment has been authorized but not yet captured."
 msgstr "Otorisasi: Pembayaran telah diotorisasi tetapi belum ditangkap."
 
-#: sales/models/__init__.py:328
+#: sales/models/__init__.py:349
 msgid "Capture: The authorized payment has been secured."
 msgstr "Tangkap: Pembayaran yang diotorisasi telah diamankan."
 
-#: sales/models/__init__.py:329
+#: sales/models/__init__.py:350
 msgid ""
 "Settlement: The payment process has been completed and funds have been "
 "transferred."
 msgstr ""
 "Penyelesaian: Proses pembayaran telah selesai dan dana telah ditransfer."
 
-#: sales/models/__init__.py:330
+#: sales/models/__init__.py:351
 msgid "Deny: The payment request was denied."
 msgstr "Tolak: Permintaan pembayaran ditolak."
 
-#: sales/models/__init__.py:331
+#: sales/models/__init__.py:352
 msgid ""
 "Pending: The payment process is ongoing and the final status is not yet "
 "determined."
@@ -1994,124 +2016,122 @@ msgstr ""
 "Tertunda: Proses pembayaran sedang berlangsung dan status akhir belum "
 "ditentukan."
 
-#: sales/models/__init__.py:332
+#: sales/models/__init__.py:353
 msgid "Cancel: The payment process was canceled before completion."
 msgstr "Batal: Proses pembayaran dibatalkan sebelum selesai."
 
-#: sales/models/__init__.py:333
+#: sales/models/__init__.py:354
 msgid "Refund: Funds have been returned to the payer."
 msgstr "Pengembalian dana: Dana telah dikembalikan ke pembayar."
 
-#: sales/models/__init__.py:334
+#: sales/models/__init__.py:355
 msgid "Expired: The payment authorization has expired without capture."
 msgstr "Kadaluwarsa: Otorisasi pembayaran telah kadaluwarsa tanpa penangkapan."
 
-#: sales/models/__init__.py:335
+#: sales/models/__init__.py:356
 msgid "Failure: The payment process encountered an error and was unsuccessful."
 msgstr "Gagal: Proses pembayaran mengalami kesalahan dan tidak berhasil."
 
-#: sales/models/__init__.py:341
+#: sales/models/__init__.py:362
 msgid "Select the invoice associated with the payment"
 msgstr "Pilih faktur yang terkait dengan pembayaran"
 
-#: sales/models/__init__.py:346
+#: sales/models/__init__.py:367
 msgid "Enter the payment amount"
 msgstr "Masukkan jumlah pembayaran"
 
-#: sales/models/__init__.py:348
+#: sales/models/__init__.py:369
 msgid "Enter the payment date"
 msgstr "Masukkan tanggal pembayaran"
 
-#: sales/models/__init__.py:356
+#: sales/models/__init__.py:377
 msgid "Select the user who approved the payment"
 msgstr "Pilih pengguna yang menyetujui pembayaran"
 
-#: sales/models/__init__.py:370
+#: sales/models/__init__.py:391
 msgid "Current status of the payment."
 msgstr "Status terbaru pada pembayaran."
 
-#: sales/models/__init__.py:374
+#: sales/models/__init__.py:395
 #, python-brace-format
 msgid "Payment #{id32} - {invoice}"
 msgstr "Pembayaran #{id32} - {invoice}"
 
-#: sales/models/__init__.py:378
+#: sales/models/__init__.py:399
 msgid "Payment"
 msgstr "Pembayaran"
 
-#: sales/models/__init__.py:379
+#: sales/models/__init__.py:400
 msgid "Payments"
 msgstr "Pembayaran-pembayaran"
 
-#: sales/models/__init__.py:384
+#: sales/models/__init__.py:405
 msgid "Name"
 msgstr "Nama"
 
-#: sales/models/__init__.py:384
+#: sales/models/__init__.py:405
 msgid "Enter the name for the canvasing trip template"
 msgstr "Masukkan nama untuk template perjalanan canvasing"
 
-#: sales/models/__init__.py:386
+#: sales/models/__init__.py:407
 msgid "Select customers for this trip template"
 msgstr "Pilih pelanggan untuk template perjalanan ini"
 
-#: sales/models/__init__.py:388
+#: sales/models/__init__.py:409 sales/models/__init__.py:411
 msgid "Select people in charge of this trip"
 msgstr "Pilih orang yang bertanggung jawab atas perjalanan ini"
 
-#: sales/models/__init__.py:390
+#: sales/models/__init__.py:413
 msgid "Select vehicles prefered for this trip"
 msgstr "Pilih kendaraan untuk perjalanan ini"
 
-#: sales/models/__init__.py:394
+#: sales/models/__init__.py:417
 msgid "Trip Template"
 msgstr "Template Perjalanan"
 
-#: sales/models/__init__.py:395
+#: sales/models/__init__.py:418
 msgid "Trip Templates"
 msgstr "Template-template Perjalanan"
 
-#: sales/models/__init__.py:426
+#: sales/models/__init__.py:449
 msgid "Trip Customer"
 msgstr "Perjalanan ke Pelanggan"
 
-#: sales/models/__init__.py:427
+#: sales/models/__init__.py:450
 msgid "Trip Customers"
 msgstr "Perjalanan-perjalanan ke Pelanggan"
 
-#: sales/models/__init__.py:442
+#: sales/models/__init__.py:464
 msgid "Collecting"
 msgstr "Penagihan"
 
-#: sales/models/__init__.py:443
-msgid "Delivering"
-msgstr "Dalam Pengiriman"
+#: sales/models/__init__.py:478
+#, fuzzy
+#| msgid "Date for the job trip"
+msgid "Date for the trip"
+msgstr "Tanggal untuk perjalanan"
 
-#: sales/models/__init__.py:458
-msgid "Date for the canvasing trip"
-msgstr "Tanggal untuk perjalanan canvasing"
-
-#: sales/models/__init__.py:472
+#: sales/models/__init__.py:495
 msgid "Trip"
 msgstr "Perjalanan"
 
-#: sales/models/__init__.py:473
+#: sales/models/__init__.py:496
 msgid "Trips"
 msgstr "Perjalanan-perjalanan"
 
-#: sales/models/__init__.py:507
+#: sales/models/__init__.py:531
 msgid "Customer Visit"
 msgstr "Kunjungan Konsumen"
 
-#: sales/models/__init__.py:508
+#: sales/models/__init__.py:532
 msgid "Customer Visits"
 msgstr "Kunjungan-kunjungan Konsumen"
 
-#: sales/models/__init__.py:540
+#: sales/models/__init__.py:564
 msgid "Customer Visit Report"
 msgstr "Laporan Kunjungan Pelanggan"
 
-#: sales/models/__init__.py:541
+#: sales/models/__init__.py:565
 msgid "Customer Visit Reports"
 msgstr "Laporan-laporan Kunjungan Pelanggan"
 
@@ -2135,31 +2155,37 @@ msgstr "Pilih pelanggan yang ditujukan untuk canvasing ini"
 msgid "Name of the customer"
 msgstr "Nama pelanggan"
 
-#: sales/serializers/trip.py:253 sales/serializers/trip.py:291
+#: sales/serializers/trip.py:270 sales/serializers/trip.py:316
 msgid "Salesperson with this username does not exist."
 msgstr "Penjual dengan nama pengguna ini tidak ada."
 
-#: sales/serializers/trip.py:261 sales/serializers/trip.py:299
+#: sales/serializers/trip.py:278
+#, fuzzy
+#| msgid "Salesperson with this username does not exist."
+msgid "Collector with this username does not exist."
+msgstr "Penjual dengan nama pengguna ini tidak ada."
+
+#: sales/serializers/trip.py:286 sales/serializers/trip.py:324
 msgid "Vehicle with this id32 does not exist."
 msgstr "Kendaraan dengan id32 ini tidak ada."
 
-#: sales/serializers/trip.py:283
+#: sales/serializers/trip.py:308
 msgid "End date must be after start date."
 msgstr "Tanggal akhir harus setelah tanggal mulai."
 
-#: sales/serializers/trip.py:354
+#: sales/serializers/trip.py:379
 msgid "SalesOrder with this id32 does not exist."
 msgstr "SalesOrder dengan id32 ini tidak ada."
 
-#: sales/signals/__init__.py:358
+#: sales/signals/__init__.py:378
 msgid "Trip must have an associated vehicle to start the trip."
 msgstr "Perjalanan harus memiliki kendaraan terkait untuk memulai perjalanan."
 
-#: sales/signals/__init__.py:362
+#: sales/signals/__init__.py:382
 msgid "Vehicle must have an associated warehouse to start the trip."
 msgstr "Kendaraan harus memiliki gudang terkait untuk memulai perjalanan."
 
-#: sales/signals/__init__.py:370
+#: sales/signals/__init__.py:390
 msgid ""
 "CustomerVisit status can only be changed if associated Trip status is "
 "ON_PROGRESS."
@@ -2167,7 +2193,7 @@ msgstr ""
 "Status Kunjungan Pelanggan hanya dapat diubah jika status Perjalanan yang "
 "terkait adalah DALAM PROSES."
 
-#: sales/signals/__init__.py:378
+#: sales/signals/__init__.py:398
 msgid ""
 "CustomerVisit status cannot be set to SKIPPED if notes, visit_evidence, or "
 "signature are null."
@@ -2175,14 +2201,14 @@ msgstr ""
 "Status Kunjungan Pelanggan tidak dapat diatur ke DILEWATKAN jika catatan, "
 "bukti_kunjungan, atau tanda_tangan adalah null."
 
-#: sales/signals/__init__.py:407
+#: sales/signals/__init__.py:427
 msgid ""
 "Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED."
 msgstr ""
 "Pesanan Penjualan berstatus DRAFT. Tidak dapat mengatur Kunjungan Pelanggan "
 "ke SELESAI."
 
-#: sales/signals/__init__.py:412
+#: sales/signals/__init__.py:432
 msgid ""
 "Sales Order is already associated with a customer visit #{sales_order."
 "customer_visits.last()}."
@@ -2190,22 +2216,22 @@ msgstr ""
 "Sales Order sudah terhubung dengan kunjungan pelanggan #{sales_order."
 "customer_visits.last()}."
 
-#: sales/signals/__init__.py:422
+#: sales/signals/__init__.py:442
 msgid "The associated Sales Order doesn't have an invoice."
 msgstr "Sales Order terkait tidak memiliki Invoice"
 
-#: sales/signals/__init__.py:428
+#: sales/signals/__init__.py:448
 msgid "The associated invoice doesn't have a payment."
 msgstr "Invoice terkait tidak memiliki Pembayaran"
 
-#: sales/signals/__init__.py:433
+#: sales/signals/__init__.py:453
 msgid ""
 "The payment status for the associated invoice is neither CAPTURE nor "
 "SETTLEMENT."
 msgstr ""
 "Status pembayaran untuk faktur yang terkait bukan CAPTURE maupun SETTLEMENT."
 
-#: sales/signals/__init__.py:443
+#: sales/signals/__init__.py:463
 msgid ""
 "CustomerVisit status cannot be set to COMPLETED if sales_order, "
 "item_delivery_evidence and signature are null."
@@ -2213,7 +2239,7 @@ msgstr ""
 "Status Kunjungan Pelanggan tidak dapat diatur ke SELESAI jika sales_order, "
 "item_delivery_evidence, dan bukti_pengiriman_barang kosong."
 
-#: sales/signals/__init__.py:456
+#: sales/signals/__init__.py:476
 msgid ""
 "CustomerVisit status cannot be set to COMPLETED because this Sales Order "
 "Item is out of stock."
@@ -2221,7 +2247,7 @@ msgstr ""
 "Status Kunjungan Pelanggan tidak dapat diatur ke SELESAI karena Item Pesanan "
 "Penjualan ini kehabisan stok."
 
-#: sales/signals/__init__.py:466
+#: sales/signals/__init__.py:486
 msgid ""
 "CustomerVisit status cannot be set to COMPLETED if sales_order and signature "
 "are null."
@@ -2229,7 +2255,7 @@ msgstr ""
 "Status Kunjungan Pelanggan tidak dapat diatur ke SELESAI jika sales_order "
 "dan signature kosong."
 
-#: sales/signals/__init__.py:476
+#: sales/signals/__init__.py:496
 #, python-brace-format
 msgid ""
 "The payment amount of {payment_amount} is less than the invoice total of "
@@ -2237,6 +2263,12 @@ msgid ""
 msgstr ""
 "Jumlah pembayaran sebesar {payment_amount} kurang dari total faktur sebesar "
 "{invoice_total}"
+
+#~ msgid "Delivering"
+#~ msgstr "Dalam Pengiriman"
+
+#~ msgid "Date for the canvasing trip"
+#~ msgstr "Tanggal untuk perjalanan canvasing"
 
 #~ msgid "Ready to pickup"
 #~ msgstr "Siap diambil"

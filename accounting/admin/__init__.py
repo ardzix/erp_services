@@ -14,7 +14,7 @@ class TransactionAdmin(BaseAdmin):
 
 @admin.register(JournalEntry)
 class JournalEntryAdmin(BaseAdmin):
-    list_display = ['transaction', 'journal']
+    list_display = ['transaction', 'journal', 'amount']
     list_filter = ['journal']
 
 @admin.register(GeneralLedger)

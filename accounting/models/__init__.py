@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
 from common.models import File
+from ..helpers.constant import *
 
 
 class Account(BaseModelGeneric):
@@ -30,27 +31,27 @@ class Tax(BaseModelGeneric):
 
 class Transaction(BaseModelGeneric):
     TRANSACTION_TYPES = [
-        ('SALE', _('Sale')),
-        ('PURCHASE', _('Purchase')),
-        ('TRANSFER', _('Transfer')),  # For transferring funds between accounts
-        ('ADJUSTMENT', _('Adjustment')),  # For corrections or modifications
-        ('EXPENSE', _('Expense')),  # For general expenses
-        ('INCOME', _('Income')),  # For general income, other than sales
-        ('DEPOSIT', _('Deposit')),  # For deposits into accounts
-        ('WITHDRAWAL', _('Withdrawal')),  # For withdrawals from accounts
-        ('REFUND', _('Refund')),  # For processing refunds
-        ('RECONCILIATION', _('Reconciliation')),  # For reconciliation adjustments
-        ('LOAN_PAYMENT', _('Loan Payment')),  # For repaying loans
-        ('LOAN_RECEIPT', _('Loan Receipt')),  # For receiving loan amounts
-        ('TAX_PAYMENT', _('Tax Payment')),  # For specific tax payments
-        ('TAX_REFUND', _('Tax Refund')),  # For receiving tax refunds
-        ('INTEREST_INCOME', _('Interest Income')),  # For interest received
-        ('INTEREST_EXPENSE', _('Interest Expense')),  # For interest paid out
-        ('DIVIDEND', _('Dividend')),  # For dividend income
-        ('FEE', _('Fee')),  # For any fees charged or paid
-        ('COMMISSION', _('Commission')),  # For commissions received or paid
-        ('WRITE_OFF', _('Write Off')),  # For bad debts or uncollectible amounts
-        ('OTHER', _('Other')),  # A generic type for anything that doesn't fit above
+        (SALE, _('Sale')),
+        (PURCHASE, _('Purchase')),
+        (TRANSFER, _('Transfer')),
+        (ADJUSTMENT, _('Adjustment')),
+        (EXPENSE, _('Expense')),
+        (INCOME, _('Income')),
+        (DEPOSIT, _('Deposit')),
+        (WITHDRAWAL, _('Withdrawal')),
+        (REFUND, _('Refund')),
+        (RECONCILIATION, _('Reconciliation')),
+        (LOAN_PAYMENT, _('Loan Payment')),
+        (LOAN_RECEIPT, _('Loan Receipt')),
+        (TAX_PAYMENT, _('Tax Payment')),
+        (TAX_REFUND, _('Tax Refund')),
+        (INTEREST_INCOME, _('Interest Income')),
+        (INTEREST_EXPENSE, _('Interest Expense')),
+        (DIVIDEND, _('Dividend')),
+        (FEE, _('Fee')),
+        (COMMISSION, _('Commission')),
+        (WRITE_OFF, _('Write Off')),
+        (OTHER, _('Other')),
     ]
 
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
@@ -70,12 +71,13 @@ class Transaction(BaseModelGeneric):
 
 class JournalEntry(BaseModelGeneric):
     DEBIT_CREDIT_CHOICES = [
-        ('DEBIT', _('Debit')),
-        ('CREDIT', _('Credit')),
+        (DEBIT, _('Debit')),
+        (CREDIT, _('Credit')),
     ]
 
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     journal = models.CharField(max_length=100)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     debit_credit = models.CharField(max_length=10, choices=DEBIT_CREDIT_CHOICES)
 
     def __str__(self):
@@ -88,7 +90,7 @@ class JournalEntry(BaseModelGeneric):
 
 class GeneralLedger(BaseModelGeneric):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    balance = models.DecimalField(max_digits=10, decimal_places=2)
+    balance = models.DecimalField(max_digits=19, decimal_places=2, default=0)
 
     def __str__(self):
         return _("General Ledger #{ledger_id} - {ledger_account}").format(ledger_id=self.id32, ledger_account=self.account)

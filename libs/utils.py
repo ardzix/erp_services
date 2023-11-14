@@ -4,11 +4,12 @@ from datetime import timedelta
 
 TRUE = ['true', 'True', 1, True]
 
-def get_config_value(key):
+def get_config_value(key, default=None):
     try:
         return Configuration.objects.get(key=key).value
     except Configuration.DoesNotExist:
-        return None
+        Configuration.objects.create(key=key, value=default)
+        return default
 
 
 def validate_file_by_id32(value, error_message):
