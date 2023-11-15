@@ -3,12 +3,13 @@ from common.models import File, Configuration
 from datetime import timedelta
 
 TRUE = ['true', 'True', 1, True]
+FALSE = ['false', 'False', 0, False]
 
 def get_config_value(key, default=None):
     try:
         return Configuration.objects.get(key=key).value
     except Configuration.DoesNotExist:
-        Configuration.objects.create(key=key, value=default)
+        Configuration.objects.create(key=key, value=default if default else 'False')
         return default
 
 

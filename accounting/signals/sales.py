@@ -17,7 +17,6 @@ def record_sales_order_transaction(sender, instance, created, **kwargs):
     if subtotal <= 0:
         return
 
-    total = instance.total
     tax_amount = instance.vat_amount
 
     transaction = create_transaction(SALES_ACCOUNT, subtotal, SALE, description=_(
