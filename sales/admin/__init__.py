@@ -33,7 +33,7 @@ class CustomerAdmin(BaseAdmin):
     raw_id_fields = ['administrative_lv1', 'administrative_lv2', 'administrative_lv3', 'administrative_lv4']
 
     def show_location(self, obj):
-        return f"Latitude: {obj.location.y}, Longitude: {obj.location.x}"
+        return f"Latitude: {obj.location.y}, Longitude: {obj.location.x}" if obj.location else None
     show_location.short_description = 'Location'
 
 
