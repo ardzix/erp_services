@@ -59,11 +59,12 @@ class Transaction(BaseModelGeneric):
 
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     transaction_date = models.DateField()
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=19, decimal_places=2)
     description = models.TextField(blank=True)
     transaction_type = models.CharField(
         max_length=20, choices=TRANSACTION_TYPES, default='OTHER')
     attachements = models.ManyToManyField(File, blank=True)
+    generate_journal = models.BooleanField(default=True)
 
     def __str__(self):
         return _("Transaction #{transaction_id} - {transaction_account}").format(transaction_id=self.id32, transaction_account=self.account)
@@ -81,7 +82,7 @@ class JournalEntry(BaseModelGeneric):
 
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     journal = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=19, decimal_places=2)
     debit_credit = models.CharField(
         max_length=10, choices=DEBIT_CREDIT_CHOICES)
 
@@ -121,7 +122,7 @@ class FinancialEntry(BaseModelGeneric):
     financial_statement = models.ForeignKey(
         FinancialStatement, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=19, decimal_places=2)
 
     def __str__(self):
         return _("Financial Entry #{entry_id} - {entry_statement}").format(entry_id=self.id32, entry_statement=self.financial_statement)

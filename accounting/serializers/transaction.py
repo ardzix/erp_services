@@ -16,7 +16,7 @@ class TransactionSerializer(TransactionMixin, serializers.ModelSerializer):
     account_id32 = serializers.SlugRelatedField(
         slug_field="id32",
         queryset=Account.objects.all(),
-        source="department",
+        source="account",
         required=False,
     )
 
@@ -32,7 +32,7 @@ class TransactionSerializer(TransactionMixin, serializers.ModelSerializer):
             "transaction_type",
             "attachements",
         ]
-        read_ony_fields = ["id32", "account"]
+        read_only_fields = ["id32", "account"]
 
 
 class TransactionListSerializer(TransactionMixin, serializers.ModelSerializer):
