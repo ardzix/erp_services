@@ -6,7 +6,8 @@ from ..helpers.constant import *
 
 
 class Account(BaseModelGeneric):
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    parent = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
 
@@ -17,9 +18,11 @@ class Account(BaseModelGeneric):
         verbose_name = _("Account")
         verbose_name_plural = _("Accounts")
 
+
 class Tax(BaseModelGeneric):
     name = models.CharField(max_length=100)
-    rate = models.DecimalField(max_digits=5, decimal_places=2)  # As a percentage
+    rate = models.DecimalField(
+        max_digits=5, decimal_places=2)  # As a percentage
 
     def __str__(self):
         return _("Tax #{tax_id} - {tax_name}").format(tax_id=self.id32, tax_name=self.name)
@@ -58,7 +61,8 @@ class Transaction(BaseModelGeneric):
     transaction_date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)
-    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES, default='OTHER')
+    transaction_type = models.CharField(
+        max_length=20, choices=TRANSACTION_TYPES, default='OTHER')
     attachements = models.ManyToManyField(File, blank=True)
 
     def __str__(self):
@@ -78,7 +82,8 @@ class JournalEntry(BaseModelGeneric):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     journal = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    debit_credit = models.CharField(max_length=10, choices=DEBIT_CREDIT_CHOICES)
+    debit_credit = models.CharField(
+        max_length=10, choices=DEBIT_CREDIT_CHOICES)
 
     def __str__(self):
         return _("Journal Entry #{entry_id} - {entry_transaction}").format(entry_id=self.id32, entry_transaction=self.transaction)

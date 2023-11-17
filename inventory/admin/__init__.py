@@ -96,7 +96,7 @@ class WarehouseTypeForm(forms.ModelForm):
 class StockMovementItemInline(admin.TabularInline):
     model = StockMovementItem
     extra = 1
-    fields = ['product', 'quantity', 'buy_price', 'unit']
+    fields = ['product', 'quantity', 'buy_price', 'unit', 'origin_movement_status', 'destination_movement_status']
     raw_id_fields = ['product']
     verbose_name_plural = _("Stock Movement Items")
 

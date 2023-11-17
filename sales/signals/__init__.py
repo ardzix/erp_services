@@ -406,7 +406,8 @@ def check_completed_customer_visit_requirements(sender, instance, **kwargs):
 
     if instance.trip.type == Trip.CANVASING:
         check_canvasing_requirements(instance)
-        check_invoice_and_payment(instance.sales_order.invoice)
+        if instance.customer.payment_type in [Customer.COD, Customer.CBD]:
+            check_invoice_and_payment(instance.sales_order.invoice)
 
     elif instance.trip.type == Trip.TAKING_ORDER:
         check_taking_order_requirements(instance)
