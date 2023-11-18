@@ -45,6 +45,7 @@ from ..models import (
 # 16. set_sales_order_to_completed: Set the associated CustomerVisit's SalesOrder's status is set to 'COMPLETED'
 # 17. assign_trip_default_vehicle: Assigns the first vehicle from the associated TripTemplate
 # 18. create_collector_trip_on_taking_order_complete: Create Trip for collector after the taking order completed
+# 19. create_next_trip_on_trip_complete: Create a ne Trip when a Trip changes status to 'COMPLETED'.
 
 
 @receiver(pre_save, sender=OrderItem)
@@ -363,6 +364,22 @@ def create_collector_trip_on_taking_order_complete(sender, instance, **kwargs):
                 create_customer_visits_for_collector_trip(
                     credit_type_visits, collector_trip)
 
+@receiver(pre_save, sender=Trip)
+def create_next_trip_on_trip_complete(sender, instance, **kwargs):
+    """
+    Create a ne Trip when a Trip changes status to 'COMPLETED'.
+    """
+    if not instance.pk:
+        return
+    status_before = Trip.objects.get(pk=instance.pk).status
+    if instance.status in [COMPLETED, SKIPPED] and status_before not in [COMPLETED, SKIPPED]:
+        Trip.objects.create(
+                template=instance.template,
+                date=add_one_day(timezone.now()),
+                salesperson=instance.salesperson,
+                vehicle=instance.vehicle,
+                type=instance.type,
+            )
 
 # ==================================================================================
 # Model Validator
