@@ -88,6 +88,7 @@ class MeSerializer(serializers.ModelSerializer):
     collector_trips = serializers.SerializerMethodField()
     header_text = serializers.SerializerMethodField()
     has_request_item = serializers.SerializerMethodField()
+    can_request_item = serializers.SerializerMethodField()
     trip_template_id32s = serializers.SerializerMethodField()
     warehouse_assignment_id32s = serializers.SerializerMethodField()
     menus = serializers.SerializerMethodField()
@@ -95,8 +96,8 @@ class MeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'groups', 'check_in', 'last_attendance', 'sales_trips', 'driver_jobs',
-                  'collector_trips', 'header_text', 'has_request_item', 'trip_template_id32s',
-                  'warehouse_assignment_id32s', 'menus']
+                  'collector_trips', 'header_text', 'has_request_item', 'can_request_item', 
+                  'trip_template_id32s', 'warehouse_assignment_id32s', 'menus']
 
     def get_check_in(self, instance):
         from hr.models import Attendance
@@ -120,12 +121,15 @@ class MeSerializer(serializers.ModelSerializer):
             'clock_out': attendance.clock_out if attendance else None,
             'attendance_id32': attendance.id32 if attendance else None,
         }
+    
+    def trip_qs(self, instance):
+        from sales.models import Trip
+        return Trip.objects.filter(salesperson=instance, date=date.today())
 
     def get_sales_trips(self, instance):
-        from sales.models import Trip
         from sales.serializers.trip import TripListSerializer
 
-        trips = Trip.objects.filter(salesperson=instance, date=date.today())
+        trips = self.trip_qs(instance)
         return TripListSerializer(trips, many=True).data
 
     def get_driver_jobs(self, instance):
@@ -154,6 +158,15 @@ class MeSerializer(serializers.ModelSerializer):
         today = date.today()
         tomorrow = today + timedelta(days=1)
         return StockMovement.objects.filter(created_by=instance, movement_date__gte=tomorrow).exists()
+    
+    def get_can_request_item(self, instance):
+        from libs.constants import COMPLETED, SKIPPED
+        if self.get_has_request_item(instance):
+            return False
+        trips = self.trip_qs(instance)
+        if trips.exists() and trips.exclude(status__in=[COMPLETED, SKIPPED]).exists():
+            return False
+        return True
 
     def get_trip_template_id32s(self, instance):
         from sales.models import TripTemplate
