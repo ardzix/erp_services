@@ -49,3 +49,9 @@ def import_villages_from_csv(filename='common/csv/villages.csv'):
 
 
     print("Imported vallages successfully!")
+
+def generate_administratives():
+    import_provinces_from_csv()
+    import_regencies_from_csv()
+    import_districts_from_csv()
+    import_villages_from_csv()

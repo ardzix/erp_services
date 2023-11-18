@@ -48,3 +48,9 @@ INTEREST_EXP_ACCOUNT = "Interest Expense"  # Cost of borrowing money
 TAX_EXP_ACCOUNT = "Tax Expense"  # Taxes on profits
 TAX_LIAB_ACCOUNT = "Tax Liability"  # Taxes that should be paid
 ROUNDING_ACCOUNT = "Rounding"  # Small discrepancies between the account amount and the amount actually received.
+OTHER_ACCOUNT = "Other"  # Small discrepancies between the account amount and the amount actually received.
+
+JOURNAL_DEBIT_MAP = (
+    (SALE, AR_ACCOUNT),
+    (PURCHASE, AP_ACCOUNT),
+)

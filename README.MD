@@ -2,6 +2,8 @@
 
 This is a Django app built with Django REST Framework.
 
+Please see https://ardzix.notion.site/Django-Rest-Framework-5ac1d218c3ff470ba1133bc70601c24e for detailed installation guide.
+
 ## Installation:
 1. Clone the repository:
    `git clone git@github.com:ardzix/erp_services.git`

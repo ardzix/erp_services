@@ -5,6 +5,7 @@ from decimal import Decimal
 from .constant import *
 from ..models import Account, Transaction, JournalEntry
 
+
 def create_transaction(account_name, amount, transaction_type, description="", transaction_date=None):
     """
     Create a transaction and the associated journal entries.
@@ -30,10 +31,12 @@ def create_transaction(account_name, amount, transaction_type, description="", t
         transaction_date=transaction_date,
         amount=amount,
         description=description,
-        transaction_type=transaction_type
+        transaction_type=transaction_type,
+        generate_journal=False
     )
 
     return transaction
+
 
 def create_journal_entry(transaction, amount, account_name, transaction_type):
     account, _ = Account.objects.get_or_create(name=account_name)
@@ -41,9 +44,10 @@ def create_journal_entry(transaction, amount, account_name, transaction_type):
         transaction=transaction,
         journal=account_name,
         debit_credit=transaction_type,
-        amount = amount
+        amount=amount
     )
     update_general_ledger(account, amount, transaction_type)
+
 
 def update_general_ledger(account, amount, transaction_type):
     """

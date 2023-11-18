@@ -10,6 +10,7 @@ __pycache__/*
 core.egg-info
 core.egg-info/
 .venv
+venv
 
 # static folder (css, js, etc) local
 static
