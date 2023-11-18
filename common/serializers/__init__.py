@@ -5,6 +5,8 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from libs.utils import get_config_value
+from libs.constants import MOBILE_ROLE_MENU_MAP
+from slugify import slugify
 from ..models import File
 
 
@@ -88,11 +90,13 @@ class MeSerializer(serializers.ModelSerializer):
     has_request_item = serializers.SerializerMethodField()
     trip_template_id32s = serializers.SerializerMethodField()
     warehouse_assignment_id32s = serializers.SerializerMethodField()
+    menus = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ['username', 'email', 'groups', 'check_in', 'last_attendance', 'sales_trips', 'driver_jobs',
-                  'collector_trips', 'header_text', 'has_request_item', 'trip_template_id32s', 'warehouse_assignment_id32s']
+                  'collector_trips', 'header_text', 'has_request_item', 'trip_template_id32s',
+                  'warehouse_assignment_id32s', 'menus']
 
     def get_check_in(self, instance):
         from hr.models import Attendance
@@ -131,7 +135,7 @@ class MeSerializer(serializers.ModelSerializer):
         jobs = Job.objects.filter(
             assigned_driver__owned_by=instance, date=date.today())
         return JobListSerializer(jobs, many=True).data
-    
+
     def get_collector_trips(self, instance):
         from sales.models import Trip
         from sales.serializers.trip import TripListSerializer
@@ -141,7 +145,8 @@ class MeSerializer(serializers.ModelSerializer):
 
     def get_header_text(self, instance):
         first_line = get_config_value('header_text_1st_line', 'Artriz ERP')
-        second_line = get_config_value('header_text_2nd_line', 'You can configure this text from the dashboard')
+        second_line = get_config_value(
+            'header_text_2nd_line', 'You can configure this text from the dashboard')
         return f'{first_line}\n{second_line}'
 
     def get_has_request_item(self, instance):
@@ -157,3 +162,15 @@ class MeSerializer(serializers.ModelSerializer):
     def get_warehouse_assignment_id32s(self, instance):
         from inventory.models import Warehouse
         return Warehouse.objects.filter(pic=instance).values_list('id32', flat=True)
+    
+    def get_menus(self, instance):
+        from django.contrib.auth.models import Group
+        roles = instance.groups.values_list('name', flat=True)
+        slugified_roles = [slugify(x) for x in roles]
+        mobile_menus = []
+        for role in slugified_roles:
+            mobile_menus += dict(MOBILE_ROLE_MENU_MAP).get(role)
+        return {
+            'mobile': mobile_menus,
+            'dashboard': []
+        }
