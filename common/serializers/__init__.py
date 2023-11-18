@@ -169,7 +169,8 @@ class MeSerializer(serializers.ModelSerializer):
         slugified_roles = [slugify(x) for x in roles]
         mobile_menus = []
         for role in slugified_roles:
-            mobile_menus += dict(MOBILE_ROLE_MENU_MAP).get(role)
+            if role in dict(MOBILE_ROLE_MENU_MAP):
+                mobile_menus += dict(MOBILE_ROLE_MENU_MAP).get(role)
         return {
             'mobile': mobile_menus,
             'dashboard': []
