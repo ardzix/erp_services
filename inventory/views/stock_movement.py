@@ -33,7 +33,7 @@ class StockMovementFilter(CreatedAtFilterMixin):
         'Put origin in this format: "origin_type,origin_id32". Example: "warehouse,A"'))
     destination_filter = django_filters.CharFilter(method='filter_destination', help_text=_(
         'Put destionation in this format: "destination_type,destination_id32". Example: "warehouse,A"'))
-    status = django_filters.ChoiceFilter(choices=StockMovement.MOVEMENT_STATUS)
+    status = django_filters.MultipleChoiceFilter(choices=StockMovement.MOVEMENT_STATUS, help_text=_('To filter multiple status, use this request example: ?status=requested&status=delivered'))
     id32s = django_filters.CharFilter(method='filter_by_id32s')
 
     class Meta:
