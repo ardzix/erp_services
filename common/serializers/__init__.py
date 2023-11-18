@@ -4,6 +4,7 @@ from django.core.files.base import ContentFile
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from libs.utils import get_config_value
 from ..models import File
 
 
@@ -139,7 +140,9 @@ class MeSerializer(serializers.ModelSerializer):
         return TripListSerializer(trips, many=True).data
 
     def get_header_text(self, instance):
-        return 'Toko Rizz Grosir\nJalan Pelajar Pejuang no 13'
+        first_line = get_config_value('header_text_1st_line', 'Artriz ERP')
+        second_line = get_config_value('header_text_2nd_line', 'You can configure this text from the dashboard')
+        return f'{first_line}\n{second_line}'
 
     def get_has_request_item(self, instance):
         from inventory.models import StockMovement
