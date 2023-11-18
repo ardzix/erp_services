@@ -172,6 +172,6 @@ class MeSerializer(serializers.ModelSerializer):
             if role in dict(MOBILE_ROLE_MENU_MAP):
                 mobile_menus += dict(MOBILE_ROLE_MENU_MAP).get(role)
         return {
-            'mobile': mobile_menus,
+            'mobile': list(set(mobile_menus)),
             'dashboard': []
         }
