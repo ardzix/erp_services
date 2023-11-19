@@ -3,7 +3,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
-from ..models import Product, ProductLog, StockMovement, Warehouse, StockMovementItem
+from ..models import Product, ProductLog, StockMovement, Warehouse, StockMovementItem, WarehouseStock
 from ..helpers.stock_movement import handle_origin_warehouse, handle_destination_warehouse, is_dispatch_status_change
 
 
@@ -18,6 +18,7 @@ from ..helpers.stock_movement import handle_origin_warehouse, handle_destination
 # 8. check_movement_item_previous_status: Checks for status in movement item status before save.
 # 9. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
 # 10. stock_movement_status_update: Updates stock movement status based on associated item's status.
+# 11. create_dummy_warehouse_stock: Create dummy stock for all product units when new stock is created
 
 
 def commit_base_price(product, buy_price):
@@ -177,6 +178,7 @@ def handle_movement_item_status_change_post(sender, instance, **kwargs):
         stock_movement.save()
 
     # Condition 4: Check for origin_movement_status change to CHECKED
+    print(instance.origin_movement_status, instance.origin_checked_by)
     if instance.origin_movement_status == StockMovementItem.CHECKED and instance.origin_checked_by is None:
         instance._set_user_action(
             'approved', instance._current_user)
@@ -211,3 +213,20 @@ def stock_movement_status_update(sender, instance, **kwargs):
     if prev_obj.status != StockMovement.DELIVERED and instance.status == StockMovement.DELIVERED:
         all_items = instance.items.all()
         all_items.update(origin_movement_status=StockMovementItem.FINISHED)
+
+
+@receiver(post_save, sender=WarehouseStock)
+def create_dummy_warehouse_stock(sender, instance, created, **kwargs):
+    """
+    Create dummy stock for all product units when new stock is created
+    """
+    if created:
+        for unit in instance.product.units:
+            if not WarehouseStock.objects.filter(product=instance.product, unit=unit).exists():
+                WarehouseStock.objects.create(
+                    warehouse = instance.warehouse,
+                    product = instance.product,
+                    expire_date = timezone.now(),
+                    inbound_movement_item = instance.inbound_movement_item,
+                    unit = unit
+                )

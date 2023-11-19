@@ -189,6 +189,7 @@ def handle_origin_warehouse(item):
     stock_movement = item.stock_movement
 
     stocks = get_filtered_stocks(stock_movement.origin, item)
+
     quantity_remaining = item.quantity
 
     for stock in stocks:

@@ -264,7 +264,10 @@ class Product(BaseModelGeneric):
             )
 
         return prices
-
+    
+    @property
+    def units(self):
+        return self.purchasing_unit.get_ancestors().union(Unit.objects.filter(id=self.purchasing_unit_id))
 
 class ProductGroup(BaseModelGeneric):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True,

@@ -25,7 +25,7 @@ class WarehouseStockFilter(django_filters.FilterSet):
 
 
 class WarehouseStockViewSet(viewsets.ModelViewSet):
-    queryset = WarehouseStock.objects.filter(quantity__gt=0)
+    queryset = WarehouseStock.objects.all()
     serializer_class = WarehouseStockSerializer
     filter_backends = (filters.OrderingFilter,
                        django_filters.DjangoFilterBackend,
