@@ -88,7 +88,6 @@ class MeSerializer(serializers.ModelSerializer):
     collector_trips = serializers.SerializerMethodField()
     header_text = serializers.SerializerMethodField()
     has_request_item = serializers.SerializerMethodField()
-    can_request_item = serializers.SerializerMethodField()
     trip_template_id32s = serializers.SerializerMethodField()
     warehouse_assignment_id32s = serializers.SerializerMethodField()
     menus = serializers.SerializerMethodField()
