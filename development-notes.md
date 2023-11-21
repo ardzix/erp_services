@@ -7,9 +7,9 @@
 
 - Trip Report endpoint
 - Implode/explode endpoints
-- Auto explode on sales order
-- Transaction endpoints
-- Journal endpoint (View only)
+- Auto explode on sales order ✅
+- Transaction endpoints ✅
+- Journal endpoint (View only) ✅
 - Transaction and journal adjustment
 
 ## Notes
