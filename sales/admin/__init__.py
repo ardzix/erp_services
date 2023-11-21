@@ -29,8 +29,9 @@ class CustomerAdmin(BaseAdmin):
               'rt', 'rw', 'store_name', 'payment_type', 'store_type',
               'id_card', 'store_front', 'store_street', 'signature',
               'address', 'location'
-    ]
-    raw_id_fields = ['administrative_lv1', 'administrative_lv2', 'administrative_lv3', 'administrative_lv4']
+              ]
+    raw_id_fields = ['administrative_lv1', 'administrative_lv2',
+                     'administrative_lv3', 'administrative_lv4']
 
     def show_location(self, obj):
         return f"Latitude: {obj.location.y}, Longitude: {obj.location.x}" if obj.location else None
@@ -52,7 +53,7 @@ class SalesOrderAdmin(ApproveRejectMixin, BaseAdmin):
     list_filter = ['customer', 'order_date', 'approved_by']
     search_fields = ['id32', 'customer__name']
     fields = ['customer', 'order_date', 'approved_by', 'approved_at',
-              'unapproved_by', 'unapproved_at', 'status', 'type', 'invoice']
+              'unapproved_by', 'unapproved_at', 'status', 'type', 'invoice', 'warehouse']
     readonly_fields = ['invoice']
 
 

@@ -10,9 +10,10 @@ from inventory.models import Product, StockMovementItem, WarehouseStock
 from ..helpers.sales_order import (canvasing_create_stock_movement,
                                    taking_order_create_stock_movement, handle_unapproved_sales_order,
                                    all_visits_completed_or_skipped, update_trip_status_to_completed,
-                                   handle_canvasing_trip, set_salesperson_able_to_checkout)
+                                   handle_canvasing_trip, set_salesperson_able_to_checkout,
+                                   explode_stock_based_on_order_item)
 from ..helpers.trip import (create_collector_trip,
-                          create_customer_visits_for_collector_trip)
+                            create_customer_visits_for_collector_trip)
 from ..scripts import generate_invoice_pdf_for_instance
 from ..models import (
     OrderItem,
@@ -364,6 +365,7 @@ def create_collector_trip_on_taking_order_complete(sender, instance, **kwargs):
                 create_customer_visits_for_collector_trip(
                     credit_type_visits, collector_trip)
 
+
 @receiver(pre_save, sender=Trip)
 def create_next_trip_on_trip_complete(sender, instance, **kwargs):
     """
@@ -374,12 +376,12 @@ def create_next_trip_on_trip_complete(sender, instance, **kwargs):
     status_before = Trip.objects.get(pk=instance.pk).status
     if instance.status in [COMPLETED, SKIPPED] and status_before not in [COMPLETED, SKIPPED]:
         Trip.objects.create(
-                template=instance.template,
-                date=add_one_day(timezone.now()),
-                salesperson=instance.salesperson,
-                vehicle=instance.vehicle,
-                type=instance.type,
-            )
+            template=instance.template,
+            date=add_one_day(timezone.now()),
+            salesperson=instance.salesperson,
+            vehicle=instance.vehicle,
+            type=instance.type,
+        )
 
 # ==================================================================================
 # Model Validator
@@ -482,17 +484,19 @@ def check_canvasing_requirements(instance):
         )
 
     for item in instance.sales_order.order_items.all():
-        stocks = WarehouseStock.objects.filter(
+        warehouse_stocks = WarehouseStock.objects.filter(
             product=item.product,
-            unit=item.unit,
             warehouse=instance.trip.vehicle.warehouse
-        ).values('product', 'unit').annotate(quantity=models.Sum('quantity'))
+        )
+        stock = 0
+        for ws in warehouse_stocks:
+            stock += ws.smallest_unit_quantity
 
-        stock = stocks[0]['quantity'] if stocks else 0
-        if stock < item.quantity:
+        if stock < item.smallest_unit_quantity:
             raise ValidationError(
                 _('CustomerVisit status cannot be set to COMPLETED because this Sales Order Item is out of stock.')
             )
+        explode_stock_based_on_order_item(warehouse_stocks, item)
 
 
 def check_taking_order_requirements(instance):
@@ -509,7 +513,7 @@ def check_taking_order_requirements(instance):
 def validate_payment_amount(sender, instance, **kwargs):
     # 6. Create new payment, its amount shall be greater than the total invoice
     invoice_total = instance.invoice.total
-    if instance.amount < invoice_total:
+    if round(instance.amount, 0) < round(invoice_total, 0):
         raise ValidationError(
             _("The payment amount of {payment_amount} is less than the invoice total of {invoice_total}").format(
                 payment_amount=instance.amount,

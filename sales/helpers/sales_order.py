@@ -1,8 +1,9 @@
+import math
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Sum
 from django.utils import timezone
 from libs.constants import COMPLETED, SKIPPED
-from inventory.models import StockMovement, StockMovementItem, Warehouse
+from inventory.models import StockMovement, StockMovementItem, Warehouse, Unit, WarehouseStock
 from hr.models import Attendance
 from ..models import CustomerVisit, SalesOrder, Customer, Trip
 
@@ -117,10 +118,10 @@ def _create_stock_movement_items_from_sales_order(instance):
     for item in instance.order_items.all():
         smi, created = StockMovementItem.objects.get_or_create(
             product_id=item.product.pk,
-            stock_movement=instance.stock_movement
+            stock_movement=instance.stock_movement,
+            unit = item.unit
         )
         smi.quantity = item.quantity
-        smi.unit = item.unit
         smi.save()
 
 
@@ -187,7 +188,6 @@ def _create_stock_movement_items_for_trip_trip(stock_movement, origin_warehouse)
     stocks = origin_warehouse.warehousestock_set.filter(
         quantity__gt=0
     ).values('product', 'unit').annotate(total_quantity=Sum('quantity'))
-
     for stock in stocks:
         StockMovementItem.objects.create(
             product_id=stock.get('product'),
@@ -267,3 +267,90 @@ def set_salesperson_able_to_checkout(visit_instance):
     if attendance:
         attendance.able_checkout = True
         attendance.save()
+
+
+def explode_stock_based_on_order_item(warehouse_stocks, item):
+    """
+    Check and manage stock levels for a specific order item.
+    Explode stock recursively if necessary.
+
+    Args:
+    - warehouse_stocks (QuerySet): The queryset of WarehouseStock objects.
+    - item (OrderItem): The order item to check stock against.
+    """
+    # Aggregate the total stock quantity for the given unit
+    stocks = warehouse_stocks.filter(unit=item.unit).values(
+        'product', 'unit').annotate(quantity=Sum('quantity'))
+    stock_quantity = stocks[0]['quantity'] if stocks else 0
+
+    # Explode stock if the quantity needed exceeds current stock
+    if item.quantity > stock_quantity:
+        explode_stock_recursively(item.quantity, item.unit, warehouse_stocks)
+
+
+def explode_stock_recursively(quantity_needed, unit, warehouse_stocks):
+    """
+    Recursively explode stock to meet the required quantity.
+
+    Args:
+    - quantity_needed (int): The required quantity.
+    - unit (Unit): The unit of measure for the required quantity.
+    - warehouse_stocks (QuerySet): The queryset of WarehouseStock objects.
+    """
+    # Get child stocks one level deeper than the current unit
+    child_stocks = warehouse_stocks.filter(
+        quantity__gt=0, unit__level=unit.level + 1)
+
+    # Aggregate the total quantity for child stocks
+    stock_quantities = child_stocks.values(
+        'product', 'unit').annotate(quantity=Sum('quantity'))
+
+    # Get the immediate child unit of the current unit
+    child_unit = Unit.objects.filter(parent=unit).first()
+    if not child_unit:
+        return  # Exit if no child unit found
+
+    # Calculate the required quantity in terms of the child unit
+    child_quantity_needed = math.ceil(
+        quantity_needed / child_unit.conversion_to_ancestor(unit.id))
+    available_quantity = stock_quantities[0]['quantity'] if stock_quantities else 0
+
+    # Recursively explode stock if available quantity is insufficient
+    if available_quantity < child_quantity_needed:
+        explode_stock_recursively(
+            child_quantity_needed - available_quantity, child_unit, warehouse_stocks)
+
+    # Iterate through child stocks and explode as needed
+    for stock in child_stocks:
+        quantity_to_explode = min(child_quantity_needed, stock.quantity)
+        commit_stock_explode(stock, quantity_to_explode)
+        child_quantity_needed -= quantity_to_explode
+        if child_quantity_needed <= 0:
+            break  # Exit loop if needed quantity is met or exceeded
+
+
+def commit_stock_explode(stock, quantity):
+    """
+    Commit the explosion of stock, adjusting quantities of parent and child stocks.
+
+    Args:
+    - stock (WarehouseStock): The stock to explode.
+    - quantity (int): The quantity to explode.
+    """
+    # Get or create the parent stock for the current stock
+    parent_stock, created = WarehouseStock.objects.get_or_create(
+        warehouse=stock.warehouse,
+        product=stock.product,
+        unit=stock.unit.parent,
+        expire_date=stock.expire_date
+    )
+
+    # Convert the quantity to parent unit and update the parent stock
+    converted_quantity = quantity * \
+        stock.unit.conversion_to_ancestor(stock.unit.parent.id)
+    parent_stock.quantity += converted_quantity
+    parent_stock.save()
+
+    # Deduct the exploded quantity from the child stock
+    stock.quantity -= quantity
+    stock.save()
