@@ -406,6 +406,7 @@ class StockMovement(BaseModelGeneric):
     REQUESTED = 'requested'
     CANCELED = 'canceled'
     PREPARING = 'preparing'
+    VERIFYING = 'verifying'
     READY = 'ready'
     ON_DELIVERY = 'on_delivery'
     DELIVERED = 'delivered'
@@ -417,10 +418,11 @@ class StockMovement(BaseModelGeneric):
     MOVEMENT_STATUS = (
         (REQUESTED, _('Requested')),
         (CANCELED, _('Canceled')),
-        (PREPARING, _('Preparing')),
+        (PREPARING, _('Preparing by picker')),
+        (VERIFYING, _('Verifying by checker')),
         (READY, _('Ready to Deliver')),
         (ON_DELIVERY, _('On Delivery')),
-        (DELIVERED, _('Delivered')),
+        (DELIVERED, _('Delivered to destination')),
         (RETURNED, _('Returned')),
         (ON_CHECK, _('On Check in destination')),
         (CHECKED, _('Checked in destination')),

@@ -153,15 +153,21 @@ def handle_movement_item_status_change_post(sender, instance, **kwargs):
         stock_movement.status = StockMovement.PREPARING
         stock_movement.save()
 
-    # Condition 2: Set StockMovement status to ON_CHECK
-    if instance.destination_movement_status == StockMovementItem.ON_CHECK and stock_movement.status != StockMovement.ON_CHECK:
-        stock_movement.status = StockMovement.ON_CHECK
+    # Condition 3: Set StockMovement status to VERIFYING
+    all_items = stock_movement.items.all()
+    if all(item.origin_movement_status == StockMovementItem.PUT for item in all_items):
+        stock_movement.status = StockMovement.VERIFYING
         stock_movement.save()
 
     # Condition 3: Set StockMovement status to READY
     all_items = stock_movement.items.all()
     if all(item.origin_movement_status == StockMovementItem.CHECKED for item in all_items):
         stock_movement.status = StockMovement.READY
+        stock_movement.save()
+
+    # Condition 2: Set StockMovement status to ON_CHECK
+    if instance.destination_movement_status == StockMovementItem.ON_CHECK and stock_movement.status != StockMovement.ON_CHECK:
+        stock_movement.status = StockMovement.ON_CHECK
         stock_movement.save()
 
     # Condition 3: Set StockMovement status to CHECKED
