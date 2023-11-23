@@ -20,8 +20,6 @@ def canvasing_create_stock_movement(instance):
     sm = initialize_stock_movement_for_canvasing(instance)
     set_stock_movement_origin_from_visit(sm, instance)
     finalize_stock_movement(sm)
-    if all_visits_completed_or_skipped(instance.visit.trip):
-        create_stock_movement_for_trip_completed(instance.visit.trip)
 
 
 def taking_order_create_stock_movement(instance):
@@ -119,7 +117,7 @@ def _create_stock_movement_items_from_sales_order(instance):
         smi, created = StockMovementItem.objects.get_or_create(
             product_id=item.product.pk,
             stock_movement=instance.stock_movement,
-            unit = item.unit
+            unit=item.unit
         )
         smi.quantity = item.quantity
         smi.save()
@@ -138,63 +136,6 @@ def handle_unapproved_sales_order(instance):
 def has_completed_status_changed(old_status, new_status):
     """Check if the status has changed from non-completed to completed."""
     return old_status != COMPLETED and new_status == COMPLETED
-
-
-def create_stock_movement_for_trip_completed(trip_instance):
-    """Create stock movement based on trip instance."""
-    origin_warehouse = trip_instance.vehicle.warehouse if trip_instance.vehicle else None
-    if not origin_warehouse:
-        return
-
-    warehouse_type = ContentType.objects.get_for_model(Warehouse)
-    previous_stock_movement = get_previous_stock_movement(
-        warehouse_type, origin_warehouse.id)
-
-    if not previous_stock_movement.exists():
-        return
-
-    destination_warehouse_id = previous_stock_movement.first().origin_id
-    stock_movement = create_stock_movement(
-        warehouse_type, origin_warehouse.id, destination_warehouse_id)
-
-    _create_stock_movement_items_for_trip_trip(
-        stock_movement, origin_warehouse)
-
-
-def get_previous_stock_movement(warehouse_type, origin_warehouse_id):
-    """Retrieve previous stock movement based on warehouse type and origin."""
-    status_check = [StockMovement.DELIVERED,
-                    StockMovement.ON_DELIVERY, StockMovement.READY]
-    return StockMovement.objects.filter(
-        destination_type=warehouse_type,
-        destination_id=origin_warehouse_id,
-        status__in=status_check
-    )
-
-
-def create_stock_movement(warehouse_type, origin_id, destination_id):
-    """Create and return a new stock movement."""
-    return StockMovement.objects.create(
-        origin_type=warehouse_type,
-        origin_id=origin_id,
-        destination_type=warehouse_type,
-        destination_id=destination_id,
-        movement_date=timezone.now()
-    )
-
-
-def _create_stock_movement_items_for_trip_trip(stock_movement, origin_warehouse):
-    """Create stock movement items for products with quantity greater than zero in origin warehouse."""
-    stocks = origin_warehouse.warehousestock_set.filter(
-        quantity__gt=0
-    ).values('product', 'unit').annotate(total_quantity=Sum('quantity'))
-    for stock in stocks:
-        StockMovementItem.objects.create(
-            product_id=stock.get('product'),
-            stock_movement=stock_movement,
-            unit_id=stock.get('unit'),
-            quantity=stock.get('total_quantity')
-        )
 
 
 def all_visits_completed_or_skipped(trip):
@@ -231,7 +172,7 @@ def handle_canvasing_trip(visit_instance):
     trip = visit_instance.trip
     if trip.type == Trip.CANVASING:
         warehouse_type = ContentType.objects.get_for_model(Warehouse)
-        prev_stock_movement = get_previous_stock_movement(
+        prev_stock_movement = get_previous_stock_movement_destination(
             warehouse_type, trip.vehicle.warehouse.id).order_by('id').last()
 
         if prev_stock_movement:
@@ -239,7 +180,7 @@ def handle_canvasing_trip(visit_instance):
             prev_stock_movement.save()
 
 
-def get_previous_stock_movement(warehouse_type, warehouse_id):
+def get_previous_stock_movement_destination(warehouse_type, warehouse_id):
     """
     Retrieves the previous stock movement based on warehouse type and ID.
     :param warehouse_type: ContentType of the Warehouse model.

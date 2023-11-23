@@ -13,7 +13,8 @@ from ..helpers.sales_order import (canvasing_create_stock_movement,
                                    handle_canvasing_trip, set_salesperson_able_to_checkout,
                                    explode_stock_based_on_order_item)
 from ..helpers.trip import (create_collector_trip,
-                            create_customer_visits_for_collector_trip)
+                            create_customer_visits_for_collector_trip,
+                            create_return_stock_movement)
 from ..scripts import generate_invoice_pdf_for_instance
 from ..models import (
     OrderItem,
@@ -47,6 +48,7 @@ from ..models import (
 # 17. assign_trip_default_vehicle: Assigns the first vehicle from the associated TripTemplate
 # 18. create_collector_trip_on_taking_order_complete: Create Trip for collector after the taking order completed
 # 19. create_next_trip_on_trip_complete: Create a ne Trip when a Trip changes status to 'COMPLETED'.
+# 20. create_return_stock_movement_on_trip_complete: Create a stock movement to return items remaining in the trip's vehicle.
 
 
 @receiver(pre_save, sender=OrderItem)
@@ -365,15 +367,26 @@ def create_collector_trip_on_taking_order_complete(sender, instance, **kwargs):
                 create_customer_visits_for_collector_trip(
                     credit_type_visits, collector_trip)
 
-
 @receiver(pre_save, sender=Trip)
 def create_next_trip_on_trip_complete(sender, instance, **kwargs):
     """
-    Create a ne Trip when a Trip changes status to 'COMPLETED'.
+    This signal triggers when a Trip instance is about to be saved. It checks if the status of the trip
+    is transitioning to either 'COMPLETED' or 'SKIPPED'. If so, it creates a new Trip for the next day 
+    with the same salesperson, vehicle, and type as the current one.
+
+    Args:
+    - sender: The model class that sent the signal.
+    - instance: The actual instance of Trip being saved.
+    - kwargs: Additional keyword arguments.
     """
+    # Avoid processing for newly created instances
     if not instance.pk:
         return
+
+    # Get the current status of the trip instance from the database
     status_before = Trip.objects.get(pk=instance.pk).status
+
+    # Create a new trip if the current trip is transitioning to 'COMPLETED' or 'SKIPPED'
     if instance.status in [COMPLETED, SKIPPED] and status_before not in [COMPLETED, SKIPPED]:
         Trip.objects.create(
             template=instance.template,
@@ -382,6 +395,30 @@ def create_next_trip_on_trip_complete(sender, instance, **kwargs):
             vehicle=instance.vehicle,
             type=instance.type,
         )
+
+@receiver(pre_save, sender=Trip)
+def create_return_stock_movement_on_trip_complete(sender, instance, **kwargs):
+    """
+    This signal is triggered before a Trip instance is saved. It checks if the trip is transitioning
+    to a 'COMPLETED' or 'SKIPPED' status. If so, it initiates a process to create a stock movement 
+    for returning any remaining items in the trip's vehicle.
+
+    Args:
+    - sender: The model class that sent the signal.
+    - instance: The actual instance of Trip being saved.
+    - kwargs: Additional keyword arguments.
+    """
+    # Avoid processing for newly created instances
+    if not instance.pk:
+        return
+
+    # Get the current status of the trip instance from the database
+    status_before = Trip.objects.get(pk=instance.pk).status
+
+    # Initiate stock movement creation if the trip is transitioning to 'COMPLETED' or 'SKIPPED'
+    if instance.status in [COMPLETED, SKIPPED] and status_before not in [COMPLETED, SKIPPED]:
+        create_return_stock_movement(instance)
+
 
 # ==================================================================================
 # Model Validator
