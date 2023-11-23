@@ -8,9 +8,8 @@ from ..models import Invoice
 def generate_invoice_pdf_for_instance(instance):
     # Use Django's template system to generate HTML for the PDF
     template = get_template('document/invoice.html')
-    try:
-        invoice = Invoice.objects.get(order=instance)
-    except:
+    invoice = Invoice.objects.filter(order=instance).last()
+    if not invoice:
         return
     context = {
         'invoice': invoice,
