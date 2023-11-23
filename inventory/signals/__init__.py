@@ -2,7 +2,10 @@ from django.db.models.signals import pre_save, post_save, pre_delete
 from django.db import models
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 from django.utils import timezone
+from hr.models import Attendance
+from libs.constants import PICKER_CHECKER_GROUP_NAME
 from ..models import Product, ProductLog, StockMovement, Warehouse, StockMovementItem, WarehouseStock
 from ..helpers.stock_movement import handle_origin_warehouse, handle_destination_warehouse, is_dispatch_status_change
 
@@ -19,6 +22,7 @@ from ..helpers.stock_movement import handle_origin_warehouse, handle_destination
 # 9. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
 # 10. stock_movement_status_update: Updates stock movement status based on associated item's status.
 # 11. create_dummy_warehouse_stock: Create dummy stock for all product units when new stock is created
+# 12. set_agent_able_to_checkout: Set agents (checker or picker) able to checkout if there is nothing to move
 
 
 def commit_base_price(product, buy_price):
@@ -230,9 +234,58 @@ def create_dummy_warehouse_stock(sender, instance, created, **kwargs):
         for unit in instance.product.units:
             if not WarehouseStock.objects.filter(product=instance.product, unit=unit).exists():
                 WarehouseStock.objects.create(
-                    warehouse = instance.warehouse,
-                    product = instance.product,
-                    expire_date = timezone.now(),
-                    inbound_movement_item = instance.inbound_movement_item,
-                    unit = unit
+                    warehouse=instance.warehouse,
+                    product=instance.product,
+                    expire_date=timezone.now(),
+                    inbound_movement_item=instance.inbound_movement_item,
+                    unit=unit
                 )
+
+
+@receiver(post_save, sender=StockMovement)
+def set_agent_able_to_checkout(sender, instance, created, **kwargs):
+    """
+    After saving a StockMovement instance, this function checks if all stock movements
+    for the current day are beyond certain stages. If so, it updates Attendance records to 
+    allow agents (with roles such as picker or checker) to checkout.
+
+    Args:
+    - sender: The model class that sent the signal.
+    - instance: The actual instance of StockMovement being saved.
+    - created: Boolean, True if a new record was created.
+    - kwargs: Additional keyword arguments.
+    """
+    # Only proceed if this is an update (not a creation)
+    if created:
+        return
+
+    # Define the statuses representing stages before an agent can check out
+    planning_statuses = [
+        StockMovement.REQUESTED,
+        StockMovement.PREPARING,
+        StockMovement.VERIFYING,
+        StockMovement.ON_CHECK,
+        StockMovement.CHECKED,
+    ]
+
+    # Query today's movements
+    today = timezone.localdate()
+    today_movements = StockMovement.objects.filter(movement_date__date=today)
+
+    # Check if all movements are beyond planning stages
+    if today_movements.count() == today_movements.exclude(status__in=planning_statuses).count():
+        # Collect warehouse IDs from today's movements
+        warehouse_ids = set(today_movements.values_list('origin_id', flat=True)) | \
+            set(today_movements.values_list('destination_id', flat=True))
+
+        # Identify users associated with these warehouses who are part of picker/checker group
+        users = User.objects.filter(
+            id__in=Warehouse.objects.filter(
+                id__in=warehouse_ids).values_list('pic', flat=True),
+            groups__name__in=PICKER_CHECKER_GROUP_NAME
+        )
+
+        # Update Attendance records for these users
+        Attendance.objects.filter(
+            employee__user__in=users, clock_out__isnull=True
+        ).update(able_checkout=True)

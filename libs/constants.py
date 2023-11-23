@@ -24,3 +24,5 @@ MOBILE_ROLE_MENU_MAP = (
     ('driver', [DELIVERY_MOBILE_MENU]),
     ('collector', [COLLECTION_MOBILE_MENU]),
 )
+
+PICKER_CHECKER_GROUP_NAME = ['Picker', 'Checker']
