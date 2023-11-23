@@ -29,22 +29,28 @@ from ..models import (
 )
 
 # Table of Content
+
+# ~Product Quantity~
 # 1. update_product_quantity: Adjusts the product quantity when an OrderItem's quantity changes.
 # 2. deduct_product_quantity: Deducts the product's quantity when a new OrderItem is created.
-# 3. check_salesorder_before_approved: Checks if a SalesOrder was previously approved or unapproved and sets flags accordingly.
-# 4. create_stock_movement: Creates a StockMovement entry when a SalesOrder is approved.
-# 5. create_stock_movement_item: Creates a StockMovementItem entry when a new OrderItem is created and the order has associated stock movement.
-# 6. restore_product_quantity: Restores the product's quantity when an OrderItem is deleted.
-# 7. populate_trip_customer_from_template: Populates the trip's customers from a template when a new Trip instance is created.
-# 8. generate_canvasing_report: Generates or updates a CustomerVisitReport when a CustomerVisit's status is either completed or skipped.
-# 9. update_trip_status_if_visit_completed: Updates the associated canvasing trip's status to completed if all associated CustomerVisits are completed or skipped.
-# 10. update_order_status: Before saving a `SalesOrder`, this signal checks if the approval status of the order has changed.
-# 11. create_invoice_on_order_submit: After saving a `SalesOrder`, if the order's status is 'SUBMITTED' and there isn't already an associated invoice,this signal creates a new `Invoice` entry associated with the given order.
-# 12. handle_customer_visit_completed: Handle logic of if customer visit is completed
-# 13. generate_invoice_pdf_from_sales_order: Generate invoice PDF if `SalesOrder` is saved
-# 14. generate_invoice_pdf_from_order_items: Generate invoice PDF if `OrderItem` is saved
-# 15. set_sales_order_to_processing: Associate SalesOrder's status is set to 'PROCESSING' and its approve() method is called
-# 16. set_sales_order_to_completed: Set the associated CustomerVisit's SalesOrder's status is set to 'COMPLETED'
+# 3. restore_product_quantity: Restores the product's quantity when an OrderItem is deleted.
+
+# ~ Sales Order ~
+# 4. check_salesorder_before_approved: Checks if a SalesOrder was previously approved or unapproved and sets flags accordingly.
+# 5. create_stock_movement: Creates a StockMovement entry when a SalesOrder is approved.
+# 6. create_stock_movement_item: Creates a StockMovementItem entry when a new OrderItem is created and the order has associated stock movement.
+# 7. update_order_status: Before saving a `SalesOrder`, this signal checks if the approval status of the order has changed.
+# 8. create_invoice_on_order_submit: After saving a `SalesOrder`, if the order's status is 'SUBMITTED' and there isn't already an associated invoice,this signal creates a new `Invoice` entry associated with the given order.
+# 9. generate_invoice_pdf_from_sales_order: Generate invoice PDF if `SalesOrder` is saved
+# 10. generate_invoice_pdf_from_order_items: Generate invoice PDF if `OrderItem` is saved
+# 11. set_sales_order_to_processing: Associate SalesOrder's status is set to 'PROCESSING' and its approve() method is called
+# 12. set_sales_order_to_completed: Set the associated CustomerVisit's SalesOrder's status is set to 'COMPLETED'
+
+# ~ Trip ~
+# 13. populate_trip_customer_from_template: Populates the trip's customers from a template when a new Trip instance is created.
+# 14. generate_canvasing_report: Generates or updates a CustomerVisitReport when a CustomerVisit's status is either completed or skipped.
+# 15. update_trip_status_if_visit_completed: Updates the associated canvasing trip's status to completed if all associated CustomerVisits are completed or skipped.
+# 16. handle_customer_visit_completed: Handle logic of if customer visit is completed
 # 17. assign_trip_default_vehicle: Assigns the first vehicle from the associated TripTemplate
 # 18. create_collector_trip_on_taking_order_complete: Create Trip for collector after the taking order completed
 # 19. create_next_trip_on_trip_complete: Create a ne Trip when a Trip changes status to 'COMPLETED'.
