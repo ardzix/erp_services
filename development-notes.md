@@ -6,6 +6,7 @@
 ## To Do
 
 - Trip Report endpoint
+- PIC location on on going trip
 - Implode/explode endpoints
 - Auto explode on sales order ✅
 - Transaction endpoints ✅

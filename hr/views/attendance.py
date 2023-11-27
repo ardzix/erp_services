@@ -76,8 +76,7 @@ class AttendanceViewSet(mixins.CreateModelMixin,
     def clock_out(self, request):
         # Assuming there's a one-to-one relationship between User and Employee
         employee = Employee.objects.get(user=request.user)
-        attendance = get_object_or_404(
-            Attendance, employee=employee, clock_out__isnull=True)
+        attendance = Attendance.objects.filter(employee=employee, clock_out__isnull=True).first()
 
         serializer = ClockOutSerializer(instance=attendance, data=request.data, context={
                                         'request': request}, partial=True)
