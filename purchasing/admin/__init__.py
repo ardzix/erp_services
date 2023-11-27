@@ -30,7 +30,7 @@ class PurchaseOrderAdmin(ApproveRejectMixin, BaseAdmin):
     inlines = [OrderItemInline]
     list_display = ['id32', 'supplier', 'order_date', 'approved_by', 'approved_at']
     list_filter = ['supplier', 'approved_by']
-    fields = ['supplier', 'order_date', 'approved_by', 'approved_at', 'unapproved_by', 'unapproved_at']
+    fields = ['supplier', 'destination_warehouse', 'order_date', 'approved_by', 'approved_at', 'unapproved_by', 'unapproved_at']
 
 
 @admin.register(PurchaseOrderItem)
