@@ -23,6 +23,7 @@ from ..helpers.stock_movement import handle_origin_warehouse, handle_destination
 # 10. stock_movement_status_update: Updates stock movement status based on associated item's status.
 # 11. create_dummy_warehouse_stock: Create dummy stock for all product units when new stock is created
 # 12. set_agent_able_to_checkout: Set agents (checker or picker) able to checkout if there is nothing to move
+# 13. set_movement_date_on_status_change: Set the movement_date to the current time if it's None
 
 
 def commit_base_price(product, buy_price):
@@ -289,3 +290,19 @@ def set_agent_able_to_checkout(sender, instance, created, **kwargs):
         Attendance.objects.filter(
             employee__user__in=users, clock_out__isnull=True
         ).update(able_checkout=True)
+
+
+@receiver(pre_save, sender=StockMovement)
+def set_movement_date_on_status_change(sender, instance, **kwargs):
+    """
+    Set the movement_date to the current time if it's None and status changes
+    from REQUESTED to anything except CANCELED.
+    """
+    if instance.pk:
+        # Fetch the previous state of the instance
+        prev_instance = StockMovement.objects.get(pk=instance.pk)
+
+        # Check if movement_date is None and status is changing as specified
+        if instance.movement_date is None and prev_instance.status == StockMovement.REQUESTED and instance.status != StockMovement.CANCELED:
+            # Set movement_date to current time
+            instance.movement_date = timezone.now()

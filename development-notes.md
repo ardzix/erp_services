@@ -5,6 +5,8 @@
 
 ## To Do
 
+- Redefine purchase order filter for inbound in checker and picker ✅
+- PO stock_movement items bugs on its property and stock creation
 - PIC location on on going trip ✅
 - Implode/explode endpoints
 - Trip Report endpoint

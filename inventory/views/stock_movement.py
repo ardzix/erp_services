@@ -1,6 +1,7 @@
 from django_filters import rest_framework as django_filters
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from rest_framework import viewsets, permissions, mixins, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -33,7 +34,8 @@ class StockMovementFilter(CreatedAtFilterMixin):
         'Put origin in this format: "origin_type,origin_id32". Example: "warehouse,A"'))
     destination_filter = django_filters.CharFilter(method='filter_destination', help_text=_(
         'Put destionation in this format: "destination_type,destination_id32". Example: "warehouse,A"'))
-    status = django_filters.MultipleChoiceFilter(choices=StockMovement.MOVEMENT_STATUS, help_text=_('To filter multiple status, use this request example: ?status=requested&status=delivered'))
+    status = django_filters.MultipleChoiceFilter(choices=StockMovement.MOVEMENT_STATUS, help_text=_(
+        'To filter multiple status, use this request example: ?status=requested&status=delivered'))
     id32s = django_filters.CharFilter(method='filter_by_id32s')
 
     class Meta:
@@ -73,7 +75,10 @@ class StockMovementFilter(CreatedAtFilterMixin):
             dates = value.split(',')
             if len(dates) == 2:
                 start_date, end_date = dates
-                return queryset.filter(movement_date__gte=start_date, movement_date__lte=end_date)
+                return queryset.filter(
+                    Q(movement_date__gte=start_date, movement_date__lte=end_date) | Q(
+                        movement_date__isnull=True)
+                )
         return queryset
 
     def filter_by_id32s(self, queryset, name, value):
@@ -88,7 +93,8 @@ class StockMovementViewSet(viewsets.ModelViewSet):
                           permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination
-    filter_backends = (django_filters.DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (django_filters.DjangoFilterBackend,
+                       filters.OrderingFilter)
     filterset_class = StockMovementFilter
 
     def get_serializer_class(self):
@@ -107,8 +113,9 @@ class StockMovementViewSet(viewsets.ModelViewSet):
         """
         stock_movement = self.get_object()
         serializer = StockMovementItemPOBatchSerializer(
-            data=request.data, 
-            context={'stock_movement': stock_movement}  # Pass the stock_movement to serializer's context
+            data=request.data,
+            # Pass the stock_movement to serializer's context
+            context={'stock_movement': stock_movement}
         )
 
         if serializer.is_valid():
