@@ -8,6 +8,7 @@
 - Trip Report endpoint
 - PIC location on on going trip
 - Implode/explode endpoints
+- Checker inbound if stock movement item is not same as phsycal item
 - Auto explode on sales order ✅
 - Transaction endpoints ✅
 - Journal endpoint (View only) ✅
