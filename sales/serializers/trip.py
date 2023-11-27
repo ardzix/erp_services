@@ -2,9 +2,9 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError as DjangoCoreValidationError
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from common.models import File
 from logistics.models import Vehicle
 from libs.utils import validate_file_by_id32, handle_file_fields
+from libs.constants import SKIPPED, COMPLETED
 from ..models import (
     TripTemplate,
     TripCustomer,
@@ -226,14 +226,19 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
     template = TripTemplateListSerializer(read_only=True)
     customer_visits = CustomerVisitSerializer(
         many=True, source='customervisit_set', read_only=True)
+    last_position = serializers.SerializerMethodField()
 
     class Meta:
         model = Trip
         fields = ['id32', 'template', 'date', 'type', 'salesperson', 'collector',
-                  'vehicle', 'status', 'customer_visits', 'stock_movement_id32s']
+                  'vehicle', 'status', 'customer_visits', 'stock_movement_id32s',
+                  'last_position']
         read_only_fields = ['id32', 'vehicle',
                             'salesperson', 'customer_visits', 'template']
 
+    def get_last_position(self, obj):
+        last_visit = obj.customervisit_set.filter(status__in=[COMPLETED, SKIPPED]).order_by('order').last()
+        return last_visit.customer.location_coordinate if last_visit and last_visit.customer else None
 
 class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer):
     salesperson_username = serializers.CharField(write_only=True)
