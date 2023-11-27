@@ -5,7 +5,7 @@
 
 ## To Do
 
-- PIC location on on going trip
+- PIC location on on going trip ✅
 - Implode/explode endpoints
 - Trip Report endpoint
 - Checker inbound if stock movement item is not same as phsycal item
@@ -13,6 +13,7 @@
 - Transaction endpoints ✅
 - Journal endpoint (View only) ✅
 - Transaction and journal adjustment
+- Tracking endpoint to periodicallu track employee
 
 ## Notes
 

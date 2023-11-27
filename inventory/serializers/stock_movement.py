@@ -104,8 +104,7 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
                   'unit_id32', 'order', 'origin_locations', 'destination_locations',
                   'origin_movement_status', 'destination_movement_status', 'batches']
         read_only_fields = ['id32', 'stock_movement', 'product',
-                            'unit', 'origin_locations', 'destination_locations',
-                            'origin_movement_status', 'destination_movement_status']
+                            'unit', 'origin_locations', 'destination_locations']
 
     def get_batches(self, obj):
         return BatchSerializer(obj.batches, many=True).data
