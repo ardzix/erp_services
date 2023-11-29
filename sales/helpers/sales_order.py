@@ -279,7 +279,15 @@ def commit_stock_explode(stock, quantity):
     - quantity (int): The quantity to explode.
     """
     # Get or create the parent stock for the current stock
-    parent_stock, created = WarehouseStock.objects.get_or_create(
+
+    parent_stock = WarehouseStock.objects.filter(
+        warehouse=stock.warehouse,
+        product=stock.product,
+        unit=stock.unit.parent,
+        expire_date=stock.expire_date
+    ).last()
+    if not parent_stock:
+        parent_stock = WarehouseStock.objects.create(
         warehouse=stock.warehouse,
         product=stock.product,
         unit=stock.unit.parent,
