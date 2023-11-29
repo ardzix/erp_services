@@ -166,7 +166,7 @@ class StockMovementItemPOBatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockMovementItem
-        fields = ['product_id32', 'po_item_id32',
+        fields = ['product_id32', 'po_item_id32', 'status',
                   'quantity', 'expire_date', 'buy_price', 'order']
 
     def save(self, **kwargs):

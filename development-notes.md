@@ -6,6 +6,7 @@
 ## To Do
 
 - Redefine purchase order filter for inbound in checker and picker ✅
+- If inboud check (sisa penjualan) item is difeerent in item stock, than add stock adjustment data
 - PO stock_movement items bugs on its property and stock creation
 - PIC location on on going trip ✅
 - Implode/explode endpoints
