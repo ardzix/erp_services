@@ -151,13 +151,13 @@ class Product(BaseModelGeneric):
         help_text=_("Enter the product description"))
     base_price = models.DecimalField(
         default=0,
-        max_digits=10, decimal_places=2, help_text=_("Base price in IDR (Rp)"))
+        max_digits=19, decimal_places=2, help_text=_("Base price in IDR (Rp)"))
     last_buy_price = models.DecimalField(
         default=0,
-        max_digits=10, decimal_places=2, help_text=_("Last buy price in IDR (Rp)"))
+        max_digits=19, decimal_places=2, help_text=_("Last buy price in IDR (Rp)"))
     sell_price = models.DecimalField(
         default=0,
-        max_digits=10, decimal_places=2, help_text=_("Sell price in IDR (Rp)"))
+        max_digits=19, decimal_places=2, help_text=_("Sell price in IDR (Rp)"))
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, help_text=_("Select the product category"))
     quantity = models.IntegerField(
@@ -181,7 +181,7 @@ class Product(BaseModelGeneric):
         "Select on how the margin will be calculated"))
     margin_value = models.DecimalField(
         default=0,
-        max_digits=10, decimal_places=2,
+        max_digits=19, decimal_places=2,
         help_text=_(
             "Enter the value for margin (0-1 for percentage, >0 for fixed)")
     )
@@ -296,19 +296,19 @@ class ProductLog(models.Model):
         null=True,
         help_text=_("Enter the quantity change"))
     buy_price_change = models.DecimalField(
-        max_digits=10,
+        max_digits=19,
         decimal_places=2,
         blank=True,
         null=True,
         help_text=_("Enter the buy price change"))
     base_price_change = models.DecimalField(
-        max_digits=10,
+        max_digits=19,
         decimal_places=2,
         blank=True,
         null=True,
         help_text=_("Enter the base price change"))
     sell_price_change = models.DecimalField(
-        max_digits=10,
+        max_digits=19,
         decimal_places=2,
         blank=True,
         null=True,

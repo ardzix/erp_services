@@ -132,7 +132,7 @@ class PurchaseOrderItem(BaseModelGeneric):
     actual_price = models.DecimalField(
         blank=True,
         null=True,
-        max_digits=10,
+        max_digits=19,
         decimal_places=2,
         help_text=_("Enter the actual item price")
     )
@@ -166,14 +166,14 @@ class InvalidPOItem(BaseModelGeneric):
     price = models.DecimalField(
         blank=True,
         null=True,
-        max_digits=10,
+        max_digits=19,
         decimal_places=2,
         help_text=_("Enter the item price")
     )
     discount = models.DecimalField(
         blank=True,
         null=True,
-        max_digits=10,
+        max_digits=19,
         decimal_places=2,
         help_text=_("Enter the discount")
     )

@@ -57,7 +57,7 @@ class Account(BaseModelGeneric):
 class Opportunity(BaseModelGeneric):
     name = models.CharField(max_length=100, help_text=_("The name of the opportunity"))
     account = models.ForeignKey(Account, on_delete=models.CASCADE, help_text=_("The associated account of the opportunity"))
-    value = models.DecimalField(max_digits=10, decimal_places=2, help_text=_("The value of the opportunity"))
+    value = models.DecimalField(max_digits=19, decimal_places=2, help_text=_("The value of the opportunity"))
     probability = models.PositiveIntegerField(help_text=_("The probability percentage of closing the opportunity"))
     stage = models.CharField(
         max_length=100,

@@ -229,7 +229,7 @@ class OrderItem(BaseModelGeneric):
     quantity = models.PositiveIntegerField(
         help_text=_('Enter the item quantity'))
     price = models.DecimalField(
-        max_digits=10,
+        max_digits=19,
         decimal_places=2,
         help_text=_('Enter the item price in IDR (Rp)')
     )
