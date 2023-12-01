@@ -54,7 +54,7 @@ from ..models import (
 # 17. assign_trip_default_vehicle: Assigns the first vehicle from the associated TripTemplate
 # 18. create_collector_trip_on_taking_order_complete: Create Trip for collector after the taking order completed
 # 19. create_next_trip_on_trip_complete: Create a ne Trip when a Trip changes status to 'COMPLETED'.
-# 20. create_return_stock_movement_on_trip_complete: Create a stock movement to return items remaining in the trip's vehicle.
+# 20. create_return_stock_movement_on_canvasing_complete: Create a stock movement to return items remaining in the trip's vehicle.
 
 
 @receiver(pre_save, sender=OrderItem)
@@ -404,9 +404,9 @@ def create_next_trip_on_trip_complete(sender, instance, **kwargs):
         )
 
 @receiver(pre_save, sender=Trip)
-def create_return_stock_movement_on_trip_complete(sender, instance, **kwargs):
+def create_return_stock_movement_on_canvasing_complete(sender, instance, **kwargs):
     """
-    This signal is triggered before a Trip instance is saved. It checks if the trip is transitioning
+    This signal is triggered before a Trip instance is saved. It checks if the canvasing trip is transitioning
     to a 'COMPLETED' or 'SKIPPED' status. If so, it initiates a process to create a stock movement 
     for returning any remaining items in the trip's vehicle.
 
@@ -417,6 +417,9 @@ def create_return_stock_movement_on_trip_complete(sender, instance, **kwargs):
     """
     # Avoid processing for newly created instances
     if not instance.pk:
+        return
+    
+    if not instance.type == Trip.CANVASING:
         return
 
     # Get the current status of the trip instance from the database
