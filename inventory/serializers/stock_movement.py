@@ -338,3 +338,38 @@ class DistinctStockMovementItemSerializer(serializers.Serializer):
             product__id32=instance.get('product__id32'),
             unit__id32=instance.get('unit__id32'))\
             .values_list('id32', flat=True)
+
+
+class StockMovementItemListSerializer(serializers.ListSerializer):
+    def update(self, instances, validated_data):
+        # Maps for id->instance and id->data item.
+        item_mapping = {item.id32: item for item in instances}
+        data_mapping = {item['id32']: item for item in validated_data}
+
+        # Perform creations and updates.
+        ret = []
+        for item_id, data in data_mapping.items():
+            item = item_mapping.get(item_id, None)
+            if item is not None:
+                ret.append(self.child.update(item, data))
+        
+        return ret
+
+
+
+class StockMovementItemBulkUpdateSerializer(serializers.Serializer):
+    id32 = serializers.CharField()
+    origin_movement_status = serializers.CharField(required=False)
+    destination_movement_status = serializers.CharField(required=False)
+    expire_date = serializers.DateField(required=False)
+    quantity = serializers.IntegerField(required=False)
+    class Meta:
+        list_serializer_class = StockMovementItemListSerializer
+
+    def update(self, instance, validated_data):
+        instance.origin_movement_status = validated_data.get('origin_movement_status', instance.origin_movement_status)
+        instance.destination_movement_status = validated_data.get('destination_movement_status', instance.destination_movement_status)
+        instance.expire_date = validated_data.get('expire_date', instance.expire_date)
+        instance.quantity = validated_data.get('quantity', instance.quantity)
+        instance.save()
+        return instance

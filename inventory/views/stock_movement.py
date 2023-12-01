@@ -5,6 +5,8 @@ from django.db.models import Q, Sum
 from rest_framework import viewsets, permissions, mixins, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from ..models import StockMovement, StockMovementItem
@@ -14,7 +16,8 @@ from ..serializers.stock_movement import (StockMovementListSerializer,
                                           StockMovementCreateSerializer, 
                                           StockMovementItemSerializer, 
                                           StockMovementItemUpdateSerializer,
-                                          DistinctStockMovementItemSerializer)
+                                          DistinctStockMovementItemSerializer,
+                                          StockMovementItemBulkUpdateSerializer)
 
 
 def get_model_from_name(model_name):
@@ -146,4 +149,34 @@ class StockMovementItemViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixi
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return StockMovementItemSerializer
+        elif self.action == 'bulk_update':
+            return StockMovementItemBulkUpdateSerializer
         return StockMovementItemUpdateSerializer
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_ARRAY,
+            items=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'id32': openapi.Schema(type=openapi.TYPE_STRING),
+                    'origin_movement_status': openapi.Schema(type=openapi.TYPE_STRING),
+                    'destination_movement_status': openapi.Schema(type=openapi.TYPE_STRING),
+                    'expire_date': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_DATE),
+                    'quantity': openapi.Schema(type=openapi.TYPE_INTEGER)
+                }
+            )
+        )
+    )
+    @action(detail=False, methods=['patch'], url_path='bulk-update')
+    def bulk_update(self, request):
+        # Retrieve the instances first
+        id32s = [item.get('id32') for item in request.data]
+        instances = StockMovementItem.objects.filter(id32__in=id32s)
+
+        serializer = StockMovementItemBulkUpdateSerializer(instances, data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'bulk update successful'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
