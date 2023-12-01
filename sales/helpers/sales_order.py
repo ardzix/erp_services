@@ -5,6 +5,7 @@ from django.utils import timezone
 from libs.constants import COMPLETED, SKIPPED
 from inventory.models import StockMovement, StockMovementItem, Warehouse, Unit, WarehouseStock
 from hr.models import Attendance
+from sales.views import customer
 from ..models import CustomerVisit, SalesOrder, Customer, Trip
 
 
@@ -34,13 +35,14 @@ def taking_order_create_stock_movement(instance):
     if not trip:
         return
     warehouse_content_type = ContentType.objects.get_for_model(Warehouse)
-    sm = StockMovement.objects.create(
+    sm, created = StockMovement.objects.get_or_create(
         origin_type=warehouse_content_type,
         origin_id=instance.warehouse.id,
-        creator_type=ContentType.objects.get_for_model(SalesOrder),
-        creator_id=instance.id,
+        creator_type=ContentType.objects.get_for_model(Trip),
+        creator_id=trip.id,
     )
-    set_stock_movement_destination_from_trip(sm, trip)
+    if created:
+        set_stock_movement_destination_from_trip(sm, trip)
     instance.stock_movement = sm
     instance.save()
     sm.save()
@@ -117,9 +119,10 @@ def _create_stock_movement_items_from_sales_order(instance):
         smi, created = StockMovementItem.objects.get_or_create(
             product_id=item.product.pk,
             stock_movement=instance.stock_movement,
-            unit=item.unit
+            unit=item.unit,
+            destination_customer=instance.customer
         )
-        smi.quantity = item.quantity
+        smi.quantity += item.quantity
         smi.save()
 
 
@@ -178,6 +181,25 @@ def handle_canvasing_trip(visit_instance):
         if prev_stock_movement:
             prev_stock_movement.status = StockMovement.DELIVERED
             prev_stock_movement.save()
+
+
+def handle_taking_order_trip(visit_instance):
+    """
+    Handles specific actions for TAKING_ORDER type trips.
+    Sort the stock movement item for checker to arrange item placement in the vehicle
+    :param visit_instance: The CustomerVisit instance with a CANVASING type trip.
+    """
+    trip = visit_instance.trip
+    if trip.type == Trip.TAKING_ORDER:
+        sm = StockMovement.objects.filter(
+            creator_type=ContentType.objects.get_for_model(Trip),
+            creator_id=trip.id
+        ).last()
+        if not sm:
+            return
+        for order, item in enumerate(sm.items.order_by('-id')):
+            item.order = order+1
+            item.save()
 
 
 def get_previous_stock_movement_destination(warehouse_type, warehouse_id):
@@ -288,11 +310,11 @@ def commit_stock_explode(stock, quantity):
     ).last()
     if not parent_stock:
         parent_stock = WarehouseStock.objects.create(
-        warehouse=stock.warehouse,
-        product=stock.product,
-        unit=stock.unit.parent,
-        expire_date=stock.expire_date
-    )
+            warehouse=stock.warehouse,
+            product=stock.product,
+            unit=stock.unit.parent,
+            expire_date=stock.expire_date
+        )
 
     # Convert the quantity to parent unit and update the parent stock
     converted_quantity = quantity * \

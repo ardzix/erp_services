@@ -52,8 +52,8 @@ class SalesOrderAdmin(ApproveRejectMixin, BaseAdmin):
                     'approved_by', 'status', 'type']
     list_filter = ['customer', 'order_date', 'approved_by']
     search_fields = ['id32', 'customer__name']
-    fields = ['customer', 'order_date', 'approved_by', 'approved_at',
-              'unapproved_by', 'unapproved_at', 'status', 'type', 'invoice', 'warehouse']
+    fields = ['customer', 'order_date', 'approved_by', 'approved_at', 'unapproved_by',
+              'unapproved_at', 'status', 'type', 'invoice', 'warehouse', 'visit']
     readonly_fields = ['invoice']
 
 

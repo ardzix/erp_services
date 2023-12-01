@@ -11,19 +11,27 @@ from ..helpers.stock_movement import handle_origin_warehouse, handle_destination
 
 
 # Table of Content
+
+# Pricing
 # 1. commit_base_price: Commits a new base price for a product.
-# 2. change_global_stock: Updates product quantity if its smallest unit changes.
-# 3. calculate_product_base_price: Computes the product's base price using fifo/lifo methodology.
-# 4. calculate_product_sell_price: Calculates the product's sell price based on margin settings.
-# 5. calculate_product_log: Gathers the product's previous details before saving.
-# 6. create_product_log: Creates a log entry for product changes.
-# 7. check_sm_status_before: Logs the StockMovement's status before save.
-# 8. check_movement_item_previous_status: Checks for status in movement item status before save.
-# 9. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
-# 10. stock_movement_status_update: Updates stock movement status based on associated item's status.
-# 11. create_dummy_warehouse_stock: Create dummy stock for all product units when new stock is created
-# 12. set_agent_able_to_checkout: Set agents (checker or picker) able to checkout if there is nothing to move
-# 13. set_movement_date_on_status_change: Set the movement_date to the current time if it's None
+# 2. calculate_product_base_price: Computes the product's base price using fifo/lifo methodology.
+# 3. calculate_product_sell_price: Calculates the product's sell price based on margin settings.
+
+# Product log and stock
+# 4. calculate_product_log: Gathers the product's previous details before saving.
+# 5. create_product_log: Creates a log entry for product changes.
+# 6. change_global_stock: Updates product quantity if its smallest unit changes.
+# 7. create_dummy_warehouse_stock: Create dummy stock for all product units when new stock is created
+
+# Stock Movement
+# 8. check_sm_status_before: Logs the StockMovement's status before save.
+# 9. check_movement_item_previous_status: Checks for status in movement item status before save.
+# 10. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
+# 11. stock_movement_status_update: Updates stock movement status based on associated item's status.
+# 12. set_movement_date_on_status_change: Set the movement_date to the current time if it's None
+
+# Others
+# 13. set_agent_able_to_checkout: Set agents (checker or picker) able to checkout if there is nothing to move
 
 
 def commit_base_price(product, buy_price):

@@ -10,8 +10,8 @@ from inventory.models import Product, StockMovementItem, WarehouseStock
 from ..helpers.sales_order import (canvasing_create_stock_movement,
                                    taking_order_create_stock_movement, handle_unapproved_sales_order,
                                    all_visits_completed_or_skipped, update_trip_status_to_completed,
-                                   handle_canvasing_trip, set_salesperson_able_to_checkout,
-                                   explode_stock_based_on_order_item)
+                                   handle_canvasing_trip, handle_taking_order_trip,
+                                   set_salesperson_able_to_checkout, explode_stock_based_on_order_item)
 from ..helpers.trip import (create_collector_trip,
                             create_customer_visits_for_collector_trip,
                             create_return_stock_movement)
@@ -48,7 +48,7 @@ from ..models import (
 
 # ~ Trip ~
 # 13. populate_trip_customer_from_template: Populates the trip's customers from a template when a new Trip instance is created.
-# 14. generate_canvasing_report: Generates or updates a CustomerVisitReport when a CustomerVisit's status is either completed or skipped.
+# 14. generate_visit_report: Generates or updates a CustomerVisitReport when a CustomerVisit's status is either completed or skipped.
 # 15. update_trip_status_if_visit_completed: Updates the associated canvasing trip's status to completed if all associated CustomerVisits are completed or skipped.
 # 16. handle_customer_visit_completed: Handle logic of if customer visit is completed
 # 17. assign_trip_default_vehicle: Assigns the first vehicle from the associated TripTemplate
@@ -170,7 +170,7 @@ def populate_trip_customer_from_template(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=CustomerVisit)
-def generate_canvasing_report(sender, instance, **kwargs):
+def generate_visit_report(sender, instance, **kwargs):
     """
     Generates or updates a CustomerVisitReport when a CustomerVisit's status is either completed or skipped.
     Adds sold products to the report if there's an associated SalesOrder.
@@ -204,6 +204,7 @@ def update_trip_status_if_visit_completed(sender, instance, **kwargs):
     if all_visits_completed_or_skipped(instance.trip):
         update_trip_status_to_completed(instance)
         handle_canvasing_trip(instance)
+        handle_taking_order_trip(instance)
         set_salesperson_able_to_checkout(instance)
 
 

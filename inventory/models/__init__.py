@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 from django.contrib.gis.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -531,6 +530,7 @@ class StockMovementItem(BaseModelGeneric):
         max_length=20, choices=STATUS_CHOICES, default=WAITING, help_text=_("Item movement status in destination warehouse"))
     destination_checked_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL,
                                                related_name="%(app_label)s_%(class)s_destination_checked_by")
+    destination_customer = models.ForeignKey('sales.Customer', blank=True, null=True, on_delete=models.SET_NULL)    
 
     class Meta:
         ordering = ['order']
