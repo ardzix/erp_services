@@ -1,15 +1,20 @@
 from django_filters import rest_framework as django_filters
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.db.models import Q, Sum
 from rest_framework import viewsets, permissions, mixins, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from ..models import StockMovement, StockMovementItem
-from ..serializers.stock_movement import (StockMovementListSerializer, StockMovementDetailSerializer, StockMovementItemPOBatchSerializer,
-                                          StockMovementCreateSerializer, StockMovementItemSerializer, StockMovementItemUpdateSerializer)
+from ..serializers.stock_movement import (StockMovementListSerializer, 
+                                          StockMovementDetailSerializer, 
+                                          StockMovementItemPOBatchSerializer,
+                                          StockMovementCreateSerializer, 
+                                          StockMovementItemSerializer, 
+                                          StockMovementItemUpdateSerializer,
+                                          DistinctStockMovementItemSerializer)
 
 
 def get_model_from_name(model_name):
@@ -122,6 +127,16 @@ class StockMovementViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['get'])
+    def distinct_items(self, request, id32=None):
+        stock_movement = self.get_object()
+        distinct_items = StockMovementItem.objects.filter(stock_movement=stock_movement)\
+                                                  .values('product__id32', 'product__name', 'unit__id32', 'unit__name', 'stock_movement')\
+                                                  .annotate(total_quantity=Sum('quantity'))\
+                                                  .order_by('product__name', 'unit__name')
+        serializer = DistinctStockMovementItemSerializer(distinct_items, many=True)
+        return Response(serializer.data)
 
 
 class StockMovementItemViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):

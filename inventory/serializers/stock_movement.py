@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
+from inventory.views import stock_movement
 from libs.utils import validate_file_by_id32
 from purchasing.models import PurchaseOrderItem
 from ..models import StockMovement, StockMovementItem, Product, Unit, ProductLocation
@@ -317,3 +318,23 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
             movement_evidence = validated_data.pop('movement_evidence_id32')
             validated_data['movement_evidence'] = movement_evidence
         return super().update(instance, validated_data)
+
+
+class DistinctStockMovementItemSerializer(serializers.Serializer):
+    item_id32s = serializers.SerializerMethodField()
+    product_id32 = serializers.CharField(source='product__id32')
+    product_name = serializers.CharField(source='product__name')
+    unit_id32 = serializers.CharField(source='unit__id32')
+    unit_name = serializers.CharField(source='unit__name')
+    total_quantity = serializers.IntegerField()
+
+    class Meta:
+        fields = ['item_id32s', 'product_id32', 'product_name',
+                  'unit_id32', 'unit_name', 'total_quantity']
+
+    def get_item_id32s(self, instance):
+        return StockMovementItem.objects.filter(
+            stock_movement=instance.get('stock_movement'),
+            product__id32=instance.get('product__id32'),
+            unit__id32=instance.get('unit__id32'))\
+            .values_list('id32', flat=True)
