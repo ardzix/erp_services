@@ -322,6 +322,8 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
 
 class DistinctStockMovementItemSerializer(serializers.Serializer):
     item_id32s = serializers.SerializerMethodField()
+    origin_locations = serializers.SerializerMethodField()
+    destination_locations = serializers.SerializerMethodField()
     product_id32 = serializers.CharField(source='product__id32')
     product_name = serializers.CharField(source='product__name')
     unit_id32 = serializers.CharField(source='unit__id32')
@@ -330,6 +332,7 @@ class DistinctStockMovementItemSerializer(serializers.Serializer):
 
     class Meta:
         fields = ['item_id32s', 'product_id32', 'product_name',
+                  'origin_locations', 'destination_locations',
                   'unit_id32', 'unit_name', 'total_quantity']
 
     def get_item_id32s(self, instance):
@@ -338,6 +341,22 @@ class DistinctStockMovementItemSerializer(serializers.Serializer):
             product__id32=instance.get('product__id32'),
             unit__id32=instance.get('unit__id32'))\
             .values_list('id32', flat=True)
+    
+    def stock_movement(self, instance):
+        return StockMovement.objects.get(id=instance.get('stock_movement'))
+    
+    def get_origin_locations(self, instance):
+        stock_movement = self.stock_movement(instance)
+        if not stock_movement.origin or stock_movement.origin_type.model != 'warehouse':
+            return []
+        return SMProductLocationSerializer(ProductLocation.objects.filter(warehouse=stock_movement.origin, product__id32=instance.get('product__id32')), many=True).data
+
+    def get_destination_locations(self, instance):
+        stock_movement = self.stock_movement(instance)
+        if not stock_movement.destination or stock_movement.destination_type.model != 'warehouse':
+            return []
+        return SMProductLocationSerializer(ProductLocation.objects.filter(warehouse=stock_movement.destination, product__id32=instance.get('product__id32')), many=True).data
+
 
 
 class StockMovementItemListSerializer(serializers.ListSerializer):
