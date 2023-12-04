@@ -80,6 +80,28 @@ class BatchSerializer(serializers.Serializer):
     unit_symbol = serializers.CharField()
     quantity = serializers.IntegerField()
 
+class StockMovementItemLiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StockMovementItem
+        fields = ['id32', 'expire_date', 'origin_movement_status', 'destination_movement_status']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        origin_movement_status_dict = dict(StockMovementItem.STATUS_CHOICES)
+        representation['origin_movement_status'] = {
+            'key': instance.origin_movement_status,
+            'value': origin_movement_status_dict.get(instance.origin_movement_status, ""),
+        }
+
+        destination_movement_status_dict = dict(
+            StockMovementItem.STATUS_CHOICES)
+        representation['destination_movement_status'] = {
+            'key': instance.destination_movement_status,
+            'value': destination_movement_status_dict.get(instance.destination_movement_status, ""),
+        }
+        return representation
+
 
 class StockMovementItemSerializer(serializers.ModelSerializer):
     product_id32 = serializers.SlugRelatedField(
@@ -321,30 +343,29 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
 
 
 class DistinctStockMovementItemSerializer(serializers.Serializer):
-    item_id32s = serializers.SerializerMethodField()
-    origin_locations = serializers.SerializerMethodField()
-    destination_locations = serializers.SerializerMethodField()
     product_id32 = serializers.CharField(source='product__id32')
     product_name = serializers.CharField(source='product__name')
     unit_id32 = serializers.CharField(source='unit__id32')
     unit_name = serializers.CharField(source='unit__name')
     total_quantity = serializers.IntegerField()
+    destination_locations = serializers.SerializerMethodField()
+    origin_locations = serializers.SerializerMethodField()
+    item_details = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ['item_id32s', 'product_id32', 'product_name',
-                  'origin_locations', 'destination_locations',
-                  'unit_id32', 'unit_name', 'total_quantity']
+        fields = ['product_id32', 'product_name', 'origin_locations',
+                  'destination_locations', 'unit_id32', 'unit_name', 'total_quantity', 'item_details']
 
-    def get_item_id32s(self, instance):
-        return StockMovementItem.objects.filter(
+    def get_item_details(self, instance):
+        queryset = StockMovementItem.objects.filter(
             stock_movement=instance.get('stock_movement'),
             product__id32=instance.get('product__id32'),
-            unit__id32=instance.get('unit__id32'))\
-            .values_list('id32', flat=True)
-    
+            unit__id32=instance.get('unit__id32'))
+        return StockMovementItemLiteSerializer(queryset, many=True).data
+
     def stock_movement(self, instance):
         return StockMovement.objects.get(id=instance.get('stock_movement'))
-    
+
     def get_origin_locations(self, instance):
         stock_movement = self.stock_movement(instance)
         if not stock_movement.origin or stock_movement.origin_type.model != 'warehouse':
@@ -356,7 +377,6 @@ class DistinctStockMovementItemSerializer(serializers.Serializer):
         if not stock_movement.destination or stock_movement.destination_type.model != 'warehouse':
             return []
         return SMProductLocationSerializer(ProductLocation.objects.filter(warehouse=stock_movement.destination, product__id32=instance.get('product__id32')), many=True).data
-
 
 
 class StockMovementItemListSerializer(serializers.ListSerializer):
@@ -371,9 +391,8 @@ class StockMovementItemListSerializer(serializers.ListSerializer):
             item = item_mapping.get(item_id, None)
             if item is not None:
                 ret.append(self.child.update(item, data))
-        
-        return ret
 
+        return ret
 
 
 class StockMovementItemBulkUpdateSerializer(serializers.Serializer):
@@ -382,13 +401,17 @@ class StockMovementItemBulkUpdateSerializer(serializers.Serializer):
     destination_movement_status = serializers.CharField(required=False)
     expire_date = serializers.DateField(required=False)
     quantity = serializers.IntegerField(required=False)
+
     class Meta:
         list_serializer_class = StockMovementItemListSerializer
 
     def update(self, instance, validated_data):
-        instance.origin_movement_status = validated_data.get('origin_movement_status', instance.origin_movement_status)
-        instance.destination_movement_status = validated_data.get('destination_movement_status', instance.destination_movement_status)
-        instance.expire_date = validated_data.get('expire_date', instance.expire_date)
+        instance.origin_movement_status = validated_data.get(
+            'origin_movement_status', instance.origin_movement_status)
+        instance.destination_movement_status = validated_data.get(
+            'destination_movement_status', instance.destination_movement_status)
+        instance.expire_date = validated_data.get(
+            'expire_date', instance.expire_date)
         instance.quantity = validated_data.get('quantity', instance.quantity)
         instance.save()
         return instance
