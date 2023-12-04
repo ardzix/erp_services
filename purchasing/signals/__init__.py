@@ -93,7 +93,7 @@ def create_stock_movement_item(sender, instance, created, **kwargs):
         item_price = item_price * purchasing_unit.conversion_to_top_level()
         smi, created = StockMovementItem.objects.get_or_create(
             product=product,
-            stock_movement=instance.order.stock_movement,
+            stock_movement=instance.purchase_order.stock_movement,
             created_by=instance.created_by
         )
         smi.buy_price = item_price

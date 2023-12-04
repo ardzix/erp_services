@@ -118,11 +118,33 @@ class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
+        items_data = validated_data.pop('purchaseorderitem_set', None)
         file_fields = {
             'invalid_item_evidence_id32': 'invalid_item_evidence'
         }
         validated_data = handle_file_fields(validated_data, file_fields)
-        try:
-            return super().update(instance, validated_data)
-        except DjangoCoreValidationError as e:
-            raise serializers.ValidationError(e.messages)
+
+        # Update the PurchaseOrder instance
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update or create PurchaseOrderItem instances
+        if items_data is not None:
+            existing_ids = [item.id for item in instance.purchaseorderitem_set.all()]
+            for item_data in items_data:
+                item_id = item_data.get('id', None)
+                if item_id and item_id in existing_ids:
+                    # Update existing item
+                    PurchaseOrderItem.objects.filter(id=item_id).update(**item_data)
+                else:
+                    # Create new item
+                    PurchaseOrderItem.objects.create(purchase_order=instance, **item_data)
+
+            # Optional: remove items that are not in the updated data
+            updated_ids = [item['id'] for item in items_data if 'id' in item]
+            for item_id in existing_ids:
+                if item_id not in updated_ids:
+                    PurchaseOrderItem.objects.filter(id=item_id).delete()
+
+        return instance
