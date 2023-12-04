@@ -94,6 +94,11 @@ class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
                     'id32': attr_instance.id32,
                     'url': attr_instance.file.url
                 }
+        if instance.destination_warehouse:
+            representation['destination_warehouse'] = {
+                'id32': instance.destination_warehouse.id32,
+                'str': instance.destination_warehouse.__str__()
+            }
 
         return representation
 
