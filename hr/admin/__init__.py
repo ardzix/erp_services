@@ -1,5 +1,5 @@
 from django.contrib import admin
-from hr.models import Department, Employee, Leave, Attendance, Performance
+from hr.models import Department, Employee, Leave, Attendance, Performance, LocationTracker
 from libs.admin import BaseAdmin
 
 @admin.register(Department)
@@ -34,3 +34,11 @@ class PerformanceAdmin(BaseAdmin):
     list_filter = ['employee']
     search_fields = ['id32', 'employee__user__username', 'employee__user__first_name', 'employee__user__last_name']
     fields = ['employee', 'rating', 'review']
+
+@admin.register(LocationTracker)
+class TrackerAdmin(BaseAdmin):
+    list_display = ['id32', 'employee', 'created_at']
+    list_filter = ['employee']
+    search_fields = ['id32', 'employee__user__username', 'employee__user__first_name', 'employee__user__last_name']
+    fields = ['employee', 'location']
+    read_only_fields = ['id32', 'created_at']

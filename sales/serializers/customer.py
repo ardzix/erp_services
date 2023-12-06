@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.gis.geos import Point
 from django.utils.translation import gettext_lazy as _
 from common.models import File
-from libs.utils import validate_file_by_id32, handle_file_fields
+from libs.utils import validate_file_by_id32, handle_file_fields, handle_location
 from ..models import Customer
 
 
@@ -129,23 +129,6 @@ class CustomerSerializer(serializers.ModelSerializer):
     def validate_signature_id32(self, value):
         return validate_file_by_id32(value, "A file with id32 {value} does not exist for the signature.")
 
-    def handle_location(self, validated_data):
-        """
-        Extracts and formats the location from the validated data.
-
-        Parameters:
-        - validated_data (dict): The validated data containing the location key as a comma-separated string.
-
-        Returns:
-        - dict: The validated data with location replaced by its Point representation or unchanged if location is absent.
-        """
-        if 'location' in validated_data:
-            location_data = validated_data.pop('location')
-            longitude, latitude = location_data.split(',')
-            validated_data['location'] = Point(
-                float(longitude), float(latitude))
-        return validated_data
-
     def create(self, validated_data):
         """
         Overrides the default create method to handle location and file fields before creating an instance.
@@ -156,7 +139,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         Returns:
         - instance: The created model instance.
         """
-        validated_data = self.handle_location(validated_data)
+        validated_data = handle_location(validated_data)
         file_fields = {
             'id_card_id32': 'id_card',
             'store_front_id32': 'store_front',
@@ -177,7 +160,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         Returns:
         - instance: The updated model instance.
         """
-        validated_data = self.handle_location(validated_data)
+        validated_data = handle_location(validated_data)
         file_fields = {
             'id_card_id32': 'id_card',
             'store_front_id32': 'store_front',

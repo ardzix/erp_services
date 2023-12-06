@@ -21,6 +21,9 @@ class Employee(BaseModelGeneric):
         "The associated user of the employee"))
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True,
                                    blank=True, help_text=_("The department the employee belongs to"))
+    
+    last_location = models.PointField(null=True, blank=True, help_text=_(
+        "Coordinates where the employee currently located"))
 
     def __str__(self):
         return _("Employee #{emp_id} - {emp_name}").format(emp_id=self.id32, emp_name=self.user.username)
@@ -95,3 +98,23 @@ class Performance(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _("Performance")
         verbose_name_plural = _("Performances")
+
+
+class LocationTracker(BaseModelGeneric):
+    employee = models.ForeignKey(
+        Employee, blank=True, null=True, on_delete=models.CASCADE, help_text=_("The employee being traked"))
+    location = models.PointField(null=True, help_text=_(
+        "Coordinates where the employee located"))
+
+    def __str__(self):
+        return _("Track #{id32} - {name} on {created_at}").format(id32=self.id32, name=self.employee.user.username, created_at=self.created_at)
+    
+    def save(self, *args, **kwargs):
+        if not self.employee:
+            self.employee = Employee.objects.get(user=self._current_user)
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = _("Location Tracker")
+        verbose_name_plural = _("Location Trackers")

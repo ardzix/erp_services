@@ -79,5 +79,5 @@ def set_able_checkout(sender, instance, **kwargs):
 
         # Update Attendance records for these users
         Attendance.objects.filter(
-            employee__user=driver.owned_by, clock_out__isnull=True
+            employee__user=driver.user, clock_out__isnull=True
         ).update(able_checkout=True)

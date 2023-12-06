@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.gis import admin as gis_admin
 from libs.admin import BaseAdmin
 from inventory.models import StockMovement
-from ..models import Vehicle, Driver, Job, DriverMovement, Drop
+from ..models import Vehicle, Driver, Job, Drop
 
 
 @admin.register(Vehicle)
@@ -39,10 +39,3 @@ class JobAdmin(BaseAdmin):
     inlines = [DropInline]  # Add the inline to your admin
 
 
-
-@admin.register(DriverMovement)
-class DriverMovementAdmin(gis_admin.OSMGeoAdmin, BaseAdmin):
-    list_display = ['id32', 'driver', 'location', 'timestamp']
-    list_filter = ['driver']
-    search_fields = ['driver__name']
-    fields = ['driver', 'location', 'timestamp']

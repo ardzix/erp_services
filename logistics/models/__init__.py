@@ -1,6 +1,6 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
-from libs.base_model import BaseModelGeneric
+from libs.base_model import BaseModelGeneric, User
 from libs.constants import (WAITING, ON_PROGRESS, ARRIVED, COMPLETED, SKIPPED)
 from libs.filter import CreatedAtFilterMixin
 from inventory.models import Warehouse
@@ -35,6 +35,8 @@ class Vehicle(BaseModelGeneric):
 
 
 class Driver(BaseModelGeneric):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, help_text=_(
+        "The associated user of the driver"))
     name = models.CharField(
         max_length=100, help_text=_("Enter the driver's name"))
     phone_number = models.CharField(
@@ -115,18 +117,3 @@ class Drop(BaseModelGeneric):
     @property
     def items(self):
         return self.sales_visit.sales_order.order_items.all() if self.sales_visit and self.sales_visit.sales_order else []
-
-class DriverMovement(BaseModelGeneric):
-    driver = models.ForeignKey('Driver', on_delete=models.CASCADE, related_name='movements', help_text=_(
-        "Select the driver for this movement"))
-    location = models.PointField(geography=True, null=True, blank=True, help_text=_(
-        "Enter the location coordinates"))
-    timestamp = models.DateTimeField(
-        auto_now_add=True, help_text=_("Specify the movement timestamp"))
-
-    def __str__(self):
-        return _("Driver Movement #{movement_id} - {driver_name} at {timestamp}").format(movement_id=self.id32, driver_name=self.driver, timestamp=self.timestamp)
-
-    class Meta:
-        verbose_name = _("Driver Movement")
-        verbose_name_plural = _("Driver Movements")

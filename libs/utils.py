@@ -1,3 +1,4 @@
+from django.contrib.gis.geos import Point
 from rest_framework import serializers
 from common.models import File, Configuration
 from datetime import timedelta
@@ -68,3 +69,21 @@ def add_one_day(date):
             new_date += timedelta(days=1)
 
     return new_date
+
+
+def handle_location(validated_data):
+    """
+    Extracts and formats the location from the validated data.
+
+    Parameters:
+    - validated_data (dict): The validated data containing the location key as a comma-separated string.
+
+    Returns:
+    - dict: The validated data with location replaced by its Point representation or unchanged if location is absent.
+    """
+    if 'location' in validated_data:
+        location_data = validated_data.pop('location')
+        longitude, latitude = location_data.split(',')
+        validated_data['location'] = Point(
+            float(longitude), float(latitude))
+    return validated_data
