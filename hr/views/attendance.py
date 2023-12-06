@@ -7,8 +7,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from libs.pagination import CustomPagination
 from ..models import Attendance, Employee
-from ..serializers.attendance import (ClockInSerializer, ClockOutSerializer,
-                                      AttendanceDetailSerializer, AttendanceListSerializer, EmployeeAttendanceReportSerializer)
+from ..serializers.attendance import (ClockInSerializer, 
+                                      ClockOutSerializer,
+                                      AttendanceDetailSerializer, 
+                                      AttendanceListSerializer, 
+                                      AttendanceUpdateSerializer,
+                                      EmployeeAttendanceReportSerializer)
 
 
 
@@ -43,6 +47,7 @@ class AttendanceFilter(django_filters.FilterSet):
 class AttendanceViewSet(mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin,
                         mixins.ListModelMixin,
+                        mixins.UpdateModelMixin,
                         viewsets.GenericViewSet):
 
     queryset = Attendance.objects.all()
@@ -62,6 +67,8 @@ class AttendanceViewSet(mixins.CreateModelMixin,
             return AttendanceDetailSerializer
         elif self.action == 'monthly_report':
             return EmployeeAttendanceReportSerializer
+        elif self.action in ['update', 'partial_update']:
+            return AttendanceUpdateSerializer
         else:  # This covers the 'list' action and any other actions not specified
             return AttendanceListSerializer
 

@@ -81,7 +81,7 @@ class AttendanceDetailSerializer(BaseAttendanceSerializer):
     class Meta:
         model = Attendance
         fields = ['id32', 'employee', 'employee_id32', 'clock_in', 'clock_in_location', 'clock_in_location_coordinate',
-                  'clock_out', 'clock_out_location', 'clock_out_location_coordinate']
+                  'clock_out', 'clock_out_location', 'clock_out_location_coordinate', 'able_checkout']
 
     def get_clock_in_location_coordinate(self, obj):
         return self.get_location_coordinate(obj, location_field='clock_in_location')
@@ -89,6 +89,11 @@ class AttendanceDetailSerializer(BaseAttendanceSerializer):
     def get_clock_out_location_coordinate(self, obj):
         return self.get_location_coordinate(obj, location_field='clock_out_location')
 
+class AttendanceUpdateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Attendance
+        fields = ['able_checkout']
 
 class EmployeeAttendanceReportSerializer(serializers.ModelSerializer):
     working_days = serializers.IntegerField()

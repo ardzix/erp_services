@@ -26,7 +26,7 @@ class AttendanceAdmin(BaseAdmin):
     list_display = ['id32', 'employee', 'clock_in', 'clock_out']
     list_filter = ['employee']
     search_fields = ['id32', 'employee__user__username', 'employee__user__first_name', 'employee__user__last_name']
-    fields = ['employee', 'clock_in', 'clock_out', 'clock_in_location', 'clock_out_location']
+    fields = ['employee', 'clock_in', 'clock_out', 'clock_in_location', 'clock_out_location', 'able_checkout']
 
 @admin.register(Performance)
 class PerformanceAdmin(BaseAdmin):
