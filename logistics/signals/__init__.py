@@ -55,6 +55,17 @@ def generate_drops_for_job(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Job)
 def set_able_checkout(sender, instance, **kwargs):
+    """
+    Signal handler that checks if all jobs assigned to a driver for the current day are either 'Skipped' or 'Completed'.
+
+    This handler is triggered after a Job instance is saved. It verifies if the saved job's date is today. If so, it checks all of today's jobs for the same driver. If all of these jobs are marked as 'Skipped' or 'Completed', the 'able_to_checkout' method is called for the driver.
+
+    Parameters:
+    - sender (Model Class): The model class that sent the signal. Should always be `Job`.
+    - instance (Job): The instance of the Job that was just saved.
+    - **kwargs: Additional keyword arguments. Not used in this handler but are standard for signal handlers.
+    """
+
     # Check if the updated job is for today
     if instance.date == timezone.localdate():
         driver = instance.assigned_driver
