@@ -242,12 +242,12 @@ class TripDetailSerializer(TripRepresentationMixin, serializers.ModelSerializer)
 
 class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer):
     salesperson_username = serializers.CharField(write_only=True)
-    colletor_username = serializers.CharField(write_only=True)
+    collector_username = serializers.CharField(write_only=True)
     vehicle_id32 = serializers.CharField(write_only=True)
 
     class Meta:
         model = Trip
-        fields = ['date', 'type', 'salesperson_username', 'colletor_username',
+        fields = ['date', 'type', 'salesperson_username', 'collector_username',
                   'vehicle_id32', 'status']
 
     def update(self, instance, validated_data):
@@ -258,9 +258,9 @@ class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer)
             validated_data['salesperson'] = validated_data.pop(
                 'salesperson_username')
 
-        if 'colletor_username' in validated_data:
+        if 'collector_username' in validated_data:
             validated_data['collector'] = validated_data.pop(
-                'colletor_username')
+                'collector_username')
 
         try:
             return super().update(instance, validated_data)
@@ -275,7 +275,7 @@ class TripUpdateSerializer(TripRepresentationMixin, serializers.ModelSerializer)
                 _("Salesperson with this username does not exist."))
         return user
 
-    def validate_colletor_username(self, value):
+    def validate_collector_username(self, value):
         try:
             user = User.objects.get(username=value)
         except User.DoesNotExist:
