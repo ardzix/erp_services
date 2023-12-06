@@ -31,10 +31,10 @@ class DropInline(admin.StackedInline):
 
 @admin.register(Job)
 class JobAdmin(BaseAdmin):
-    list_display = ['id32', 'vehicle', 'trip', 'assigned_driver']
-    list_filter = ['vehicle', 'assigned_driver']
+    list_display = ['id32', 'vehicle', 'trip', 'assigned_driver','status']
+    list_filter = ['vehicle', 'assigned_driver', 'status']
     search_fields = ['vehicle__name', 'trip__id32']
-    fields = ['vehicle', 'trip', 'assigned_driver', 'date', 'start_time', 'end_time']
+    fields = ['vehicle', 'trip', 'assigned_driver', 'date', 'start_time', 'end_time', 'status']
     raw_id_fields = ['vehicle', 'assigned_driver', 'trip']
     inlines = [DropInline]  # Add the inline to your admin
 

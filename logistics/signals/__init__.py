@@ -1,8 +1,11 @@
+from django.dispatch import receiver
+from django.utils import timezone
 from django.db.models.signals import pre_save, post_save
 from django.utils.translation import gettext_lazy as _
-from django.dispatch import receiver
-from libs.constants import COMPLETED
+from libs.constants import COMPLETED, SKIPPED
+from django.contrib.auth.models import User
 from sales.models import Trip
+from hr.models import Attendance
 from ..models import Job
 from ..helpers import create_job_from_trip, create_drops_from_visits
 
@@ -49,3 +52,21 @@ def generate_drops_for_job(sender, instance, created, **kwargs):
             completed_visits = trip.customervisit_set.filter(status=COMPLETED)
             create_drops_from_visits(instance, completed_visits)
 
+
+@receiver(post_save, sender=Job)
+def set_able_checkout(sender, instance, **kwargs):
+    # Check if the updated job is for today
+    if instance.date == timezone.localdate():
+        driver = instance.assigned_driver
+
+        # Check if all jobs for this driver today are either skipped or completed
+        today_jobs = Job.objects.filter(assigned_driver=driver, date=timezone.localdate())
+        if today_jobs.exclude(status__in=[SKIPPED, COMPLETED]).exists():
+            return  # There are still jobs that are not skipped or completed
+
+        # All jobs are either skipped or completed
+
+        # Update Attendance records for these users
+        Attendance.objects.filter(
+            employee__user=driver.owned_by, clock_out__isnull=True
+        ).update(able_checkout=True)

@@ -9,6 +9,7 @@
 - Create endpoint able to checkout for admin ✅
 - Able checkot driver masih belum terimplementasi
 - Able checkout picker buggy, harus dicek lagi
+- Create location tracker endpoint
 - PO stock_movement items bugs on its property and stock creation
 - If inboud check (sisa penjualan) item is difeerent in item stock, than add stock adjustment data
 - PIC location on on going trip ✅
