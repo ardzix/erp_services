@@ -5,19 +5,12 @@
 
 ## To Do
 
-- Redefine purchase order filter for inbound in checker and picker ✅
-- Create endpoint able to checkout for admin ✅
-- Able checkot driver masih belum terimplementasi ✅
-- Create location tracker endpoint ✅
+- Collector trip item and amount should represent a customer's debt not previous trip
 - PO stock_movement items bugs on its property and stock creation
 - If inboud check (sisa penjualan) item is difeerent in item stock, than add stock adjustment data
-- PIC location on on going trip ✅
 - Implode/explode endpoints
 - Trip Report endpoint
 - Checker inbound if stock movement item is not same as phsycal item
-- Auto explode on sales order ✅
-- Transaction endpoints ✅
-- Journal endpoint (View only) ✅
 - Transaction and journal adjustment
 - Tracking endpoint to periodicallu track employee
 

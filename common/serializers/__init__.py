@@ -144,7 +144,7 @@ class MeSerializer(serializers.ModelSerializer):
         from sales.models import Trip
         from sales.serializers.trip import TripListSerializer
 
-        trips = Trip.objects.filter(salesperson=instance, date=date.today())
+        trips = Trip.objects.filter(collector=instance, date=date.today())
         return TripListSerializer(trips, many=True).data
 
     def get_header_text(self, instance):
