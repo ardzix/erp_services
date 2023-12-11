@@ -483,7 +483,8 @@ def check_completed_customer_visit_requirements(sender, instance, **kwargs):
             check_invoice_and_payment(instance.sales_order.invoice)
 
     # Check common SalesOrder status
-    check_sales_order_status(instance)
+    if instance.trip.type in [Trip.CANVASING, Trip.TAKING_ORDER]:
+        check_sales_order_status(instance)
 
 
 def check_sales_order_status(instance):
@@ -498,7 +499,7 @@ def check_sales_order_status(instance):
             _("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED.")
         )
 
-    if sales_order.customer_visits.exclude(id=instance.id, trip__type=Trip.COLLECTING).exists():
+    if sales_order.customer_visits.exclude(id=instance.id).exists():
         raise ValidationError(
             _(f"Sales Order is already associated with a customer visit #{sales_order.customer_visits.last()}.")
         )
