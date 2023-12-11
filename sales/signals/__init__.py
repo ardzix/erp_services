@@ -489,6 +489,8 @@ def check_sales_order_status(instance):
     Validate SalesOrder status is not DRAFT when completing a CustomerVisit.
     """
     sales_order = instance.sales_order
+    if not sales_order:
+        return
     if sales_order.status == SalesOrder.DRAFT:
         raise ValidationError(
             _("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED.")
