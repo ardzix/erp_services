@@ -494,7 +494,7 @@ def check_sales_order_status(instance):
             _("Sales Order is in DRAFT status. Cannot set the Customer Visit to COMPLETED.")
         )
 
-    if sales_order.customer_visits.exclude(id=instance.id).exists():
+    if sales_order.customer_visits.exclude(id=instance.id, trip__type=Trip.COLLECTING).exists():
         raise ValidationError(
             _(f"Sales Order is already associated with a customer visit #{sales_order.customer_visits.last()}.")
         )
