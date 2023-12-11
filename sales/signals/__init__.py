@@ -374,6 +374,7 @@ def create_collector_trip_on_taking_order_complete(sender, instance, **kwargs):
                 create_customer_visits_for_collector_trip(
                     credit_type_visits, collector_trip)
 
+
 @receiver(pre_save, sender=Trip)
 def create_next_trip_on_trip_complete(sender, instance, **kwargs):
     """
@@ -403,6 +404,7 @@ def create_next_trip_on_trip_complete(sender, instance, **kwargs):
             type=instance.type,
         )
 
+
 @receiver(pre_save, sender=Trip)
 def create_return_stock_movement_on_canvasing_complete(sender, instance, **kwargs):
     """
@@ -418,7 +420,7 @@ def create_return_stock_movement_on_canvasing_complete(sender, instance, **kwarg
     # Avoid processing for newly created instances
     if not instance.pk:
         return
-    
+
     if not instance.type == Trip.CANVASING:
         return
 
