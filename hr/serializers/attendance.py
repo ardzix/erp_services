@@ -112,4 +112,4 @@ class EmployeeAttendanceReportSerializer(serializers.ModelSerializer):
         return round(obj.working_hours.total_seconds() / 3600, 2) if obj.working_hours else 0
 
     def get_employee_name(self, obj):
-        return f"{obj.user.first_name} {obj.user.last_name}"
+        return f"<{obj.user.username}> {obj.user.first_name} {obj.user.last_name}"
