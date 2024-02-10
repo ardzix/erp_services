@@ -2,7 +2,6 @@ from django_filters import rest_framework as django_filters
 from django.utils.translation import gettext_lazy as _
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets, filters
 from libs.pagination import CustomPagination
 from libs.filter import CreatedAtFilterMixin

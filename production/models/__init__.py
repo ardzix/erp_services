@@ -32,8 +32,8 @@ class BOMProduct(BaseModelGeneric):
         return _("Component #{id32} - {component} (BOM: {bom})").format(id32=self.id32, component=self.product, bom=self.bom)
 
     class Meta:
-        verbose_name = _("BOM Component")
-        verbose_name_plural = _("BOM Components")
+        verbose_name = _("BOM Product")
+        verbose_name_plural = _("BOM Products")
 
 class BOMComponent(BaseModelGeneric):
     bom = models.ForeignKey(BillOfMaterials, on_delete=models.CASCADE, help_text=_("Select the associated BOM"))
