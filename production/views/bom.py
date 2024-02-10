@@ -4,7 +4,7 @@ from libs.pagination import CustomPagination
 from libs.filter import CreatedAtFilterMixin
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from ..models import BillOfMaterials, BOMProduct, BOMComponent
-from ..serializers import BillOfMaterialsSerializer, BOMProductSerializer, BOMComponentSerializer
+from ..serializers.bom import BillOfMaterialsSerializer, BOMProductSerializer, BOMComponentSerializer
 
     
 class BillOfMaterialsViewSet(viewsets.ModelViewSet):

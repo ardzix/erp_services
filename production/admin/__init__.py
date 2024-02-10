@@ -34,7 +34,7 @@ class ProductionOrderAdmin(BaseAdmin):
     raw_id_fields = ['product']
 
     def components(self, obj):
-        bom = BillOfMaterials.objects.get(product=obj.product)
+        bom = BillOfMaterials.objects.get(products=obj.product)
         component_string = ''
         for component in BOMComponent.objects.filter(bom=bom):
             component_string += f'{component.component.name}: {component.quantity}pcs, '

@@ -267,6 +267,8 @@ class Product(BaseModelGeneric):
     
     @property
     def units(self):
+        if not self.purchasing_unit:
+            return None
         return self.purchasing_unit.get_ancestors().union(Unit.objects.filter(id=self.purchasing_unit_id))
 
 class ProductGroup(BaseModelGeneric):

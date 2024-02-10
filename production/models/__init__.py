@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from libs.base_model import BaseModelGeneric, User
-from inventory.models import Product, StockMovement, Warehouse, WarehouseStock
+from inventory.models import Product, StockMovement, Warehouse, WarehouseStock, StockMovementItem
 from hr.models import Employee
 
 
@@ -108,26 +108,31 @@ def validate_production_order(sender, instance, **kwargs):
     product = instance.product
 
     # Check if the product has a BillOfMaterials
-    try:
-        bom = product.billofmaterials
-    except BillOfMaterials.DoesNotExist:
-        raise ValidationError("Product must have a BillOfMaterials to create a ProductionOrder")
+    bom_product = BOMProduct.objects.filter(product=product)
+    bom = bom_product.first().bom
+    if not bom:
+        raise ValidationError({"product": _("Product must have a BillOfMaterials to create a ProductionOrder")})
 
     # Check if the product has any BOMComponent
     if not bom.components.exists():
-        raise ValidationError("Product must have at least one BOMComponent to create a ProductionOrder")
+        raise ValidationError({"product": _("Product must have at least one BOMComponent to create a ProductionOrder")})
 
 def get_work_order_component_quantity(component, work_order):
     return component.quantity * work_order.production_order.quantity  # Calculate the required quantity based on the BOM and work order quantity
 
 def get_stock(warehouse, component):
-    return WarehouseStock.objects.get(warehouse=warehouse, product=component.component)
+    try:
+        return WarehouseStock.objects.get(warehouse=warehouse, product=component.component) 
+    except WarehouseStock.DoesNotExist:
+        raise ValidationError({"work_center_warehouse": _(f'Warehouse stock has not been set for this component (#{component.component})')})
 
 @receiver(post_save, sender=WorkOrder)
 def move_materials_to_workcenter(sender, instance, created, **kwargs):
     if created:
         # Fetch the BOM components for the associated product of the production order
-        bom_components = BOMComponent.objects.filter(bom__product=instance.production_order.product)
+        bom_product = BOMProduct.objects.filter(product=instance.production_order.product)
+        bom = bom_product.first().bom
+        bom_components = BOMComponent.objects.filter(bom=bom)
         
         # Iterate over the BOM components and deduct stocks
         for component in bom_components:
@@ -147,21 +152,23 @@ def check_workorder_before_started(sender, instance, **kwargs):
     if not instance.pk:
         product = instance.production_order.product
         warehouse = instance.work_center_warehouse
-        bom_components = BOMComponent.objects.filter(bom__product=product)
+        bom_product = BOMProduct.objects.filter(product=product)
+        bom = bom_product.first().bom
+        bom_components = BOMComponent.objects.filter(bom=bom)
         # Iterate over the BOM components and check for stocks
         for component in bom_components:
             quantity = get_work_order_component_quantity(component, instance)
             stock = get_stock(warehouse, component)
             if stock.quantity < quantity:
-                raise ValidationError(_(f'Stock {component.component} is lower than quantity needed to produce {product}'))
+                raise ValidationError({"product": _(f'Stock {component.component} is lower than quantity needed to produce {product}')})
 
 @receiver(pre_save, sender=ProductionTracking)
 def check_production_tracking(sender, instance, **kwargs):
     work_order = instance.work_order
     if not work_order.start_time:
-        raise ValidationError(_('Work order has not been started'))
+        raise ValidationError({"work_order": _('Work order has not been started')})
     if work_order.end_time:
-        raise ValidationError(_('Work order has been finished'))
+        raise ValidationError({"work_order": _('Work order has been finished')})
 
 @receiver(pre_save, sender=ProductionTracking)
 def set_tracking_time(sender, instance, **kwargs):
@@ -177,7 +184,10 @@ def update_product_quantity(sender, instance, created, **kwargs):
         product.save()
 
         warehouse = instance.work_order.work_center_warehouse
-        stock = WarehouseStock.objects.get(product=product, warehouse=warehouse)
+        try:
+            stock = WarehouseStock.objects.get(product=product, warehouse=warehouse)
+        except WarehouseStock.DoesNotExist:
+            raise ValidationError({"produced_quantity": _(f'Warehouse stock has not been set for this (#{product}) & (#{warehouse})')})
         stock.quantity += quantity
         stock.updated_by = instance.created_by
         stock.save()
@@ -196,13 +206,13 @@ def create_stock_movement(sender, instance, created, **kwargs):
         product = instance.work_order.production_order.product
         quantity = instance.produced_quantity
 
-        StockMovement.objects.create(
-            product=product,
-            quantity=quantity,
+        sm = StockMovement.objects.create(
             origin_type=ContentType.objects.get_for_model(Warehouse),
             origin_id=instance.work_order.work_center_warehouse.pk,
             created_by=instance.updated_by if instance.updated_by else instance.created_by
         )
+
+        StockMovementItem.objects.create(stock_movement=sm, product=product, quantity=quantity)
 
 @receiver(pre_delete, sender=ProductionTracking)
 def restore_product_quantity(sender, instance, **kwargs):

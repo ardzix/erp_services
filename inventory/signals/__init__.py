@@ -240,6 +240,8 @@ def create_dummy_warehouse_stock(sender, instance, created, **kwargs):
     Create dummy stock for all product units when new stock is created
     """
     if created:
+        if not instance.product.units:
+            return
         for unit in instance.product.units:
             if not WarehouseStock.objects.filter(product=instance.product, unit=unit).exists():
                 WarehouseStock.objects.create(
