@@ -68,7 +68,9 @@ class Customer(BaseModelGeneric):
         max_length=25,  # Adjusting for the added descriptions
         choices=PAYMENT_TYPE_CHOICES,
         help_text=_('Select payment type.'),
-        default=CBD
+        default=CBD,
+        null=True,
+        blank=True,
     )
     store_type = models.CharField(
         max_length=25,  # Adjusting for the added descriptions
