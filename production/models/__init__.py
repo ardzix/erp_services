@@ -1,3 +1,4 @@
+from hashlib import blake2b
 from django.db import models
 from django.db.models.signals import pre_save, post_save, pre_delete
 from django.dispatch import receiver
@@ -10,16 +11,29 @@ from hr.models import Employee
 
 
 class BillOfMaterials(BaseModelGeneric):
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, help_text=_("Select the main product for this BOM"))
-    components = models.ManyToManyField(Product, related_name='used_in_bom', through='BOMComponent')
+    name = models.CharField(max_length=150, blank=True, null=True, help_text=_("Name of this BoM"))
+    products = models.ManyToManyField(Product, related_name='produced_from_bom', through='BOMProduct', help_text=_("Select items produced from this BOM"))
+    components = models.ManyToManyField(Product, related_name='used_in_bom', through='BOMComponent', help_text=_("Select materials used for this BOM"))
 
     def __str__(self):
-        return _("BOM #{id32} - {product}").format(id32=self.id32, product=self.product)
+        return _("BOM #{id32} - {name}").format(id32=self.id32, name=self.name)
 
     class Meta:
         verbose_name = _("Bill of Materials")
         verbose_name_plural = _("Bills of Materials")
 
+
+class BOMProduct(BaseModelGeneric):
+    bom = models.ForeignKey(BillOfMaterials, on_delete=models.CASCADE, help_text=_("Select the associated BOM"))
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text=_("Select the component product"))
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, help_text=_("Enter the quantity of the component in the BOM"))
+
+    def __str__(self):
+        return _("Component #{id32} - {component} (BOM: {bom})").format(id32=self.id32, component=self.product, bom=self.bom)
+
+    class Meta:
+        verbose_name = _("BOM Component")
+        verbose_name_plural = _("BOM Components")
 
 class BOMComponent(BaseModelGeneric):
     bom = models.ForeignKey(BillOfMaterials, on_delete=models.CASCADE, help_text=_("Select the associated BOM"))

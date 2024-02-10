@@ -1,8 +1,14 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from libs.admin import ApproveRejectMixin, BaseAdmin
-from ..models import BillOfMaterials, BOMComponent, ProductionOrder, WorkOrder, ProductionTracking
+from ..models import BillOfMaterials, BOMProduct, BOMComponent, ProductionOrder, WorkOrder, ProductionTracking
 
+
+class BOMProductInline(admin.TabularInline):
+    model = BOMProduct
+    extra = 0
+    raw_id_fields = ['product']
+    fields = ['product', 'quantity']
 
 class BOMComponentInline(admin.TabularInline):
     model = BOMComponent
@@ -13,11 +19,10 @@ class BOMComponentInline(admin.TabularInline):
 
 @admin.register(BillOfMaterials)
 class BillOfMaterialsAdmin(BaseAdmin):
-    list_display = ['id32', 'product']
-    search_fields = ['product__name']
-    inlines = [BOMComponentInline]
-    fields = ['product']
-    raw_id_fields = ['product']
+    list_display = ['id32', 'name']
+    search_fields = ['name']
+    inlines = [BOMComponentInline, BOMProductInline]
+    fields = ['name']
 
 
 @admin.register(ProductionOrder)

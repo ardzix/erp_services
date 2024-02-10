@@ -127,6 +127,7 @@ class Product(BaseModelGeneric):
             "Consumable - Used in the production process but not part of the final product")),
     ]
     PRICE_CALCULATION_CHOICES = [
+        ('manual', _("Manually calculated")),
         ('fifo', _("FIFO - First in first out of buy price history")),
         ('lifo', _("LIFO - Last in first out of buy price history")),
         ('average', _("Average - Average of buy price history")),
