@@ -2,6 +2,7 @@ from rest_framework import serializers
 from inventory.models import Product
 from ..models import BillOfMaterials, BOMProduct, BOMComponent
 
+
 class BOMProductSerializer(serializers.ModelSerializer):
     product_id32 = serializers.SlugRelatedField(
         slug_field='id32',
@@ -9,6 +10,15 @@ class BOMProductSerializer(serializers.ModelSerializer):
         source='product',
         write_only=True
     )
+
+    def to_representation(self, instance):
+        to_representation = super().to_representation(instance)
+        if instance.product:
+            to_representation["product"] = {
+                "id32": instance.product.id32,
+                "str": instance.product.__str__(),
+            }
+        return to_representation
     class Meta:
         model = BOMProduct
         fields = ['id32', 'product_id32', 'product', 'quantity']
@@ -21,6 +31,14 @@ class BOMComponentSerializer(serializers.ModelSerializer):
         source='component',
         write_only=True
     )
+    def to_representation(self, instance):
+        to_representation = super().to_representation(instance)
+        if instance.component:
+            to_representation["component"] = {
+                "id32": instance.component.id32,
+                "str": instance.component.__str__(),
+            }
+        return to_representation
     class Meta:
         model = BOMComponent
         fields = ['id32', 'component_id32', 'component', 'quantity']
