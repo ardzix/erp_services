@@ -74,18 +74,16 @@ class InvoiceAdmin(BaseAdmin):
     raw_id_fields = ['order']
 
     def total_amount(self, instance):
-        total_amount = instance.order.orderitem_set.aggregate(
-            total_price=Sum(F('price')*F('quantity'))).get('total_price')
-        return f'{total_amount:,.0f}'
+        return instance.order.total
 
 
 @admin.register(SalesPayment)
 class SalesPaymentAdmin(BaseAdmin):
     list_display = ['id32', 'invoice', 'total_amount',
-                    'payment_date', 'approved_by', 'approved_at']
+                    'payment_date', 'status']
     list_filter = ['invoice__order__customer', 'payment_date', 'approved_by']
     search_fields = ['id32', 'invoice__order__id32']
-    fields = ['invoice', 'amount', 'payment_date',
+    fields = ['invoice', 'amount', 'payment_date', 'status', 'payment_evidence',
               'approved_by', 'approved_at']
     raw_id_fields = ['invoice']
 

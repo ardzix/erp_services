@@ -6,7 +6,7 @@ from .constant import *
 from ..models import Account, Transaction, JournalEntry
 
 
-def create_transaction(account_name, amount, transaction_type, description="", transaction_date=None):
+def create_transaction(account_name, amount, transaction_type, description="", transaction_date=None, external_id32=None):
     """
     Create a transaction and the associated journal entries.
 
@@ -32,7 +32,8 @@ def create_transaction(account_name, amount, transaction_type, description="", t
         amount=amount,
         description=description,
         transaction_type=transaction_type,
-        generate_journal=False
+        generate_journal=False,
+        external_id32=external_id32
     )
 
     return transaction

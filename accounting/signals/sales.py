@@ -20,7 +20,7 @@ def record_sales_order_transaction(sender, instance, created, **kwargs):
     tax_amount = instance.vat_amount
 
     transaction = create_transaction(SALES_ACCOUNT, subtotal, SALE, description=_(
-        f"Sales of #{instance.order.id32} (Inv #{instance.id32})"))
+        f"Sales of #{instance.order.id32} (Inv #{instance.id32})"), external_id32=instance.order.id32)
     create_journal_entry(transaction, subtotal, AR_ACCOUNT, DEBIT)
     create_journal_entry(transaction, subtotal, SALES_ACCOUNT, CREDIT)
 

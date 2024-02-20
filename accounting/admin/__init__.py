@@ -9,12 +9,12 @@ class AccountAdmin(BaseAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(BaseAdmin):
-    list_display = ['account', 'transaction_date', 'amount', 'description']
+    list_display = ['account', 'transaction_date', 'amount', 'description', 'created_at']
     list_filter = ['account']
 
 @admin.register(JournalEntry)
 class JournalEntryAdmin(BaseAdmin):
-    list_display = ['transaction', 'journal', 'amount']
+    list_display = ['transaction', 'journal', 'amount', 'debit_credit', 'created_at']
     list_filter = ['journal']
 
 @admin.register(GeneralLedger)

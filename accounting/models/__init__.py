@@ -65,6 +65,7 @@ class Transaction(BaseModelGeneric):
         max_length=20, choices=TRANSACTION_TYPES, default='OTHER')
     attachements = models.ManyToManyField(File, blank=True)
     generate_journal = models.BooleanField(default=True)
+    external_id32 = models.CharField(max_length=25, blank=True, null=True)
 
     def __str__(self):
         return _("Transaction #{transaction_id} - {transaction_account}").format(transaction_id=self.id32, transaction_account=self.account)
