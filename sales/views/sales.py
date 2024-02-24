@@ -16,6 +16,7 @@ class SalesFilter(CreatedAtFilterMixin):
     status = django_filters.MultipleChoiceFilter(choices=SalesOrder.STATUS_CHOICES, help_text=_(
         'To filter multiple status, use this request example: ?status=requested&status=delivered'))
     id32s = django_filters.CharFilter(method='filter_by_id32s')
+    is_paid = django_filters.BooleanFilter(help_text=_('`true` for paid order, `false` for unpaid order'))
 
     class Meta:
         model = SalesOrder

@@ -179,6 +179,7 @@ class SalesOrder(BaseModelGeneric):
         Warehouse, blank=True, null=True, on_delete=models.SET_NULL)
     visit = models.ForeignKey(
         'CustomerVisit', blank=True, null=True, on_delete=models.SET_NULL)
+    is_paid = models.BooleanField(default=False)
 
     def __str__(self):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)
