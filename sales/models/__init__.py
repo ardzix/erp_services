@@ -114,6 +114,7 @@ class SalesOrder(BaseModelGeneric):
     APPROVED = 'approved'
     REJECTED = 'rejected'
     PROCESSING = 'processing'
+    READY_TO_SHIP = 'ready_to_ship'
     SHIPPED = 'shipped'
     DELIVERED = 'delivered'
     COMPLETED = 'completed'
@@ -125,6 +126,7 @@ class SalesOrder(BaseModelGeneric):
         (APPROVED, _('Approved: Order has been accepted for processing after review.')),
         (REJECTED, _('Rejected: Order has been found unsuitable for processing and needs revision.')),
         (PROCESSING, _('Processing: Active steps to fulfill the order are underway.')),
+        (READY_TO_SHIP, _('Ready for Shipping: Order is ready to be shipped.')),
         (SHIPPED, _('Shipped: Order has left the business premises and is en route to the customer.')),
         (DELIVERED, _(
             'Delivered: Order has reached its destination and is now with the customer.')),
