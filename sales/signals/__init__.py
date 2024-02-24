@@ -1,3 +1,4 @@
+from pdb import post_mortem
 from django.db.models.signals import pre_save, post_save, pre_delete
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -431,6 +432,13 @@ def create_return_stock_movement_on_canvasing_complete(sender, instance, **kwarg
     if instance.status in [COMPLETED, SKIPPED] and status_before not in [COMPLETED, SKIPPED]:
         create_return_stock_movement(instance)
 
+
+@receiver(post_save, sender=SalesPayment)
+def set_sales_is_paid(sender, instance, **kwargs):
+    if instance.status == SalesPayment.SETTLEMENT:
+        order = instance.invoice.order
+        order.is_paid = True
+        order.save()
 
 # ==================================================================================
 # Model Validator

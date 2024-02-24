@@ -1,12 +1,31 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django.utils.translation import gettext_lazy as _
+from django_filters import rest_framework as django_filters
+from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from ..serializers.sales import (SalesOrderSerializer, SalesOrderListSerializer, 
 SalesOrderDetailSerializer, InvoiceSerializer, SalesPaymentSerializer, SalesPaymentPartialUpdateSerializer)
 from ..models import SalesOrder, Invoice, SalesPayment
 
+
+
+class SalesFilter(CreatedAtFilterMixin):
+    status = django_filters.MultipleChoiceFilter(choices=SalesOrder.STATUS_CHOICES, help_text=_(
+        'To filter multiple status, use this request example: ?status=requested&status=delivered'))
+    id32s = django_filters.CharFilter(method='filter_by_id32s')
+    is_paid = django_filters.BooleanFilter(help_text=_('`true` for paid order, `false` for unpaid order'))
+
+    class Meta:
+        model = SalesOrder
+        fields = ['created_at_range', 'status', 'id32s']
+
+    def filter_by_id32s(self, queryset, name, value):
+        # Split the comma-separated string to get the list of values
+        values_list = value.split(',')
+        return queryset.filter(id32__in=values_list).order_by('created_at')
 
 class SalesOrderViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
@@ -14,6 +33,9 @@ class SalesOrderViewSet(viewsets.ModelViewSet):
     serializer_class = SalesOrderSerializer
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
     pagination_class = CustomPagination
+    filter_backends = (django_filters.DjangoFilterBackend,
+                       filters.OrderingFilter)
+    filterset_class = SalesFilter
 
     def get_serializer_class(self):
         if self.action == 'list':
