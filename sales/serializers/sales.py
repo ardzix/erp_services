@@ -182,7 +182,7 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SalesOrder
-        fields = ['id32', 'customer', 'order_date',
+        fields = ['id32', 'customer', 'order_date', 'is_paid',
                   'approved_by', 'total_amount', 'status']
         read_only_fields = ['id32', 'approved_by', 'customer']
 
@@ -205,7 +205,7 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
         model = SalesOrder
         fields = ['id32', 'customer', 'order_date', 'approved_by',
                   'total_amount', 'order_items', 'delivery_status',
-                  'status', 'type', 'invoice', 'customer_visits',
+                  'status', 'type', 'invoice', 'is_paid', 'customer_visits',
                   'warehouse']
         read_only_fields = ['id32', 'approved_by',
                             'customer', 'delivery_status']
