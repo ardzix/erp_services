@@ -1,9 +1,12 @@
+from urllib import request
+from pkg_resources import require
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from inventory.views import stock_movement
 from libs.utils import validate_file_by_id32
 from purchasing.models import PurchaseOrderItem
+from sales.models import SalesOrder
 from ..models import StockMovement, StockMovementItem, Product, Unit, ProductLocation
 
 
@@ -80,10 +83,12 @@ class BatchSerializer(serializers.Serializer):
     unit_symbol = serializers.CharField()
     quantity = serializers.IntegerField()
 
+
 class StockMovementItemLiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockMovementItem
-        fields = ['id32', 'expire_date', 'origin_movement_status', 'destination_movement_status']
+        fields = ['id32', 'expire_date', 'origin_movement_status',
+                  'destination_movement_status']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -259,13 +264,14 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
     destination_id32 = serializers.CharField(write_only=True)
     movement_evidence_id32 = serializers.CharField(
         write_only=True, required=False)
-    items = StockMovementItemSerializer(many=True)
+    items = StockMovementItemSerializer(many=True, required=False)
+    salesorder_id32s = serializers.ListField(required=False, write_only=True)
 
     class Meta:
         model = StockMovement
         fields = ['id32', 'created_at', 'status', 'movement_date', 'destination_type',
                   'destination_id32', 'origin_type', 'origin_id32', 'movement_evidence_id32',
-                  'movement_evidence', 'items']
+                  'movement_evidence', 'items', 'salesorder_id32s']
         read_only_fields = ['id32', 'created_at', 'movement_evidence']
 
     def to_representation(self, instance):
@@ -318,6 +324,20 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     "destination_id32": _("Invalid destination_id32 provided."),
                 })
+
+        sales_orders = SalesOrder.objects.filter(
+            id32__in=data.pop('salesorder_id32s'))
+        if sales_orders.exists():
+            items = data.get('items')
+            items = [] if not items else items
+            for order in sales_orders:
+                for item in order.order_items.all():
+                    items.append({
+                        'product': item.product,
+                        'quantity': item.quantity,
+                        'unit': item.unit,
+                    })
+            data['items'] = items
 
         return data
 
