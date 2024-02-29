@@ -1,9 +1,22 @@
-#Base Image
-FROM python:3.10
+# Use an official Python runtime as a parent image
+FROM python:3.10-slim
 
-ENV PYTHONUNBUFFERED=1
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-#Install Package
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    # Clean up to reduce image size
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+
 RUN apt update && apt install -y \
     build-essential \
     binutils \
@@ -13,36 +26,24 @@ RUN apt update && apt install -y \
     gdal-bin \
     net-tools 
 
-# Create Folder
-#RUN mkdir -p /api
+# Upgrade pip
+RUN pip install --upgrade pip
 
-#Set Workdir & Copy App
-WORKDIR /app
-COPY . .
+# Install Python dependencies
+COPY requirements.txt /app/
+RUN pip install -r requirements.txt
 
-#Install Python Package with requirements file
-RUN pip install --no-cache-dir -r requirements.txt
-#RUN pip install --no-cache-dir -r requirements-bahana.txt
+# Copy project
+COPY . /app/
 
-#RUN chmod -R +x ./deploy/local
-# migrate migration files
-# RUN ./manage.py migrate
+# Collect static files
+# RUN python manage.py collectstatic --noinput
 
-#Expose Port
-# api
-EXPOSE 8000
+# Make port 8001 available to the world outside this container
+EXPOSE 8001
 
-# flower
-#EXPOSE 4444
-
-# start server
-#CMD ["gunicorn", "-c", "gunicorn_config.py", "project.wsgi", "--log-config", "gunicorn_logging.config"]
-#CMD ["./deploy/local/run_api.sh"]
+# coppy local setting
 RUN cp erp_backoffice/default_local_settings.py erp_backoffice/local_settings.py 
 
-#RUN python3 manage.py makemigrations
-#RUN python3 manage.py migrate
-
-RUN mkdir -p static/upload
-RUN echo yes | python3 manage.py collectstatic
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "erp_service.wsgi:application"]
+# Command to run the application
+CMD ["gunicorn", "--bind", "0.0.0.0:8001", "rizz_erp.wsgi:application"]
