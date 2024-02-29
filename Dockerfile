@@ -46,4 +46,4 @@ EXPOSE 8001
 RUN cp erp_backoffice/default_local_settings.py erp_backoffice/local_settings.py 
 
 # Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8001", "erp_backoffice.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8002", "erp_backoffice.wsgi:application"]
