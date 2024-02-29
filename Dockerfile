@@ -38,7 +38,7 @@ EXPOSE 8000
 # start server
 #CMD ["gunicorn", "-c", "gunicorn_config.py", "project.wsgi", "--log-config", "gunicorn_logging.config"]
 #CMD ["./deploy/local/run_api.sh"]
-#RUN cp project/production_settings.py project/local_settings.py 
+RUN cp project/production_settings.py project/local_settings.py 
 
 #RUN python3 manage.py makemigrations
 #RUN python3 manage.py migrate

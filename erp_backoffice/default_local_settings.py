@@ -2,23 +2,25 @@
 
 import os
 import datetime
+from dotenv import load_dotenv
 
-BASE_URL = "http://127.0.0.1:8000/"
+load_dotenv()  # Load environment variables from '.env' file
+
+
+BASE_URL = os.getenv('BASE_URL')
 DEBUG = True
 PRODUCTION = False
 SITE_ID = 1
 CORS_ORIGIN_ALLOW_ALL = True
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'erp_db',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
-        'TEST': {
-            'NAME': 'erp_db_test'
-        }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
