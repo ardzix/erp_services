@@ -14,6 +14,19 @@ SITE_ID = 1
 CORS_ORIGIN_ALLOW_ALL = True
 
 
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', False)
+
+# Assuming your ALLOWED_HOSTS is defined as "host1.example.com,host2.example.com"
+allowed_hosts_str = os.environ.get('ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = allowed_hosts_str.split(',') if allowed_hosts_str else []
+
+csrf_str = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = csrf_str.split(',') if csrf_str else []
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
