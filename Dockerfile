@@ -1,22 +1,9 @@
-# Use an official Python runtime as a parent image
-FROM python:3.10-slim
+#Base Image
+FROM python:3.10
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
-# Set work directory
-WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    gcc \
-    # Clean up to reduce image size
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-
+#Install Package
 RUN apt update && apt install -y \
     build-essential \
     binutils \
@@ -26,24 +13,37 @@ RUN apt update && apt install -y \
     gdal-bin \
     net-tools 
 
-# Upgrade pip
-RUN pip install --upgrade pip
+# Create Folder
+#RUN mkdir -p /api
 
-# Install Python dependencies
-COPY requirements.txt /app/
-RUN pip install -r requirements.txt
+#Set Workdir & Copy App
+WORKDIR /app
+COPY . .
 
-# Copy project
-COPY . /app/
+#Install Python Package with requirements file
+RUN pip install --no-cache-dir -r requirements.txt
+#RUN pip install --no-cache-dir -r requirements-bahana.txt
 
-# Collect static files
-# RUN python manage.py collectstatic --noinput
+#RUN chmod -R +x ./deploy/local
+# migrate migration files
+# RUN ./manage.py migrate
 
-# Make port 8000 available to the world outside this container
+#Expose Port
+# api
 EXPOSE 8000
 
-# coppy local setting
-RUN cp erp_backoffice/default_local_settings.py erp_backoffice/local_settings.py 
+# flower
+#EXPOSE 4444
 
-# Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "erp_backoffice.wsgi:application"]
+# start server
+#CMD ["gunicorn", "-c", "gunicorn_config.py", "project.wsgi", "--log-config", "gunicorn_logging.config"]
+#CMD ["./deploy/local/run_api.sh"]
+#RUN cp project/production_settings.py project/local_settings.py 
+
+#RUN python3 manage.py makemigrations
+#RUN python3 manage.py migrate
+
+RUN mkdir -p static/upload
+RUN echo yes | python3 manage.py collectstatic
+CMD ["python3","manage.py","runserver","0.0.0.0:8000"]
+
