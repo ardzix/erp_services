@@ -5,6 +5,7 @@ from rest_framework import serializers
 from logistics.models import Vehicle
 from libs.utils import validate_file_by_id32, handle_file_fields
 from libs.constants import SKIPPED, COMPLETED
+from libs.serializers import UsernamesField
 from ..models import (
     TripTemplate,
     TripCustomer,
@@ -42,17 +43,6 @@ class TripTemplateListSerializer(serializers.ModelSerializer):
         fields = ['id32', 'name']
         read_only_fields = ['id32']
 
-
-class UsernamesField(serializers.RelatedField):
-    def to_representation(self, value):
-        return value.username
-
-    def to_internal_value(self, data):
-        try:
-            return User.objects.get(username=data)
-        except User.DoesNotExist:
-            raise serializers.ValidationError(
-                f"User with username {data} does not exist.")
 
 
 class VehiclesField(serializers.RelatedField):

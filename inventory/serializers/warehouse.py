@@ -1,14 +1,17 @@
 from rest_framework import serializers
 from django.contrib.gis.geos import Point
 from libs.utils import handle_location
+from libs.serializers import UsernamesField, User
 from ..models import Warehouse
 
 class WarehouseSerializer(serializers.ModelSerializer):
     location_coordinate = serializers.SerializerMethodField()
+    pic_usernames = UsernamesField(
+        source='pic', many=True,  required=False, queryset=User.objects.all())
 
     class Meta:
         model = Warehouse
-        fields = ['id32', 'name', 'type', 'address', 'location', 'location_coordinate']
+        fields = ['id32', 'name', 'type', 'address', 'location', 'location_coordinate', 'pic_usernames']
         read_only_fields = ['id32']
 
     def get_location_coordinate(self, obj):
