@@ -1,11 +1,14 @@
 from rest_framework import serializers
 from inventory.models import Warehouse
+from libs.serializers import UsernamesField, User
 from ..models import Vehicle, Driver
 
 class DriverSerializer(serializers.ModelSerializer):
+    username = UsernamesField(
+        source='owned_by', many=False,  required=False, queryset=User.objects.all())
     class Meta:
         model = Driver
-        fields = ['id32', 'user', 'name', 'phone_number', 'device_gps']
+        fields = ['id32', 'name', 'phone_number', 'device_gps', 'username']
         read_only_fields = ['id32']
 
     def to_representation(self, instance):
