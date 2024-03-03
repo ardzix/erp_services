@@ -324,20 +324,20 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     "destination_id32": _("Invalid destination_id32 provided."),
                 })
-
-        sales_orders = SalesOrder.objects.filter(
-            id32__in=data.pop('salesorder_id32s'))
-        if sales_orders.exists():
-            items = data.get('items')
-            items = [] if not items else items
-            for order in sales_orders:
-                for item in order.order_items.all():
-                    items.append({
-                        'product': item.product,
-                        'quantity': item.quantity,
-                        'unit': item.unit,
-                    })
-            data['items'] = items
+        if 'salesorder_id32s' in data:
+            sales_orders = SalesOrder.objects.filter(
+                id32__in=data.pop('salesorder_id32s'))
+            if sales_orders.exists():
+                items = data.get('items')
+                items = [] if not items else items
+                for order in sales_orders:
+                    for item in order.order_items.all():
+                        items.append({
+                            'product': item.product,
+                            'quantity': item.quantity,
+                            'unit': item.unit,
+                        })
+                data['items'] = items
 
         return data
 
