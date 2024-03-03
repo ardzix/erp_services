@@ -90,7 +90,7 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
 
         # Assign the provided users to pic
         trip_template.pic.set(pic)
-        trip_template.pic.set(collector_pic)
+        trip_template.collector_pic.set(collector_pic)
         # Assign the provided vehicles
         trip_template.vehicles.set(vehicles)
 
@@ -114,7 +114,7 @@ class TripTemplateDetailSerializer(serializers.ModelSerializer):
 
         # Assign the provided users to pic
         instance.pic.set(pic)
-        instance.pic.set(collector_pic)
+        instance.collector_pic.set(collector_pic)
         # Assign the provided vehicles
         instance.vehicles.set(vehicles)
 
