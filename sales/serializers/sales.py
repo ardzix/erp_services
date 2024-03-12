@@ -346,3 +346,8 @@ class SalesOrderSerializer(SalesOrderListSerializer):
                     order=instance, **item_data)
 
         return instance
+
+
+class SalesReportSerializer(serializers.Serializer):
+    total_sales = serializers.DecimalField(max_digits=19, decimal_places=2)
+    total_quantity = serializers.IntegerField()

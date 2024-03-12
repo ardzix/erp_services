@@ -33,6 +33,8 @@ from django.conf.urls.i18n import i18n_patterns
 from django.views.i18n import set_language
 from django.conf import settings
 
+from sales.views.report import SalesReportAPIView
+
 schema_view = get_schema_view(
     openapi.Info(
         title="ERP API",
@@ -61,6 +63,9 @@ urlpatterns = [
     path('api/production/', include(production_router.urls)),
     path('api/purchasing/', include(purchasing_router.urls)),
     path('api/sales/', include(sales_router.urls)),
+    path('api/sales/reports', include(sales_router.urls)),
+    path('api/sales/report/', SalesReportAPIView.as_view(), name='sales_report'),
+
 
     path('i18n/setlang/', set_language, name='set_language'),
 
