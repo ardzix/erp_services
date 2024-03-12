@@ -349,5 +349,5 @@ class SalesOrderSerializer(SalesOrderListSerializer):
 
 
 class SalesReportSerializer(serializers.Serializer):
-    total_sales = serializers.DecimalField(max_digits=19, decimal_places=2)
-    total_quantity = serializers.IntegerField()
+    total_sales = serializers.DecimalField(max_digits=19, decimal_places=2, required=False)
+    total_quantity = serializers.IntegerField(required=False)

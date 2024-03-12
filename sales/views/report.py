@@ -30,10 +30,17 @@ class SalesReportAPIView(APIView):
         if customer_id32:
             queryset = queryset.filter(order__customer__id32=customer_id32)
 
-        aggregated_data = queryset.aggregate(
-            total_sales=Sum('price'),
-            total_quantity=Sum('quantity')
-        )
+
+        if queryset.exists():
+            aggregated_data = queryset.aggregate(
+                total_sales=Sum('price'),
+                total_quantity=Sum('quantity')
+            )
+        else:
+            aggregated_data = {
+                'total_sales':0,
+                'total_quantity':0
+            }
 
         # Use the serializer to format the response data
         serializer = SalesReportSerializer(data=aggregated_data)
