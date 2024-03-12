@@ -89,6 +89,10 @@ class Customer(BaseModelGeneric):
     signature = models.ForeignKey(
         File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
 
+    due_date = models.PositiveIntegerField(blank=True, null=True, help_text=_('Due date of credit payment in day.'))
+    credit_limit_amount =  models.DecimalField(max_digits=19, decimal_places=2, default=0, help_text=_('Credit limit amount this customer can apply.'))
+    credit_limit_qty = models.PositiveIntegerField(blank=True, null=True, help_text=_('Total credit qty this customer can apply.'))
+
     @property
     def location_coordinate(self):
         if self.location:

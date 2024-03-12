@@ -41,7 +41,11 @@ class CustomerSerializer(serializers.ModelSerializer):
             'id_card',
             'store_front',
             'store_street',
-            'signature'
+            'signature',
+
+            'due_date',
+            'credit_limit_amount',
+            'credit_limit_qty'
         ]
         read_only_fields = ['id32', 'id_card',
                             'store_front', 'store_street', 'signature']
