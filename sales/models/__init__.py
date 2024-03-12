@@ -16,6 +16,17 @@ ORDER_OF_CUSTOMER_VISIT = 'Order of customer visit in the trip'
 ENTER_THE = 'Enter the '
 
 
+class StoreType(BaseModelGeneric):
+    name = models.CharField(
+        max_length=100, help_text=_('Enter the store type name'))
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = _('Store Type')
+        verbose_name_plural = _('Store Types')
+
+
 class Customer(BaseModelGeneric):
     CBD = 'cbd'
     COD = 'cod'
@@ -24,11 +35,6 @@ class Customer(BaseModelGeneric):
         (CBD, _('Cash before Delivery')),
         (COD, _('Cash on Delivery')),
         (CREDIT, _('Credit'))
-    ]
-    STORE_TYPE_CHOICES = [
-        ('wholesaler', _('Wholesaler')),
-        ('distributor', _('Distributor')),
-        ('retailer', _('Retailer')),
     ]
 
     name = models.CharField(
@@ -72,14 +78,7 @@ class Customer(BaseModelGeneric):
         null=True,
         blank=True,
     )
-    store_type = models.CharField(
-        max_length=25,  # Adjusting for the added descriptions
-        choices=STORE_TYPE_CHOICES,
-        help_text=_('Select store type.'),
-        blank=True,
-        null=True
-    )
-
+    store_type = models.ForeignKey(StoreType, blank=True, null=True, on_delete=models.SET_NULL)
     id_card = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_id_card',
                                 blank=True, null=True, on_delete=models.SET_NULL)
     store_front = models.ForeignKey(
