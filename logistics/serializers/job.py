@@ -66,7 +66,7 @@ class DropDetailSerializer(LocationMixin, FileMixin, serializers.ModelSerializer
         fields = [
             'id32', 'job', 'location_name', 'address', 'location', 'order',
             'retrieve_payment', 'travel_document', 'signature', 'visit_evidence',
-            'item_delivery_evidence', 'status', 'sales_visit', 'sales_order', 'items'
+            'item_delivery_evidence', 'status', 'sales_visit', 'sales_order', 'items', 'notes'
         ]
         read_only_fields = ['id32', 'job']
 
@@ -101,7 +101,7 @@ class DropUpdateSerializer(FileMixin, serializers.ModelSerializer):
     class Meta:
         model = Drop
         fields = ['travel_document', 'signature', 'visit_evidence', 'item_delivery_evidence',
-                  'travel_document_id32', 'signature_id32', 'visit_evidence_id32', 'item_delivery_evidence_id32',  'status']
+                  'travel_document_id32', 'signature_id32', 'visit_evidence_id32', 'item_delivery_evidence_id32', 'status', 'notes']
         read_only_fields = ['travel_document', 'signature',
                             'visit_evidence', 'item_delivery_evidence']
 
