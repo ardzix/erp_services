@@ -6,6 +6,9 @@ from django.utils.translation import gettext_lazy as _
 from django_filters import rest_framework as django_filters
 from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
+from common.serializers import FileSerializer
+from common.models import File
+from ..scripts import generate_invoice_pdf_for_instances
 from ..serializers.sales import (SalesOrderSerializer, SalesOrderListSerializer, 
 SalesOrderDetailSerializer, InvoiceSerializer, SalesPaymentSerializer, SalesPaymentPartialUpdateSerializer)
 from ..models import SalesOrder, Invoice, SalesPayment
@@ -55,6 +58,16 @@ class SalesOrderViewSet(viewsets.ModelViewSet):
         except Invoice.DoesNotExist:
             return Response({"detail": "Invoice not found for this Sales Order."}, status=404)
 
+    @action(detail=False, methods=['GET'])
+    def invoices_pdf(self, request, id32=None):
+        queryset = self.filter_queryset(self.get_queryset())
+        invoices = Invoice.objects.filter(order__in=queryset)
+        invoice_id32s = ''.join(invoices.values_list('id32', flat=True))
+        filename = f"Invoices_{invoice_id32s}.pdf"
+        file = File.objects.filter(description=filename).first()
+        if not file:
+            file = generate_invoice_pdf_for_instances(queryset)
+        return Response(FileSerializer(instance=file).data)
 
 class SalesPaymentViewSet(viewsets.ModelViewSet):
     queryset = SalesPayment.objects.all().order_by('-created_at')

@@ -148,9 +148,9 @@ class MeSerializer(serializers.ModelSerializer):
         return TripListSerializer(trips, many=True).data
 
     def get_header_text(self, instance):
-        first_line = get_config_value('header_text_1st_line', 'Artriz ERP')
+        first_line = get_config_value('tenant_name', 'Artriz ERP')
         second_line = get_config_value(
-            'header_text_2nd_line', 'You can configure this text from the dashboard')
+            'tenant_address', 'You can configure this text from the dashboard')
         return f'{first_line}\n{second_line}'
 
     def get_has_request_item(self, instance):

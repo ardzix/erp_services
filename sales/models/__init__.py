@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -91,6 +92,18 @@ class Customer(BaseModelGeneric):
     due_date = models.PositiveIntegerField(blank=True, null=True, help_text=_('Due date of credit payment in day.'))
     credit_limit_amount =  models.DecimalField(max_digits=19, decimal_places=2, default=0, help_text=_('Credit limit amount this customer can apply.'))
     credit_limit_qty = models.PositiveIntegerField(blank=True, null=True, help_text=_('Total credit qty this customer can apply.'))
+
+    @property
+    def province(self):
+        return self.administrative_lv1.name if self.administrative_lv1 else "-"
+
+    @property
+    def city(self):
+        return self.administrative_lv2.name if self.administrative_lv2 else "-"
+
+    @property
+    def district(self):
+        return self.administrative_lv3.name if self.administrative_lv3 else "-"
 
     @property
     def location_coordinate(self):
@@ -253,6 +266,10 @@ class OrderItem(BaseModelGeneric):
             quantity=self.quantity,
             unit=self.unit.symbol
         )
+    
+    @property
+    def total_price(self):
+        return Decimal(self.quantity) * Decimal(self.price)
 
     @property
     def smallest_unit_quantity(self):
@@ -313,6 +330,10 @@ class Invoice(BaseModelGeneric):
         return _('Invoice #{id32} - {order}').format(id32=self.id32, order=self.order)
 
     @property
+    def customer(self):
+        return self.order.customer
+
+    @property
     def payment_status(self):
         payment = SalesPayment.objects.filter(invoice=self).last()
         return payment.status if payment else None
@@ -330,11 +351,10 @@ class Invoice(BaseModelGeneric):
 
     @property
     def vat_amount(self):
-        return self.vat * self.subtotal
+        return Decimal(self.vat) * Decimal(self.subtotal)
 
     @property
     def total(self):
-        print(self.subtotal, self.vat_amount)
         return self.subtotal + self.vat_amount
 
     @property
