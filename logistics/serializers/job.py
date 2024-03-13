@@ -4,7 +4,7 @@ from rest_framework import serializers
 from libs.utils import validate_file_by_id32, handle_file_fields
 from sales.serializers.sales import OrderItemSerializer
 from sales.models import Trip
-from ..models import Drop, Job, Vehicle, STATUS_CHOICES
+from ..models import Drop, Job, Vehicle, Driver, STATUS_CHOICES
 
 
 class LocationMixin:
@@ -167,11 +167,12 @@ class JobDetailSerializer(JobRepresentationMixin, serializers.ModelSerializer):
     drops = DropListSerializer(many=True, read_only=True)
     vehicle_id32 = serializers.CharField(write_only=True)
     trip_id32 = serializers.CharField(write_only=True)
+    assigned_driver_id32 = serializers.CharField(write_only=True)
 
     class Meta:
         model = Job
         fields = [
-            'id32', 'vehicle', 'vehicle_id32', 'trip', 'trip_id32', 'assigned_driver', 'date', 'start_time', 'end_time', 'status', 'drops'
+            'id32', 'vehicle', 'vehicle_id32', 'trip', 'trip_id32', 'assigned_driver', 'assigned_driver_id32', 'date', 'start_time', 'end_time', 'status', 'drops'
         ]
         read_only_fields = ['id32', 'vehicle', 'trip', 'assigned_driver']
 
@@ -186,21 +187,31 @@ class JobDetailSerializer(JobRepresentationMixin, serializers.ModelSerializer):
 
     def validate_trip_id32(self, value):
         return self.validate_id32(value, Trip, _("Provided trip_id32 does not match any Trip records."))
+    
+    def validate_assigned_driver_id32(self, value):
+        return self.validate_id32(value, Driver, _("Provided assigned_driver_id32 does not match any Driver records."))
 
     def handle_related_object(self, validated_data, field_name, obj):
         if obj:
             validated_data[field_name] = obj
 
+    def handle_related_objects(self, validated_data):
+        # A list of tuples with (field_name, field_id32_key)
+        related_objects = [
+            ('vehicle', 'vehicle_id32'),
+            ('trip', 'trip_id32'),
+            ('assigned_driver', 'assigned_driver_id32'),
+        ]
+        
+        for field_name, field_id32_key in related_objects:
+            if field_id32_key in validated_data:
+                self.handle_related_object(validated_data, field_name, validated_data.pop(field_id32_key))
+
     def create(self, validated_data):
-        self.handle_related_object(
-            validated_data, 'vehicle', validated_data.pop('vehicle_id32', None))
-        self.handle_related_object(
-            validated_data, 'trip', validated_data.pop('trip_id32', None))
+        self.handle_related_objects(validated_data)
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        self.handle_related_object(
-            validated_data, 'vehicle', validated_data.pop('vehicle_id32', None))
-        self.handle_related_object(
-            validated_data, 'trip', validated_data.pop('trip_id32', None))
+        self.handle_related_objects(validated_data)
         return super().update(instance, validated_data)
+
