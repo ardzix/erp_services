@@ -70,6 +70,7 @@ class Job(BaseModelGeneric):
         return _("Job #{job_id} - {trip}").format(job_id=self.id32, trip=self.trip)
 
     class Meta:
+        ordering = ['-date']
         verbose_name = _("Job")
         verbose_name_plural = _("Jobs")
 
