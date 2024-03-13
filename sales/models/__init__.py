@@ -178,8 +178,7 @@ class SalesOrder(BaseModelGeneric):
         verbose_name=_(APPROVED_AT),
         help_text=_(APPROVED_AT_HELP_TEXT)
     )
-    stock_movement = models.ForeignKey(
-        StockMovement, blank=True, null=True, on_delete=models.SET_NULL)
+    stock_movements = models.ManyToManyField(StockMovement, blank=True)
     # Add any other fields specific to your order model
 
     status = models.CharField(
@@ -535,7 +534,7 @@ class Trip(BaseModelGeneric):
             return []
         sales_order_ids = visits.values_list('sales_order', flat=True)
         sales_order = SalesOrder.objects.filter(id__in=sales_order_ids)
-        return sales_order.values_list('stock_movement__id32', flat=True) if sales_order else []
+        return sales_order.values_list('stock_movements__id32', flat=True) if sales_order.exists() else []
 
 
 class CustomerVisit(BaseModelGeneric):

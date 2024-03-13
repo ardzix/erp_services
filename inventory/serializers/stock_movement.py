@@ -326,7 +326,7 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
                 })
         if 'salesorder_id32s' in data:
             sales_orders = SalesOrder.objects.filter(
-                id32__in=data.pop('salesorder_id32s'))
+                id32__in=data.get('salesorder_id32s'))
             if sales_orders.exists():
                 items = data.get('items')
                 items = [] if not items else items
@@ -343,6 +343,7 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
+        sales_orders = SalesOrder.objects.filter(id32__in=validated_data.pop('salesorder_id32s'))
         movement_evidence = validated_data.pop(
             'movement_evidence_id32') if 'movement_evidence_id32' in validated_data else None
         validated_data['movement_evidence'] = movement_evidence
@@ -350,7 +351,8 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         for item_data in items_data:
             StockMovementItem.objects.create(
                 stock_movement=stock_movement, **item_data)
-
+        for order in sales_orders:
+            order.stock_movements.add(stock_movement)
         return stock_movement
 
     def update(self, instance, validated_data):

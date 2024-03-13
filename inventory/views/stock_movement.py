@@ -99,9 +99,8 @@ class StockMovementFilter(CreatedAtFilterMixin):
         from sales.models import SalesOrder
         # Split the comma-separated string to get the list of values
         sales_order = SalesOrder.objects.filter(id32=value).first()
-        stock_movement_id = sales_order.stock_movement.id if sales_order and sales_order.stock_movement else None
-
-        return queryset.filter(id=stock_movement_id).order_by('created_at')
+        stock_movement_ids = sales_order.stock_movements.values_list('id', flat=True) if sales_order else []
+        return queryset.filter(id__in=stock_movement_ids).order_by('created_at')
 
 
 class StockMovementViewSet(viewsets.ModelViewSet):
