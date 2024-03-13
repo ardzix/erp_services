@@ -206,7 +206,7 @@ class SalesOrder(BaseModelGeneric):
 
     @property
     def delivery_status(self):
-        return self.stock_movement.status if self.stock_movement else None
+        return self.stock_movements.values_list('status', flat=True) if self.stock_movements.exists() else None
 
     @property
     def invoice(self):
