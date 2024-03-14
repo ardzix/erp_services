@@ -11,7 +11,7 @@ from common.models import File
 from ..scripts import generate_invoice_pdf_for_instances
 from ..serializers.sales import (SalesOrderSerializer, SalesOrderListSerializer, 
 SalesOrderDetailSerializer, InvoiceSerializer, SalesPaymentSerializer, SalesPaymentPartialUpdateSerializer)
-from ..models import SalesOrder, Invoice, SalesPayment
+from ..models import SalesOrder, Invoice, SalesPayment, CustomerVisit
 
 
 
@@ -20,6 +20,7 @@ class SalesFilter(CreatedAtFilterMixin):
         'To filter multiple status, use this request example: ?status=requested&status=delivered'))
     id32s = django_filters.CharFilter(method='filter_by_id32s')
     is_paid = django_filters.BooleanFilter(help_text=_('`true` for paid order, `false` for unpaid order'))
+    trip_id32s = django_filters.CharFilter(method='filter_by_trip_id32s')
 
     class Meta:
         model = SalesOrder
@@ -29,6 +30,12 @@ class SalesFilter(CreatedAtFilterMixin):
         # Split the comma-separated string to get the list of values
         values_list = value.split(',')
         return queryset.filter(id32__in=values_list).order_by('created_at')
+
+    def filter_by_trip_id32s(self, queryset, name, value):
+        # Split the comma-separated string to get the list of values
+        values_list = value.split(',')
+        visits = CustomerVisit.objects.filter(trip__id32__in=values_list, sales_order__isnull=False)
+        return queryset.filter(id__in=visits.values_list('sales_order', flat=True)).order_by('created_at')
 
 class SalesOrderViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
