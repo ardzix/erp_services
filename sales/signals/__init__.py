@@ -134,7 +134,7 @@ def create_stock_movement_item(sender, instance, created, **kwargs):
     """
     Creates a StockMovementItem entry when a new OrderItem is created and the order has associated stock movement.
     """
-    if created and instance.order.stock_movement:
+    if created and instance.order.stock_movements.exists():
         smi, created = StockMovementItem.objects.get_or_create(
             product=instance.product,
             stock_movement=instance.order.stock_movement,

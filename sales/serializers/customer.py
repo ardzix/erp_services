@@ -3,8 +3,18 @@ from django.contrib.gis.geos import Point
 from django.utils.translation import gettext_lazy as _
 from common.models import File
 from libs.utils import validate_file_by_id32, handle_file_fields, handle_location
-from ..models import Customer
+from ..models import Customer, StoreType
 
+
+class StoreTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreType
+        fields = [
+            'id32',
+            'name',
+            'description',
+        ]
+        read_only_fields = ['id32']
 
 class CustomerSerializer(serializers.ModelSerializer):
     location_coordinate = serializers.SerializerMethodField()
@@ -12,38 +22,48 @@ class CustomerSerializer(serializers.ModelSerializer):
     store_front_id32 = serializers.CharField(write_only=True, required=False)
     store_street_id32 = serializers.CharField(write_only=True, required=False)
     signature_id32 = serializers.CharField(write_only=True, required=False)
+    store_type_id32 = serializers.SlugRelatedField(
+        slug_field="id32",
+        queryset=StoreType.objects.all(),
+        source="store_type",
+        required=False,
+        write_only=True
+    )
 
     class Meta:
         model = Customer
         fields = [
             'id32',
-            'name',
-            'contact_number',
             'address',
-            'location',
-            'location_coordinate',
-
-            'company_profile',
             'administrative_lv1',
             'administrative_lv2',
             'administrative_lv3',
             'administrative_lv4',
+            'company_profile',
+            'contact_number',
+            'credit_limit_amount',
+            'credit_limit_qty',
+            'due_date',
+            'id_card',
+            'id_card_id32',
+            'location',
+            'location_coordinate',
+            'name',
+            'payment_type',
             'rt',
             'rw',
-            'store_name',
-            'payment_type',
-            'store_type',
-
-            'id_card_id32',
-            'store_front_id32',
-            'store_street_id32',
+            'signature',
             'signature_id32',
-            'id_card',
             'store_front',
+            'store_front_id32',
+            'store_name',
             'store_street',
-            'signature'
+            'store_street_id32',
+            'store_type',
+            'store_type_id32'
         ]
-        read_only_fields = ['id32', 'id_card',
+
+        read_only_fields = ['id32', 'id_card', 'store_type',
                             'store_front', 'store_street', 'signature']
 
     def to_representation(self, instance):
@@ -92,8 +112,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         # For each choice field, if the attribute exists on the instance,
         # add its key and corresponding value to the representation dictionary.
         choices_dicts = {
-            'payment_type': dict(Customer.PAYMENT_TYPE_CHOICES),
-            'store_type': dict(Customer.STORE_TYPE_CHOICES)
+            'payment_type': dict(Customer.PAYMENT_TYPE_CHOICES)
         }
         for field, choice_dict in choices_dicts.items():
             attr_instance = getattr(instance, field)
@@ -103,6 +122,11 @@ class CustomerSerializer(serializers.ModelSerializer):
                     'value': choice_dict.get(attr_instance, ""),
                 }
 
+        if instance.store_type:
+            representation['store_type'] = {
+                'id32': instance.store_type.id32,
+                'name': instance.store_type.name
+            }
         return representation
 
 

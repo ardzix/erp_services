@@ -470,6 +470,7 @@ class StockMovement(BaseModelGeneric):
         max_length=20, choices=MOVEMENT_STATUS, default=REQUESTED)
     movement_evidence = models.ForeignKey(
         File, related_name='%(app_label)s_%(class)s_movement_evidence', blank=True, null=True, on_delete=models.SET_NULL)
+    generate_items_from_sales = models.BooleanField(default=True)
 
     def __str__(self):
         return _("Stock Movement #{movement_id}").format(movement_id=self.id32)

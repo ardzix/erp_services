@@ -1,0 +1,96 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FAKTUR #{{ invoice.id32 }}</title>
+    <style>
+        body {
+            width: 21cm;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+        }
+        .header, .footer {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .invoice-header {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        .totals {
+            margin-top: 20px;
+            float: right;
+            text-align: right;
+        }
+        .customer-details, .publisher-details {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    {% for invoice in invoices %}
+        <div class="header">
+            <h2>FAKTUR PENJUALAN</h2>
+        </div>
+        <div class="invoice-header">
+            <div class="publisher-details">
+                <strong>Penerbit:</strong> <br>
+                {{ tenant_info.name }}<br>
+                {{ tenant_info.address }}<br>
+                Kontak: {{ tenant_info.contact }}<br>
+            </div>
+            <div class="customer-details">
+                <strong>Tagihan Untuk:</strong> <br>
+                {{ invoice.customer.name }}<br>
+                {{ invoice.customer.address }}<br>
+                {{ invoice.customer.city }}<br>
+                Kontak: {{ invoice.customer.contact_number }}<br>
+            </div>
+        </div>
+        <strong>FAKTUR #{{ invoice.id32 }}</strong><br>
+        Tanggal: {{ invoice.invoice_date|date:"F d, Y" }}
+        <table>
+            <caption>Detail Faktur</caption>
+            <thead>
+                <tr>
+                    <th scope="col" width="45%">Deskripsi</th>
+                    <th scope="col" width="10%">Qty</th>
+                    <th scope="col" width="20%">Harga Satuan</th>
+                    <th scope="col" width="25%">Jumlah</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in invoice.order.order_items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }} {{item.unit.symbol}}</td>
+                    <td>{{ tenant_info.currency_symbol }} {{ item.price|floatformat:"0"|intcomma }}</td>
+                    <td>{{ tenant_info.currency_symbol }} {{ item.total_price|floatformat:"0"|intcomma }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="totals">
+            <strong>Subtotal:</strong> {{ tenant_info.currency_symbol }} {{ invoice.subtotal|floatformat:"0"|intcomma }}<br>
+            <strong>PPN ({{ invoice.vat_percent|floatformat:"0" }}%):</strong> {{ tenant_info.currency_symbol }} {{ invoice.vat_amount|floatformat:"0"|intcomma }}<br>
+            <strong>Total:</strong> {{ tenant_info.currency_symbol }} {{ invoice.total|floatformat:"0"|intcomma }}
+        </div>
+        <div class="footer">
+            <p>Terima kasih atas bisnis Anda!</p>
+        </div>
+        <hr>
+    {% endfor %}
+</body>
+</html>

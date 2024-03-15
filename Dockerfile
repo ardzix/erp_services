@@ -39,8 +39,8 @@ COPY . /app/
 # Collect static files
 # RUN python manage.py collectstatic --noinput
 
-# Make port 8001 available to the world outside this container
-EXPOSE 8001
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
 
 # coppy local setting
 RUN cp erp_backoffice/default_local_settings.py erp_backoffice/local_settings.py 

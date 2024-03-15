@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -16,6 +17,17 @@ ORDER_OF_CUSTOMER_VISIT = 'Order of customer visit in the trip'
 ENTER_THE = 'Enter the '
 
 
+class StoreType(BaseModelGeneric):
+    name = models.CharField(
+        max_length=100, help_text=_('Enter the store type name'))
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = _('Store Type')
+        verbose_name_plural = _('Store Types')
+
+
 class Customer(BaseModelGeneric):
     CBD = 'cbd'
     COD = 'cod'
@@ -24,11 +36,6 @@ class Customer(BaseModelGeneric):
         (CBD, _('Cash before Delivery')),
         (COD, _('Cash on Delivery')),
         (CREDIT, _('Credit'))
-    ]
-    STORE_TYPE_CHOICES = [
-        ('wholesaler', _('Wholesaler')),
-        ('distributor', _('Distributor')),
-        ('retailer', _('Retailer')),
     ]
 
     name = models.CharField(
@@ -72,14 +79,7 @@ class Customer(BaseModelGeneric):
         null=True,
         blank=True,
     )
-    store_type = models.CharField(
-        max_length=25,  # Adjusting for the added descriptions
-        choices=STORE_TYPE_CHOICES,
-        help_text=_('Select store type.'),
-        blank=True,
-        null=True
-    )
-
+    store_type = models.ForeignKey(StoreType, blank=True, null=True, on_delete=models.SET_NULL)
     id_card = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_id_card',
                                 blank=True, null=True, on_delete=models.SET_NULL)
     store_front = models.ForeignKey(
@@ -88,6 +88,22 @@ class Customer(BaseModelGeneric):
         File, related_name='%(app_label)s_%(class)s_store_street', blank=True, null=True, on_delete=models.SET_NULL)
     signature = models.ForeignKey(
         File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
+
+    due_date = models.PositiveIntegerField(blank=True, null=True, help_text=_('Due date of credit payment in day.'))
+    credit_limit_amount =  models.DecimalField(max_digits=19, decimal_places=2, default=0, help_text=_('Credit limit amount this customer can apply.'))
+    credit_limit_qty = models.PositiveIntegerField(blank=True, null=True, help_text=_('Total credit qty this customer can apply.'))
+
+    @property
+    def province(self):
+        return self.administrative_lv1.name if self.administrative_lv1 else "-"
+
+    @property
+    def city(self):
+        return self.administrative_lv2.name if self.administrative_lv2 else "-"
+
+    @property
+    def district(self):
+        return self.administrative_lv3.name if self.administrative_lv3 else "-"
 
     @property
     def location_coordinate(self):
@@ -162,8 +178,7 @@ class SalesOrder(BaseModelGeneric):
         verbose_name=_(APPROVED_AT),
         help_text=_(APPROVED_AT_HELP_TEXT)
     )
-    stock_movement = models.ForeignKey(
-        StockMovement, blank=True, null=True, on_delete=models.SET_NULL)
+    stock_movements = models.ManyToManyField(StockMovement, blank=True)
     # Add any other fields specific to your order model
 
     status = models.CharField(
@@ -191,7 +206,7 @@ class SalesOrder(BaseModelGeneric):
 
     @property
     def delivery_status(self):
-        return self.stock_movement.status if self.stock_movement else None
+        return self.stock_movements.values_list('status', flat=True) if self.stock_movements.exists() else None
 
     @property
     def invoice(self):
@@ -250,6 +265,10 @@ class OrderItem(BaseModelGeneric):
             quantity=self.quantity,
             unit=self.unit.symbol
         )
+    
+    @property
+    def total_price(self):
+        return Decimal(self.quantity) * Decimal(self.price)
 
     @property
     def smallest_unit_quantity(self):
@@ -310,6 +329,10 @@ class Invoice(BaseModelGeneric):
         return _('Invoice #{id32} - {order}').format(id32=self.id32, order=self.order)
 
     @property
+    def customer(self):
+        return self.order.customer
+
+    @property
     def payment_status(self):
         payment = SalesPayment.objects.filter(invoice=self).last()
         return payment.status if payment else None
@@ -327,11 +350,10 @@ class Invoice(BaseModelGeneric):
 
     @property
     def vat_amount(self):
-        return self.vat * self.subtotal
+        return Decimal(self.vat) * Decimal(self.subtotal)
 
     @property
     def total(self):
-        print(self.subtotal, self.vat_amount)
         return self.subtotal + self.vat_amount
 
     @property
@@ -512,7 +534,7 @@ class Trip(BaseModelGeneric):
             return []
         sales_order_ids = visits.values_list('sales_order', flat=True)
         sales_order = SalesOrder.objects.filter(id__in=sales_order_ids)
-        return sales_order.values_list('stock_movement__id32', flat=True) if sales_order else []
+        return sales_order.values_list('stock_movements__id32', flat=True) if sales_order.exists() else []
 
 
 class CustomerVisit(BaseModelGeneric):

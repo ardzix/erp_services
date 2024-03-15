@@ -100,9 +100,36 @@ class PurchaseOrder(BaseModelGeneric):
     )
     invalid_item_evidence = models.ForeignKey(
         File, related_name='%(app_label)s_%(class)s_invalid_item_evidence', blank=True, null=True, on_delete=models.SET_NULL)
+    discount_amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        default=0,
+        help_text=_("Enter the discount amount for purchase order")
+    )
+    tax_amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        default=0,
+        help_text=_("Enter the tax amount for purchase order")
+    )
 
     def __str__(self):
         return _("Purchase Order #{id32}").format(id32=self.id32)
+    
+    @property
+    def subtotal(self):
+        amount = 0
+        for item in self.purchaseorderitem_set.all():
+            amount += item.subtotal
+        return amount
+    
+    @property
+    def subtotal_after_discount(self):
+        return self.subtotal - self.discount_amount
+    
+    @property
+    def total(self):
+        return self.subtotal_after_discount + self.tax_amount
 
     class Meta:
         ordering = ['-id']
@@ -140,6 +167,10 @@ class PurchaseOrderItem(BaseModelGeneric):
         Unit, blank=True, null=True, on_delete=models.SET_NULL)
 
     # Add any other fields specific to your purchase order item model
+
+    @property
+    def subtotal(self):
+        return self.po_price * self.quantity
 
     def __str__(self):
         return _("Purchase Order Item #{id32} - {product}").format(id32=self.id32, product=self.product)

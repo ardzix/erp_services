@@ -5,9 +5,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets
 from libs.pagination import CustomPagination
-from ..serializers.customer import CustomerSerializer, CustomerListSerializer, CustomerMapSerializer
-from ..models import Customer
+from ..serializers.customer import CustomerSerializer, CustomerListSerializer, CustomerMapSerializer, StoreTypeSerializer
+from ..models import Customer, StoreType
 
+
+class StoreTypeViewSet(viewsets.ModelViewSet):
+    lookup_field = 'id32'
+    queryset = StoreType.objects.all()
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    pagination_class = CustomPagination 
+    serializer_class = StoreTypeSerializer
 
 class CustomerViewSet(viewsets.ModelViewSet):
     """

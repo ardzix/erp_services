@@ -43,7 +43,7 @@ def taking_order_create_stock_movement(instance):
     )
     if created:
         set_stock_movement_destination_from_trip(sm, trip)
-    instance.stock_movement = sm
+    instance.stock_movements.add(sm)
     instance.save()
     sm.save()
     _create_stock_movement_items_from_sales_order(instance)
@@ -65,7 +65,7 @@ def initialize_stock_movement_for_canvasing(order_instance):
         creator_type=ContentType.objects.get_for_model(SalesOrder),
         creator_id=order_instance.id,
     )
-    order_instance.stock_movement = sm
+    order_instance.stock_movement.add(sm)
     return sm
 
 
