@@ -13,6 +13,8 @@ class WarehouseStockFilter(django_filters.FilterSet):
         field_name='warehouse__id32', lookup_expr='exact')
     product_id32 = django_filters.CharFilter(
         field_name='product__id32', lookup_expr='exact')
+    unit_id32 = django_filters.CharFilter(
+        field_name='unit__id32', lookup_expr='exact')
     expires_before_or_on = django_filters.DateFilter(
         field_name="expire_date", lookup_expr='lte')
     expires_after = django_filters.DateFilter(
@@ -20,7 +22,7 @@ class WarehouseStockFilter(django_filters.FilterSet):
 
     class Meta:
         model = WarehouseStock
-        fields = ['warehouse_id32', 'product_id32',
+        fields = ['warehouse_id32', 'product_id32', 'unit_id32',
                   'expires_before_or_on', 'expires_after']
 
 
