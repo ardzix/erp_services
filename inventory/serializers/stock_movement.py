@@ -207,6 +207,35 @@ class StockMovementItemPOBatchSerializer(serializers.ModelSerializer):
         return super().save(**kwargs)
 
 
+class StockMovementItemCreateSerializer(serializers.ModelSerializer):
+    stock_movement_id32 = serializers.SlugRelatedField(
+        slug_field='id32',
+        queryset=StockMovement.objects.all(),
+        source='stock_movement',
+        required=True
+    )
+    product_id32 = serializers.SlugRelatedField(
+        slug_field='id32',
+        queryset=Product.objects.all(),
+        source='product'
+    )
+    unit_id32 = serializers.SlugRelatedField(
+        slug_field='id32',
+        queryset=Unit.objects.all(),
+        source='unit'
+    )
+
+    class Meta:
+        model = StockMovementItem
+        fields = ('stock_movement_id32',
+                  'product_id32',
+                  'unit_id32',
+                  'quantity',
+                  'origin_movement_status',
+                  'destination_movement_status',
+                  'expire_date')
+
+
 class StockMovementItemUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -271,7 +300,7 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         model = StockMovement
         fields = ['id32', 'created_at', 'status', 'movement_date', 'destination_type',
                   'destination_id32', 'origin_type', 'origin_id32', 'movement_evidence_id32',
-                  'movement_evidence', 'items', 'salesorder_id32s']
+                  'movement_evidence', 'items', 'salesorder_id32s', 'generate_items_from_sales']
         read_only_fields = ['id32', 'created_at', 'movement_evidence']
 
     def to_representation(self, instance):
@@ -343,14 +372,16 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
-        sales_orders = SalesOrder.objects.filter(id32__in=validated_data.pop('salesorder_id32s'))
+        sales_orders = SalesOrder.objects.filter(
+            id32__in=validated_data.pop('salesorder_id32s'))
         movement_evidence = validated_data.pop(
             'movement_evidence_id32') if 'movement_evidence_id32' in validated_data else None
         validated_data['movement_evidence'] = movement_evidence
         stock_movement = StockMovement.objects.create(**validated_data)
-        for item_data in items_data:
-            StockMovementItem.objects.create(
-                stock_movement=stock_movement, **item_data)
+        if stock_movement.generate_items_from_sales:
+            for item_data in items_data:
+                StockMovementItem.objects.create(
+                    stock_movement=stock_movement, **item_data)
         for order in sales_orders:
             order.stock_movements.add(stock_movement)
         return stock_movement

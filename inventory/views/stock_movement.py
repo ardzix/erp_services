@@ -12,12 +12,13 @@ from libs.pagination import CustomPagination
 from ..models import StockMovement, StockMovementItem
 from ..serializers.stock_movement import (StockMovementListSerializer, 
                                           StockMovementDetailSerializer, 
-                                          StockMovementItemPOBatchSerializer,
                                           StockMovementCreateSerializer, 
                                           StockMovementItemSerializer, 
                                           StockMovementItemUpdateSerializer,
-                                          DistinctStockMovementItemSerializer,
-                                          StockMovementItemBulkUpdateSerializer)
+                                          StockMovementItemPOBatchSerializer,
+                                          StockMovementItemBulkUpdateSerializer,
+                                          StockMovementItemCreateSerializer,
+                                          DistinctStockMovementItemSerializer)
 
 
 def get_model_from_name(model_name):
@@ -150,13 +151,18 @@ class StockMovementViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class StockMovementItemViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class StockMovementItemViewSet(viewsets.ModelViewSet):
     queryset = StockMovementItem.objects.all()
     lookup_field = 'id32'
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return StockMovementItemSerializer
+        elif self.action == 'create':
+            return StockMovementItemCreateSerializer
         elif self.action == 'bulk_update':
             return StockMovementItemBulkUpdateSerializer
         return StockMovementItemUpdateSerializer
