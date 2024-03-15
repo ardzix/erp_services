@@ -70,6 +70,7 @@ class Job(BaseModelGeneric):
         return _("Job #{job_id} - {trip}").format(job_id=self.id32, trip=self.trip)
 
     class Meta:
+        ordering = ['-date']
         verbose_name = _("Job")
         verbose_name_plural = _("Jobs")
 
@@ -101,6 +102,7 @@ class Drop(BaseModelGeneric):
     retrieve_payment = models.BooleanField(default=False)
     sales_visit = models.ForeignKey(
         'sales.CustomerVisit', blank=True, null=True, on_delete=models.SET_NULL)
+    notes = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ['order']

@@ -66,6 +66,7 @@ class TripFilter(CreatedAtFilterMixin):
     )
     salesperson_username = filters.CharFilter(field_name="salesperson__username")
     collector_username = filters.CharFilter(field_name="collector__username")
+    vehicle_id32 = filters.CharFilter(field_name="vehicle__id32")
 
     class Meta:
         model = Trip

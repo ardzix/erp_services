@@ -179,11 +179,12 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
         read_only=True
     )
     total_amount = serializers.SerializerMethodField()
+    trip_id32s = serializers.SerializerMethodField()
 
     class Meta:
         model = SalesOrder
         fields = ['id32', 'customer', 'order_date', 'is_paid',
-                  'approved_by', 'total_amount', 'status']
+                  'approved_by', 'total_amount', 'status', 'trip_id32s']
         read_only_fields = ['id32', 'approved_by', 'customer']
 
     def get_total_amount(self, obj):
@@ -191,6 +192,9 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
             total_price=Sum(F('price') * F('quantity'))).get('total_price')
         total_amount = 0 if not total_amount else total_amount
         return total_amount
+    
+    def get_trip_id32s(self, obj):
+        return obj.customervisit_set.values_list('trip__id32', flat=True)
 
 
 class SalesOrderDetailSerializer(SalesOrderListSerializer):
@@ -206,7 +210,7 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
         fields = ['id32', 'customer', 'order_date', 'approved_by',
                   'total_amount', 'order_items', 'delivery_status',
                   'status', 'type', 'invoice', 'is_paid', 'customer_visits',
-                  'warehouse']
+                  'warehouse', 'trip_id32s']
         read_only_fields = ['id32', 'approved_by',
                             'customer', 'delivery_status']
 
@@ -346,3 +350,8 @@ class SalesOrderSerializer(SalesOrderListSerializer):
                     order=instance, **item_data)
 
         return instance
+
+
+class SalesReportSerializer(serializers.Serializer):
+    total_sales = serializers.DecimalField(max_digits=19, decimal_places=2, required=False)
+    total_quantity = serializers.IntegerField(required=False)

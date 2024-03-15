@@ -57,7 +57,8 @@ class PurchaseOrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrder
         fields = ['id32', 'supplier',
-                  'supplier_name', 'order_date', 'approval']
+                  'supplier_name', 'order_date', 'approval',
+                  'total']
         read_only_fields = ['id32', 'approval']
 
 # Nested serializer for detail and create views
@@ -80,7 +81,8 @@ class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrder
         fields = ['id32', 'supplier', 'supplier_name', 'destination_warehouse', 'order_date',
-                  'approval', 'items', 'invalid_items', 'invalid_item_evidence_id32', 'invalid_item_evidence']
+                  'approval', 'items', 'invalid_items', 'invalid_item_evidence_id32', 'invalid_item_evidence',
+                  'discount_amount', 'tax_amount', 'subtotal', 'subtotal_after_discount', 'total']
         read_only_fields = ['id32', 'approval',
                             'invalid_items', 'invalid_item_evidence']
 

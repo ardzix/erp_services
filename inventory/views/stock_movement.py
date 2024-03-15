@@ -12,12 +12,13 @@ from libs.pagination import CustomPagination
 from ..models import StockMovement, StockMovementItem
 from ..serializers.stock_movement import (StockMovementListSerializer, 
                                           StockMovementDetailSerializer, 
-                                          StockMovementItemPOBatchSerializer,
                                           StockMovementCreateSerializer, 
                                           StockMovementItemSerializer, 
                                           StockMovementItemUpdateSerializer,
-                                          DistinctStockMovementItemSerializer,
-                                          StockMovementItemBulkUpdateSerializer)
+                                          StockMovementItemPOBatchSerializer,
+                                          StockMovementItemBulkUpdateSerializer,
+                                          StockMovementItemCreateSerializer,
+                                          DistinctStockMovementItemSerializer)
 
 
 def get_model_from_name(model_name):
@@ -45,11 +46,12 @@ class StockMovementFilter(CreatedAtFilterMixin):
     status = django_filters.MultipleChoiceFilter(choices=StockMovement.MOVEMENT_STATUS, help_text=_(
         'To filter multiple status, use this request example: ?status=requested&status=delivered'))
     id32s = django_filters.CharFilter(method='filter_by_id32s')
+    sales_order_id32 = django_filters.CharFilter(method='filter_by_sales_order_id32')
 
     class Meta:
         model = StockMovement
         fields = ['created_at_range', 'movement_date_range', 'origin_type', 'destination_type',
-                  'origin_filter', 'destination_filter', 'status', 'id32s']
+                  'origin_filter', 'destination_filter', 'status', 'id32s', 'sales_order_id32']
 
     def filter_origin(self, queryset, name, value):
         if value:
@@ -93,6 +95,13 @@ class StockMovementFilter(CreatedAtFilterMixin):
         # Split the comma-separated string to get the list of values
         values_list = value.split(',')
         return queryset.filter(id32__in=values_list).order_by('created_at')
+    
+    def filter_by_sales_order_id32(self, queryset, name, value):
+        from sales.models import SalesOrder
+        # Split the comma-separated string to get the list of values
+        sales_order = SalesOrder.objects.filter(id32=value).first()
+        stock_movement_ids = sales_order.stock_movements.values_list('id', flat=True) if sales_order else []
+        return queryset.filter(id__in=stock_movement_ids).order_by('created_at')
 
 
 class StockMovementViewSet(viewsets.ModelViewSet):
@@ -142,13 +151,18 @@ class StockMovementViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class StockMovementItemViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class StockMovementItemViewSet(viewsets.ModelViewSet):
     queryset = StockMovementItem.objects.all()
     lookup_field = 'id32'
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return StockMovementItemSerializer
+        elif self.action == 'create':
+            return StockMovementItemCreateSerializer
         elif self.action == 'bulk_update':
             return StockMovementItemBulkUpdateSerializer
         return StockMovementItemUpdateSerializer

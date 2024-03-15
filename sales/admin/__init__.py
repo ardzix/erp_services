@@ -53,7 +53,7 @@ class SalesOrderAdmin(ApproveRejectMixin, BaseAdmin):
     list_filter = ['customer', 'order_date', 'approved_by']
     search_fields = ['id32', 'customer__name']
     fields = ['customer', 'order_date', 'type', 'status', 'warehouse', 'visit', 'approved_by', 'approved_at', 'unapproved_by',
-              'unapproved_at', 'invoice', 'subtotal', 'vat_amount', 'total', 'is_paid']
+              'unapproved_at', 'invoice', 'subtotal', 'vat_amount', 'total', 'is_paid', 'invoice_pdf_generated']
     readonly_fields = ['invoice', 'approved_by', 'approved_at', 'unapproved_by',
               'unapproved_at', 'subtotal', 'vat_amount', 'total']
 
@@ -71,7 +71,7 @@ class InvoiceAdmin(BaseAdmin):
     list_display = ['id32', 'order', 'invoice_date', 'total_amount']
     list_filter = ['order__customer', 'invoice_date', 'approved_by']
     search_fields = ['id32', 'order__id32']
-    fields = ['order', 'invoice_date', 'approved_by', 'approved_at']
+    fields = ['order', 'invoice_date', 'approved_by', 'approved_at', 'attachment']
     raw_id_fields = ['order']
 
     def total_amount(self, instance):
