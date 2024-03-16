@@ -459,14 +459,6 @@ def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
 
 
 @receiver(pre_save, sender=CustomerVisit)
-def ensure_trip_status_on_progress(sender, instance, **kwargs):
-    # 2. CustomerVisit status can only be changed if Trip status is ON_PROGRESS.
-    if instance.status != WAITING and instance.trip.status != ON_PROGRESS:
-        raise ValidationError(
-            _('CustomerVisit status can only be changed if associated Trip status is ON_PROGRESS.'))
-
-
-@receiver(pre_save, sender=CustomerVisit)
 def ensure_fields_present_when_skipped(sender, instance, **kwargs):
     # 4. CustomerVisit status cannot be changed to SKIPPED if notes, visit_evidence, or signature is null.
     if instance.status == SKIPPED and not all([instance.notes, instance.visit_evidence, instance.signature]):
