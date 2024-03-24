@@ -1,20 +1,33 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from libs.admin import ApproveRejectMixin, BaseAdmin
-from ..models import BillOfMaterials, BOMProduct, BOMComponent, ProductionOrder, WorkOrder, ProductionTracking
+from ..models import BillOfMaterials, BOMProduct, BOMComponent, ProductionOrder, WorkOrder, ProductionTracking, ProducedItem, ComponentItem
 
 
 class BOMProductInline(admin.TabularInline):
     model = BOMProduct
     extra = 0
-    raw_id_fields = ['product']
-    fields = ['product', 'quantity']
+    raw_id_fields = ['item', 'unit']
+    fields = ['item', 'quantity', 'unit']
 
 class BOMComponentInline(admin.TabularInline):
     model = BOMComponent
     extra = 0
-    raw_id_fields = ['component']
-    fields = ['component', 'quantity']
+    raw_id_fields = ['item', 'unit']
+    fields = ['item', 'quantity', 'unit']
+
+
+class ProducedItemInline(admin.TabularInline):
+    model = ProducedItem
+    extra = 0
+    raw_id_fields = ['item', 'unit']
+    fields = ['item', 'quantity', 'unit', 'expire_date']
+
+class ComponentItemInline(admin.TabularInline):
+    model = ComponentItem
+    extra = 0
+    raw_id_fields = ['item', 'unit']
+    fields = ['item', 'quantity', 'unit']
 
 
 @admin.register(BillOfMaterials)
@@ -81,9 +94,10 @@ class WorkOrderAdmin(BaseAdmin):
 
 @admin.register(ProductionTracking)
 class ProductionTrackingAdmin(BaseAdmin):
-    list_display = ['id32', 'work_order', 'start_time', 'end_time', 'produced_quantity']
+    list_display = ['id32', 'work_order', 'start_time', 'end_time']
     list_filter = ['start_time', 'end_time']
     search_fields = ['id32', 'work_order__production_order__product__name']
-    fields = ['work_order', 'start_time', 'end_time', 'produced_quantity']
+    fields = ['work_order', 'work_center_warehouse', 'start_time', 'end_time']
     readonly_fields = ['start_time']
     raw_id_fields = ['work_order']
+    inlines = [ComponentItemInline, ProducedItemInline]

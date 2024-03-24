@@ -41,3 +41,9 @@ class WorkOrderViewSet(viewsets.ModelViewSet):
 class ProductionTrackingViewSet(viewsets.ModelViewSet):
     queryset = ProductionTracking.objects.all()
     serializer_class = ProductionTrackingSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    pagination_class = CustomPagination 
+    filterset_class = CreatedAtFilterMixin
+    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ['work_center_warehouse__name']
+    lookup_field = 'id32'
