@@ -1,52 +1,28 @@
 from rest_framework import serializers
 from inventory.models import Product
 from ..models import BillOfMaterials, BOMProduct, BOMComponent
+from .mixins import ComponentMixin
 
 
-class BOMProductSerializer(serializers.ModelSerializer):
-    product_id32 = serializers.SlugRelatedField(
-        slug_field='id32',
-        queryset=Product.objects.all(),
-        source='product',
-        write_only=True
-    )
-
-    def to_representation(self, instance):
-        to_representation = super().to_representation(instance)
-        if instance.product:
-            to_representation["product"] = {
-                "id32": instance.product.id32,
-                "str": instance.product.__str__(),
-            }
-        return to_representation
+class BOMProductSerializer(ComponentMixin):
     class Meta:
         model = BOMProduct
-        fields = ['id32', 'product_id32', 'product', 'quantity']
-        read_only_fields = ['id32', 'product']
+        fields = ['id32', 'item_id32', 'item', 'unit_id32', 'unit', 'quantity']
+        read_only_fields = ['id32', 'item', 'unit']
 
-class BOMComponentSerializer(serializers.ModelSerializer):
-    component_id32 = serializers.SlugRelatedField(
-        slug_field='id32',
-        queryset=Product.objects.all(),
-        source='component',
-        write_only=True
-    )
-    def to_representation(self, instance):
-        to_representation = super().to_representation(instance)
-        if instance.component:
-            to_representation["component"] = {
-                "id32": instance.component.id32,
-                "str": instance.component.__str__(),
-            }
-        return to_representation
+
+class BOMComponentSerializer(ComponentMixin):
     class Meta:
         model = BOMComponent
-        fields = ['id32', 'component_id32', 'component', 'quantity']
-        read_only_fields = ['id32', 'component']
+        fields = ['id32', 'item_id32', 'item', 'unit_id32', 'unit', 'quantity']
+        read_only_fields = ['id32', 'item', 'unit']
+
 
 class BillOfMaterialsSerializer(serializers.ModelSerializer):
-    produced_from_bom = BOMProductSerializer(many=True, source='bomproduct_set', required=False)
-    used_in_bom = BOMComponentSerializer(many=True, source='bomcomponent_set', required=False)
+    produced_from_bom = BOMProductSerializer(
+        many=True, source='bomproduct_set', required=False)
+    used_in_bom = BOMComponentSerializer(
+        many=True, source='bomcomponent_set', required=False)
 
     class Meta:
         model = BillOfMaterials
@@ -65,7 +41,8 @@ class BillOfMaterialsSerializer(serializers.ModelSerializer):
         for product_data in products_data:
             BOMProduct.objects.create(bom=bill_of_materials, **product_data)
         for component_data in components_data:
-            BOMComponent.objects.create(bom=bill_of_materials, **component_data)
+            BOMComponent.objects.create(
+                bom=bill_of_materials, **component_data)
 
         return bill_of_materials
 
