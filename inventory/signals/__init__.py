@@ -52,11 +52,11 @@ def update_product_base_price(product):
     Computes the product's base price using the specified methodology: highest, average, fifo, or lifo.
     """
 
-    items = product.get_purchase_item_history()[:2]  # Fetch the latest two items, if available
+    items = product.get_inbound_movement_item_history()[:2]  # Fetch the latest two items, if available
 
     # Function to handle 'average' calculation method
     def average_price():
-        return items.aggregate(max_price=models.Avg('buy_price'))['max_price'] if items else None
+        return items.aggregate(avg_price=models.Avg('buy_price'))['avg_price'] if items else None
 
     # Function to handle 'highest' calculation method
     def highest_price():
@@ -96,7 +96,7 @@ def calculate_product_base_price_by_smi(sender, instance, created, **kwargs):
     Recalculates the product's base price upon saving the StockMovementItem instance,
     using the specified methodology (FIFO or LIFO), if the item's status indicates it should.
     """
-    if instance.status in [StockMovementItem.CHECKED, StockMovementItem.FINISHED]:
+    if instance.destination_movement_status in [StockMovementItem.PUT, StockMovementItem.CHECKED, StockMovementItem.FINISHED]:
         update_product_base_price(instance.product)
 
 
@@ -227,7 +227,6 @@ def handle_movement_item_status_change_post(sender, instance, **kwargs):
         stock_movement.save()
 
     # Condition 4: Check for origin_movement_status change to CHECKED
-    print(instance.origin_movement_status, instance.origin_checked_by)
     if instance.origin_movement_status == StockMovementItem.CHECKED and instance.origin_checked_by is None:
         instance._set_user_action(
             'approved', instance._current_user)

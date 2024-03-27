@@ -1,4 +1,5 @@
 
+from math import prod
 from django.db.models.signals import pre_save, post_save, pre_delete
 from django.db import models
 from django.dispatch import receiver
@@ -131,6 +132,9 @@ def create_auto_po(sender, instance, created, **kwargs):
         product=product,
         warehouse=instance.warehouse,
         quantity__gt=0)
+    
+    if not product.smallest_unit:
+        return
 
     qty = 0
     for stock in warehouse_stocks:

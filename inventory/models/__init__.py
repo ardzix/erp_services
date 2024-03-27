@@ -205,12 +205,9 @@ class Product(BaseModelGeneric):
         super().save(*args, **kwargs)
 
     def get_inbound_movement_item_history(self, exclude_zero_stock=True):
-        stocks = WarehouseStock.objects.filter(product=self)
-        if exclude_zero_stock:
-            stocks = stocks.exclude(quantity=0)
-        items = StockMovementItem.objects.filter(id__in=stocks.values_list(
-            'inbound_movement_item', flat=True), buy_price__isnull=False).order_by('-created_at')
-        return items
+        return StockMovementItem.objects.filter(
+            product=self, 
+            stock_movement__destination_type__model='warehouse').order_by('-id')
 
     class Meta:
         ordering = ['-id']

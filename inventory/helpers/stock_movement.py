@@ -160,7 +160,7 @@ def handle_destination_warehouse(item):
         unit=item.unit,
         expire_date=item.expire_date
     )
-    if created:
+    if not stock.inbound_movement_item:
         stock.inbound_movement_item = item
     add_stock(stock, item.quantity)
     if item.stock_movement.origin_type == ContentType.objects.get_for_model(Supplier):
