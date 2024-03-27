@@ -130,6 +130,7 @@ class StockMovementItemSerializer(serializers.ModelSerializer):
         model = StockMovementItem
         fields = ['id32', 'product', 'product_id32', 'quantity', 'unit', 'expire_date',
                   'unit_id32', 'order', 'origin_locations', 'destination_locations',
+                  'buy_price',
                   'origin_movement_status', 'destination_movement_status', 'batches']
         read_only_fields = ['id32', 'stock_movement', 'product',
                             'unit', 'origin_locations', 'destination_locations']
@@ -233,6 +234,7 @@ class StockMovementItemCreateSerializer(serializers.ModelSerializer):
                   'quantity',
                   'origin_movement_status',
                   'destination_movement_status',
+                  'buy_price',
                   'expire_date')
 
 
@@ -241,6 +243,7 @@ class StockMovementItemUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockMovementItem
         fields = ('origin_movement_status',
+                  'buy_price',
                   'destination_movement_status', 'expire_date', 'quantity')
 
 

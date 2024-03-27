@@ -45,6 +45,18 @@ def commit_base_price(product, buy_price):
             product.save()
 
 
+def update_product_base_price(product):
+    """
+    Updates the base price of the given product based on FIFO or LIFO calculation methodology.
+    """
+    items = product.get_inbound_movement_item_history()
+    if product.price_calculation in ['fifo', 'lifo']:
+        buy_price = items.aggregate(max_price=models.Max('buy_price'))['max_price']
+        if buy_price:
+            commit_base_price(product, buy_price)
+
+
+
 @receiver(post_save, sender=Product)
 def change_global_stock(sender, instance, created, **kwargs):
     """
@@ -60,14 +72,21 @@ def change_global_stock(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Product)
 def calculate_product_base_price(sender, instance, created, **kwargs):
     """
-    Computes the product's base price using the specified methodology, either fifo or lifo.
+    Computes the product's base price upon saving the Product instance,
+    using the specified methodology (FIFO or LIFO), if applicable.
     """
     if not created:
-        items = instance.get_purchase_item_history()
-        if instance.price_calculation in ['fifo', 'lifo']:
-            buy_price = items.aggregate(
-                max_price=models.Max('buy_price'))['max_price']
-            commit_base_price(instance, buy_price)
+        update_product_base_price(instance)
+
+@receiver(post_save, sender=StockMovementItem)
+def calculate_product_base_price_by_smi(sender, instance, created, **kwargs):
+    """
+    Recalculates the product's base price upon saving the StockMovementItem instance,
+    using the specified methodology (FIFO or LIFO), if the item's status indicates it should.
+    """
+    if instance.status in [StockMovementItem.CHECKED, StockMovementItem.FINISHED]:
+        update_product_base_price(instance.product)
+
 
 
 @receiver(post_save, sender=Product)

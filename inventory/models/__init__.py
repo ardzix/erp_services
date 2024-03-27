@@ -203,7 +203,7 @@ class Product(BaseModelGeneric):
             self.purchasing_unit = self.smallest_unit
         super().save(*args, **kwargs)
 
-    def get_purchase_item_history(self, exclude_zero_stock=True):
+    def get_inbound_movement_item_history(self, exclude_zero_stock=True):
         stocks = WarehouseStock.objects.filter(product=self)
         if exclude_zero_stock:
             stocks = stocks.exclude(quantity=0)
@@ -233,7 +233,7 @@ class Product(BaseModelGeneric):
 
     @property
     def previous_buy_price(self):
-        buy_price_history = self.get_purchase_item_history(
+        buy_price_history = self.get_inbound_movement_item_history(
             exclude_zero_stock=False).values('buy_price')
         return buy_price_history[1]['buy_price'] if buy_price_history.count() > 1 else None
 
