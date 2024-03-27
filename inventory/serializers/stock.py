@@ -70,6 +70,7 @@ class WarehouseStockSerializer(serializers.ModelSerializer):
         if instance.inbound_movement_item:
             representation['inbound_movement_item'] = {
                 'id32': instance.inbound_movement_item.id32,
+                'stock_movement_id32': instance.inbound_movement_item.stock_movement.id32,
                 'str': instance.inbound_movement_item.__str__()
             }
         return representation

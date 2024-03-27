@@ -144,7 +144,7 @@ class Product(BaseModelGeneric):
         max_length=100, help_text=_("Enter the product name"))
     alias = models.CharField(max_length=100, blank=True, null=True, help_text=_(
         "Enter the product alias name"))
-    sku = models.CharField(max_length=100, unique=True, help_text=_(
+    sku = models.CharField(max_length=100, blank=True, null=True, help_text=_(
         "Enter the product stock keeping unit or barcode"))
     description = models.TextField(
         blank=True,
@@ -173,6 +173,7 @@ class Product(BaseModelGeneric):
         "Select on how the base price will be calculated"))
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL,
                               null=True, blank=True, help_text=_("Select the product brand"))
+    brand_str = models.CharField(max_length=150, blank=True, null=True)
     minimum_quantity = models.PositiveIntegerField(
         default=0,
         help_text=_(

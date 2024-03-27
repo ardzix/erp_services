@@ -94,7 +94,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'name', 'sku', 'description', 'last_buy_price', 'previous_buy_price', 'base_price', 'sell_price',
-            'margin_type', 'margin_value',
+            'margin_type', 'margin_value', 'brand_str',
             'category', 'quantity', 'phsycal_quantity', 'smallest_unit', 'purchasing_unit',
             'product_type', 'price_calculation', 'brand', 'minimum_quantity',
             'is_active', 'picture', 'suppliers'
@@ -125,7 +125,7 @@ class ProductCreateSerializer(ProductValidator, serializers.ModelSerializer):
     smallest_unit_id32 = serializers.CharField(write_only=True)
     class Meta:
         model = Product
-        fields = ['id32', 'name', 'sku', 'category_id32',
+        fields = ['id32', 'name', 'sku', 'category_id32', 'brand_str',
                   'smallest_unit_id32', 'product_type', 'price_calculation']
         read_only_fields = ['id32']
 
@@ -140,7 +140,7 @@ class ProductEditSerializer(ProductValidator, serializers.ModelSerializer):
         model = Product
         fields = [
             'name', 'sku', 'description', 'base_price', 'sell_price',
-            'margin_type', 'margin_value',
+            'margin_type', 'margin_value', 'brand_str',
             'category_id32', 'quantity', 'smallest_unit_id32', 'purchasing_unit_id32',
             'product_type', 'price_calculation', 'brand_id32', 'minimum_quantity',
             'is_active'
