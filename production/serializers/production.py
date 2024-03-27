@@ -100,9 +100,8 @@ class ProductionTrackingSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # Pop related data from validated_data
-        produced_items = validated_data.pop('produced_items', [])
-        component_items = validated_data.pop('component_items', [])
-
+        produced_items = validated_data.pop('produceditem_set', [])
+        component_items = validated_data.pop('componentitem_set', [])
         # Create the ProductionTracking instance
         production = ProductionTracking.objects.create(**validated_data)
 
@@ -116,8 +115,8 @@ class ProductionTrackingSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         # Pop related data from validated_data
-        produced_items = validated_data.pop('produced_items', [])
-        component_items = validated_data.pop('component_items', [])
+        produced_items = validated_data.pop('produceditem_set', [])
+        component_items = validated_data.pop('componentitem_set', [])
 
         # Update the BillOfMaterials instance fields
         for attr, value in validated_data.items():

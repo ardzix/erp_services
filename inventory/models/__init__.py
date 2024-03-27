@@ -131,6 +131,7 @@ class Product(BaseModelGeneric):
         ('fifo', _("FIFO - First in first out of buy price history")),
         ('lifo', _("LIFO - Last in first out of buy price history")),
         ('average', _("Average - Average of buy price history")),
+        ('highest', _("Highest buy price - Get the highest buy price between two purchase")),
         ('production_cost', _(
             "Production Cost - Form direct material cost, labour cost, and manufacturing overhead")),
     ]
@@ -203,13 +204,10 @@ class Product(BaseModelGeneric):
             self.purchasing_unit = self.smallest_unit
         super().save(*args, **kwargs)
 
-    def get_purchase_item_history(self, exclude_zero_stock=True):
-        stocks = WarehouseStock.objects.filter(product=self)
-        if exclude_zero_stock:
-            stocks = stocks.exclude(quantity=0)
-        items = StockMovementItem.objects.filter(id__in=stocks.values_list(
-            'inbound_movement_item', flat=True)).order_by('-created_at')
-        return items
+    def get_inbound_movement_item_history(self, exclude_zero_stock=True):
+        return StockMovementItem.objects.filter(
+            product=self, 
+            stock_movement__destination_type__model='warehouse').order_by('-id')
 
     class Meta:
         ordering = ['-id']
@@ -228,12 +226,12 @@ class Product(BaseModelGeneric):
     def phsycal_quantity_amount(self):
         qty = 0
         for stock in WarehouseStock.objects.filter(product=self, quantity__gt=0):
-            qty += stock.quantity * stock.unit.conversion_to_top_level()
+            qty += stock.quantity * stock.unit.conversion_to_ancestor(self.smallest_unit.id)
         return int(qty)
 
     @property
     def previous_buy_price(self):
-        buy_price_history = self.get_purchase_item_history(
+        buy_price_history = self.get_inbound_movement_item_history(
             exclude_zero_stock=False).values('buy_price')
         return buy_price_history[1]['buy_price'] if buy_price_history.count() > 1 else None
 
