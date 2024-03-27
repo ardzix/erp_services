@@ -24,7 +24,7 @@ class CategoryFilter(django_filters.FilterSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    lookup_field = 'id32'
+    lookup_field = 'number'
     permission_classes = [permissions.IsAuthenticated,
                           permissions.DjangoModelPermissions]
     pagination_class = CustomPagination
@@ -34,20 +34,19 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class AccountFilter(django_filters.FilterSet):
-    category_id32 = django_filters.CharFilter(field_name='category__id32', lookup_expr='exact')
     category_number = django_filters.NumberFilter(field_name='category__number', lookup_expr='exact')
     number = django_filters.CharFilter(lookup_expr='iexact')
 
     class Meta:
         model = Account
-        fields = ['category_id32', 'category_number', 'number']
+        fields = ['category_number', 'number']
 
 
 
 class AccountViewSet(viewsets.ModelViewSet):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
-    lookup_field = 'id32'
+    lookup_field = 'number'
     permission_classes = [permissions.IsAuthenticated,
                           permissions.DjangoModelPermissions]
     pagination_class = CustomPagination

@@ -3,21 +3,45 @@ from ..models import Category, Account, Tax, GeneralLedger, JournalEntry
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    parent_number = serializers.SlugRelatedField(
+        slug_field="number",
+        queryset=Category.objects.all(),
+        source="parent",
+        required=False,
+        write_only=True)
+    
+    def to_representation(self, instance):
+        to_representation = super().to_representation(instance)
+        if instance.parent:
+            to_representation["parent"] = {
+                "number": instance.parent.number,
+                "str": instance.parent.__str__(),
+            }
+        return to_representation
     class Meta:
         model = Category
-        fields = ["id32", "number", "name", "description"]
-        read_only_fields = ["id32"]
+        fields = ["parent_number", "parent", "number", "name", "description"]
+        read_only_fields = ["parent"]
 
 class AccountSerializer(serializers.ModelSerializer):
-    category_id32 = serializers.SlugRelatedField(
-        slug_field="id32",
+    category_number = serializers.SlugRelatedField(
+        slug_field="number",
         queryset=Category.objects.all(),
         source="category",
-        required=True,)
+        required=True,
+        write_only=True)
+    
+    def to_representation(self, instance):
+        to_representation = super().to_representation(instance)
+        to_representation["category"] = {
+            "number": instance.category.number,
+            "str": instance.category.__str__(),
+        }
+        return to_representation
     class Meta:
         model = Account
-        fields = ["id32", "category", "category_id32", "number", "name", "description"]
-        read_only_fields = ["id32", "category"]
+        fields = ["category", "category_number", "number", "name", "description"]
+        read_only_fields = ["category"]
 
 
 class TaxSerializer(serializers.ModelSerializer):
