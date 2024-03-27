@@ -1,205 +1,1718 @@
 [
     {
-        "model": "accounting.account",
+        "model": "accounting.category",
+        "pk": 1,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Cash and Cash Equivalents",
-            "description": "Cash in hand and demand deposits"
+            "number": 1,
+            "name": "Harta",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 2,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 11,
+            "name": "Kas",
+            "parent": 1,
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 1,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Accounts Receivable",
-            "description": "Amounts owed by customers"
+            "number": "1100-00-010",
+            "category": 2,
+            "name": "Kas Kecil",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 2,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Inventory",
-            "description": "Goods available for sale"
+            "number": "1100-00-020",
+            "category": 2,
+            "name": "Kas",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 3,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Prepaid Expenses",
-            "description": "Expenses paid in advance for future periods"
+            "number": "1100-00-030",
+            "category": 2,
+            "name": "Kas (USD)",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 3,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 12,
+            "name": "Bank",
+            "parent": 1,
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 4,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Short-Term Investments",
-            "description": "Investments that will be converted to cash within a year"
+            "number": "1200-00-010",
+            "category": 3,
+            "name": "Bank",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 5,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Property, Plant, and Equipment",
-            "description": "Tangible fixed assets"
+            "number": "1200-00-020",
+            "category": 3,
+            "name": "Bank (USD)",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 4,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 13,
+            "name": "Piutang Dagang",
+            "parent": 1,
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 6,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Intangible Assets",
-            "description": "Non-physical assets like patents and copyrights"
+            "number": "1300-00-010",
+            "category": 4,
+            "name": "Piutang Giro",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 7,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Long-Term Investments",
-            "description": "Investments held for longer than a year"
-        }
-    },
-
-    {
-        "model": "accounting.account",
-        "fields": {
-            "created_at": "2023-09-12T00:00:00Z",
-            "created_by_id": 1,
-            "created_at_timestamp": 1681488000,
-            "name": "Accounts Payable",
-            "description": "Amounts owed to suppliers"
+            "number": "1300-00-020",
+            "category": 4,
+            "name": "Piutang Usaha",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 8,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Accrued Liabilities",
-            "description": "Liabilities for expenses incurred but not yet paid"
+            "number": "1300-00-021",
+            "category": 4,
+            "name": "Piutang Sementara",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 9,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Short-Term Debt",
-            "description": "Debts due within one year"
+            "number": "1300-00-030",
+            "category": 4,
+            "name": "Piutang Usaha (USD)",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 10,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Long-Term Debt",
-            "description": "Debts due in more than one year"
-        }
-    },
-
-    {
-        "model": "accounting.account",
-        "fields": {
-            "created_at": "2023-09-12T00:00:00Z",
-            "created_by_id": 1,
-            "created_at_timestamp": 1681488000,
-            "name": "Common Stock",
-            "description": "Value of issued common shares"
+            "number": "1300-00-031",
+            "category": 4,
+            "name": "Piutang Sementara (USD)",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 11,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Retained Earnings",
-            "description": "Cumulative earnings kept for reinvestment"
+            "number": "1300-00-040",
+            "category": 4,
+            "name": "Cadangan Kerugian Piutang",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 12,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Additional Paid-In Capital",
-            "description": "Amount received from the issuance of shares above par value"
-        }
-    },
-
-    {
-        "model": "accounting.account",
-        "fields": {
-            "created_at": "2023-09-12T00:00:00Z",
-            "created_by_id": 1,
-            "created_at_timestamp": 1681488000,
-            "name": "Sales Revenue",
-            "description": "Income from primary operations"
+            "number": "1300-00-050",
+            "category": 4,
+            "name": "Piutang Non Usaha",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 13,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Cost of Goods Sold",
-            "description": "Cost associated with producing goods"
+            "number": "1300-00-098",
+            "category": 4,
+            "name": "Uang Muka Pembelian",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 14,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Operating Expenses",
-            "description": "General and administrative expenses"
+            "number": "1300-00-099",
+            "category": 4,
+            "name": "Uang Muka Pembelian (USD)",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 5,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 14,
+            "name": "Persediaan",
+            "parent": 1,
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 15,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Interest Expense",
-            "description": "Cost of borrowing money"
+            "number": "1400-00-010",
+            "category": 5,
+            "name": "Persediaan 1",
+            "description": ""
         }
     },
     {
         "model": "accounting.account",
+        "pk": 16,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
             "created_by_id": 1,
             "created_at_timestamp": 1681488000,
-            "name": "Tax Expense",
-            "description": "Taxes on profits"
+            "number": "1400-00-020",
+            "category": 5,
+            "name": "Persediaan 2",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 17,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1400-00-030",
+            "category": 5,
+            "name": "Persediaan 3",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 18,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1400-00-040",
+            "category": 5,
+            "name": "Persediaan 4",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 19,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1400-00-098",
+            "category": 5,
+            "name": "Persediaan Dalam Perjalanan Beli",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 20,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1400-00-099",
+            "category": 5,
+            "name": "Persediaan Dalam Perjalanan Jual",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 6,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 15,
+            "name": "Biaya Dibayar Dimuka",
+            "parent": 1,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 21,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1500-00-010",
+            "category": 6,
+            "name": "Pajak Dibayar di Muka",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 22,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1500-00-020",
+            "category": 6,
+            "name": "Asuransi Dibayar di Muka",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 7,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 16,
+            "name": "Investasi Jangka Panjang",
+            "parent": 1,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 23,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1600-00-010",
+            "category": 7,
+            "name": "Investasi Saham",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 24,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1600-00-020",
+            "category": 7,
+            "name": "Investasi Obligasi",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 8,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 17,
+            "name": "Harta Tetap Berwujud",
+            "parent": 1,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 25,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-010",
+            "category": 8,
+            "name": "Tanah",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 26,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-020",
+            "category": 8,
+            "name": "Bangunan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 27,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-021",
+            "category": 8,
+            "name": "Akumulasi Penyusutan Bangunan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 28,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-030",
+            "category": 8,
+            "name": "Mesin dan Peralatan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 29,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-031",
+            "category": 8,
+            "name": "Akumulasi Penyusutan Mesin dan Peralatan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 30,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-040",
+            "category": 8,
+            "name": "Mebel dan Alat Tulis Kantor",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 31,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-041",
+            "category": 8,
+            "name": "Akumulasi Penyusutan Mebel dan ATK",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 32,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-050",
+            "category": 8,
+            "name": "Kendaraan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 33,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-051",
+            "category": 8,
+            "name": "Akumulasi Penyusutan Kendaraan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 34,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-070",
+            "category": 8,
+            "name": "Harta Lainnya",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 35,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1700-00-071",
+            "category": 8,
+            "name": "Akumulasi Penyusutan Harta Lainnya",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 9,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 18,
+            "name": "Harta Tetap Tidak Berwujud",
+            "parent": 1,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 36,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1800-00-010",
+            "category": 9,
+            "name": "Hak Merek",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 37,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1800-00-020",
+            "category": 9,
+            "name": "Hak Cipta",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 38,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1800-00-030",
+            "category": 9,
+            "name": "Good Will",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 10,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 19,
+            "name": "Harta Lainnya",
+            "parent": 1,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 39,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1900-00-020",
+            "category": 10,
+            "name": "Biaya Pra Operasi dan Operasi",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 40,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "1900-00-021",
+            "category": 10,
+            "name": "Akumulasi Amortisasi Pra Operasi dan Operasi",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 11,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 2,
+            "name": "Kewajiban",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 12,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 21,
+            "name": "Hutang Lancar",
+            "parent": 11,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 41,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-010",
+            "category": 12,
+            "name": "Wesel Bayar",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 42,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-015",
+            "category": 12,
+            "name": "Hutang Giro",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 43,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-020",
+            "category": 12,
+            "name": "Hutang Usaha",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 44,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-025",
+            "category": 12,
+            "name": "Hutang Usaha (USD)",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 45,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-030",
+            "category": 12,
+            "name": "Hutang Konsinyasi",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 46,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-040",
+            "category": 12,
+            "name": "Uang Muka Penjualan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 47,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-055",
+            "category": 12,
+            "name": "Hutang Deviden",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 48,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-060",
+            "category": 12,
+            "name": "Hutang Bunga",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 49,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-065",
+            "category": 12,
+            "name": "Biaya yang Masih Harus Dibayar",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 50,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-075",
+            "category": 12,
+            "name": "Kartu Kredit",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 51,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-080",
+            "category": 12,
+            "name": "Hutang Pajak Penjualan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 52,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-082",
+            "category": 12,
+            "name": "Hutang Komisi Penjualan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 53,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-085",
+            "category": 12,
+            "name": "Hutang Gaji",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 54,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-098",
+            "category": 12,
+            "name": "Uang Muka Penjualan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 55,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2100-00-099",
+            "category": 12,
+            "name": "Uang Muka Penjualan (USD)",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 13,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 22,
+            "name": "Pendapatan yang diterima di muka",
+            "parent": 11,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 56,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2200-00-010",
+            "category": 13,
+            "name": "Sewa Diterima di Muka",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 14,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 23,
+            "name": "Hutang Jangka Panjang",
+            "parent": 11,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 57,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2300-00-010",
+            "category": 14,
+            "name": "Pinjaman Hipotik",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 58,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "2300-00-020",
+            "category": 14,
+            "name": "Hutang Bank",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 15,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 3,
+            "name": "Modal",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 16,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 31,
+            "name": "Modal",
+            "parent": 16,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 59,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "3100-00-010",
+            "category": 16,
+            "name": "Saham Preferen",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 60,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "3100-00-020",
+            "category": 16,
+            "name": "Modal Disetor",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 61,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "3100-00-030",
+            "category": 16,
+            "name": "Saham Biasa",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 17,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 32,
+            "name": "Laba",
+            "parent": 15,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 62,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "3200-00-010",
+            "category": 17,
+            "name": "Laba ditahan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 63,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "3200-00-020",
+            "category": 17,
+            "name": "Laba Tahun Berjalan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 64,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "3200-00-099",
+            "category": 17,
+            "name": "Historical Balancing",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 18,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 4,
+            "name": "Pendapatan",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 19,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 41,
+            "name": "Pendapatan Usaha",
+            "parent": 18,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 65,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "4100-00-010",
+            "category": 19,
+            "name": "Penjualan Produk 1",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 66,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "4100-00-020",
+            "category": 19,
+            "name": "Penjualan Produk 2",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 67,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "4100-00-030",
+            "category": 19,
+            "name": "Penjualan Produk 3",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 20,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 42,
+            "name": "Pendapatan Lain",
+            "parent": 18,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 68,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "4200-00-040",
+            "category": 20,
+            "name": "Penjualan Lain",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 69,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "4200-00-070",
+            "category": 20,
+            "name": "Potongan Penjualan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 70,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "4200-00-080",
+            "category": 20,
+            "name": "Pendapatan Denda Keterlambatan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 71,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "4200-00-090",
+            "category": 20,
+            "name": "Pendapatan atas Pengantaran",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 21,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 5,
+            "name": "Biaya atas Pendapatan",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 22,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 51,
+            "name": "Biaya Produksi",
+            "parent": 21,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 72,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "5100-00-010",
+            "category": 22,
+            "name": "Biaya 1",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 73,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "5100-00-020",
+            "category": 22,
+            "name": "Biaya 2",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 74,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "5100-00-030",
+            "category": 22,
+            "name": "Biaya 3",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 75,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "5100-00-040",
+            "category": 22,
+            "name": "Komisi Penjualan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 76,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "5100-00-070",
+            "category": 22,
+            "name": "Potongan Pembelian",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 77,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "5100-00-080",
+            "category": 22,
+            "name": "Biaya atas Pengiriman Barang",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 23,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 52,
+            "name": "Biaya Lain",
+            "parent": 21,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 78,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "5200-00-010",
+            "category": 23,
+            "name": "Kerugian Piutang",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 79,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "5200-00-020",
+            "category": 23,
+            "name": "Biaya Denda Keterlambatan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 80,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "5200-00-030",
+            "category": 23,
+            "name": "Kerusakan dan Kegagalan Material",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 24,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 6,
+            "name": "Pengeluaran Operasional",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 25,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 61,
+            "name": "Biaya Operasional",
+            "parent": 24,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 81,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6100-00-010",
+            "category": 25,
+            "name": "Gaji Direksi dan Karyawan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 82,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6100-00-030",
+            "category": 25,
+            "name": "Listrik, Air dan Telpon",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 83,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6100-00-050",
+            "category": 25,
+            "name": "Promosi dan Iklan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 84,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6100-00-060",
+            "category": 25,
+            "name": "Administrasi Kantor",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 26,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 66,
+            "name": "Biaya Non Operasional",
+            "parent": 24,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 85,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6600-00-010",
+            "category": 26,
+            "name": "Penyusutan Bangunan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 86,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6600-00-011",
+            "category": 26,
+            "name": "Penyusutan Mesin dan Peralatan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 87,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6600-00-012",
+            "category": 26,
+            "name": "Penyusutan Mebel dan ATK",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 88,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6600-00-013",
+            "category": 26,
+            "name": "Penyusutan Kendaraan",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 89,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6600-00-015",
+            "category": 26,
+            "name": "Penyusutan Harta Lainnya",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 90,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "6600-00-016",
+            "category": 26,
+            "name": "Amortisasi Pra Operasi dan Operasi",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 27,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 4200,
+            "name": "Pendapatan Lain",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 29,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 8100,
+            "name": "Pendapatan Luar Usaha",
+            "parent": 27,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 91,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "8100-00-020",
+            "category": 29,
+            "name": "Laba Rugi Selisih Kurs",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 92,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "8100-00-030",
+            "category": 29,
+            "name": "Hasil Sewa",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 28,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 9100,
+            "name": "Pengeluaran Lain",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 30,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 9100,
+            "name": "Pengeluaran Luar Usaha",
+            "parent": 28,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 93,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "9100-00-010",
+            "category": 30,
+            "name": "Biaya Bunga",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 94,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "9100-00-011",
+            "category": 30,
+            "name": "Jasa Bank",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 27,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 8,
+            "name": "Pendapatan Lain",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 29,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 81,
+            "name": "Pendapatan Luar Usaha",
+            "parent": 27,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 91,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "8100-00-020",
+            "category": 29,
+            "name": "Laba Rugi Selisih Kurs",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 92,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "8100-00-030",
+            "category": 29,
+            "name": "Hasil Sewa",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 28,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 9,
+            "name": "Pengeluaran Lain",
+            "parent": null,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.category",
+        "pk": 30,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": 91,
+            "name": "Pengeluaran Luar Usaha",
+            "parent": 28,
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 93,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "9100-00-010",
+            "category": 30,
+            "name": "Biaya Bunga",
+            "description": ""
+        }
+    },
+    {
+        "model": "accounting.account",
+        "pk": 94,
+        "fields": {
+            "created_at": "2023-09-12T00:00:00Z",
+            "created_by_id": 1,
+            "created_at_timestamp": 1681488000,
+            "number": "9100-00-011",
+            "category": 30,
+            "name": "Jasa Bank",
+            "description": ""
         }
     }
 ]

@@ -1,8 +1,9 @@
 from rest_framework.routers import DefaultRouter
-from .views import AccountViewSet, TaxViewSet, TransactionViewSet, JournalEntryViewSet, GeneralLedgerViewSet
+from .views import CategoryViewSet, AccountViewSet, TaxViewSet, TransactionViewSet, JournalEntryViewSet, GeneralLedgerViewSet
 from .views.reports import TransactionSaleReportViewSet
 
 router = DefaultRouter()
+router.register('category', CategoryViewSet, basename='category')
 router.register('account', AccountViewSet, basename='account')
 router.register('tax', TaxViewSet, basename='tax')
 router.register('transaction', TransactionViewSet, basename='transaction')

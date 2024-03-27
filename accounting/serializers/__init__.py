@@ -1,12 +1,23 @@
 from rest_framework import serializers
-from ..models import Account, Tax, GeneralLedger, JournalEntry
+from ..models import Category, Account, Tax, GeneralLedger, JournalEntry
 
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id32", "number", "name", "description"]
+        read_only_fields = ["id32"]
 
 class AccountSerializer(serializers.ModelSerializer):
+    category_id32 = serializers.SlugRelatedField(
+        slug_field="id32",
+        queryset=Category.objects.all(),
+        source="category",
+        required=True,)
     class Meta:
         model = Account
-        fields = ["id32", "parent", "name", "description"]
-        read_only_fields = ["id32"]
+        fields = ["id32", "category", "category_id32", "number", "name", "description"]
+        read_only_fields = ["id32", "category"]
 
 
 class TaxSerializer(serializers.ModelSerializer):

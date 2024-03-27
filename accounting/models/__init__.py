@@ -5,9 +5,32 @@ from common.models import File
 from ..helpers.constant import *
 
 
-class Account(BaseModelGeneric):
+class Category(BaseModelGeneric):
+    number = models.PositiveIntegerField(help_text=_("Enter category number"))
+    name = models.CharField(
+        max_length=100, help_text=_("Enter the category name"))
     parent = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True)
+    description = models.TextField(
+        blank=True, help_text=_("Enter the category description"))
+
+    def __str__(self):
+        return _("Account Category #{number} - {category_name}").format(
+            number=self.number,
+            category_name=self.name
+        )
+
+    class Meta:
+        ordering = ['number']
+        verbose_name = _("Category")
+        verbose_name_plural = _("Categories")
+
+
+class Account(BaseModelGeneric):
+    number = models.CharField(
+        max_length=20, help_text=_("Enter account number"))
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
 

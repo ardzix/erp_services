@@ -1,13 +1,47 @@
 from django.utils.translation import gettext_lazy as _
+from django_filters import rest_framework as django_filters
 from rest_framework import viewsets, mixins, status, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from libs.pagination import CustomPagination
-from ..models import Account, Tax, Transaction, JournalEntry, GeneralLedger
-from ..serializers import AccountSerializer, TaxSerializer, JournalEntrySerializer, GeneralLedgerSerializer
+from ..models import Category, Account, Tax, Transaction, JournalEntry, GeneralLedger
+from ..serializers import AccountSerializer, CategorySerializer,  TaxSerializer, JournalEntrySerializer, GeneralLedgerSerializer
 from ..serializers.transaction import TransactionListSerializer, TransactionSerializer
 
-# Create your views here.
+
+
+
+class CategoryFilter(django_filters.FilterSet):
+    number = django_filters.CharFilter(lookup_expr='exact')
+    parent_number = django_filters.CharFilter(field_name='parent__number', lookup_expr='exact')
+
+    class Meta:
+        model = Category
+        fields = ['number', 'parent_number']
+
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = 'id32'
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
+    pagination_class = CustomPagination
+    filterset_class = CategoryFilter
+    filter_backends = (filters.SearchFilter, django_filters.DjangoFilterBackend, filters.OrderingFilter,)
+
+
+
+class AccountFilter(django_filters.FilterSet):
+    category_id32 = django_filters.CharFilter(field_name='category__id32', lookup_expr='exact')
+    category_number = django_filters.NumberFilter(field_name='category__number', lookup_expr='exact')
+    number = django_filters.CharFilter(lookup_expr='iexact')
+
+    class Meta:
+        model = Account
+        fields = ['category_id32', 'category_number', 'number']
+
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -17,7 +51,8 @@ class AccountViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,
                           permissions.DjangoModelPermissions]
     pagination_class = CustomPagination
-    filter_backends = (filters.OrderingFilter,)
+    filterset_class = AccountFilter
+    filter_backends = (filters.SearchFilter, django_filters.DjangoFilterBackend, filters.OrderingFilter,)
 
 
 class TaxViewSet(viewsets.ModelViewSet):
