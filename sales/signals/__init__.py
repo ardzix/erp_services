@@ -180,8 +180,8 @@ def generate_visit_report(sender, instance, **kwargs):
         # If there's an existing report, just update. Else, create a new one.
         report, created = CustomerVisitReport.objects.get_or_create(
             customer_visit=instance,
-            created_by=instance.created_by,
             defaults={
+                "created_by": instance.created_by,
                 "trip": instance.trip,
                 "customer": instance.customer,
                 "status": instance.status,
@@ -456,14 +456,6 @@ def ensure_trip_vehicle_has_warehouse(sender, instance, **kwargs):
         if instance.vehicle and not instance.vehicle.warehouse:
             raise ValidationError(
                 _('Vehicle must have an associated warehouse to start the trip.'))
-
-
-@receiver(pre_save, sender=CustomerVisit)
-def ensure_trip_status_on_progress(sender, instance, **kwargs):
-    # 2. CustomerVisit status can only be changed if Trip status is ON_PROGRESS.
-    if instance.status != WAITING and instance.trip.status != ON_PROGRESS:
-        raise ValidationError(
-            _('CustomerVisit status can only be changed if associated Trip status is ON_PROGRESS.'))
 
 
 @receiver(pre_save, sender=CustomerVisit)

@@ -39,7 +39,7 @@ def commit_base_price(product, buy_price):
     Commits a new base price for a product based on its purchasing unit and buy price.
     """
     if buy_price and product.purchasing_unit:
-        base_price = buy_price / product.purchasing_unit.conversion_to_top_level()
+        base_price = buy_price / product.purchasing_unit.conversion_to_ancestor(product.purchasing_unit.id)
         if base_price != product.base_price:
             product.base_price = base_price
             product.save()
@@ -48,25 +48,37 @@ def commit_base_price(product, buy_price):
 def update_product_base_price(product):
     """
     Updates the base price of the given product based on FIFO or LIFO calculation methodology.
-    """
-    items = product.get_inbound_movement_item_history()
-    if product.price_calculation in ['fifo', 'lifo']:
-        buy_price = items.aggregate(max_price=models.Max('buy_price'))['max_price']
-        if buy_price:
-            commit_base_price(product, buy_price)
 
-
-
-@receiver(post_save, sender=Product)
-def change_global_stock(sender, instance, created, **kwargs):
+    Computes the product's base price using the specified methodology: highest, average, fifo, or lifo.
     """
-    Updates product quantity if there's a change in its smallest unit of measurement.
-    """
-    if not created and instance.previous_smallest_unit and instance.previous_smallest_unit != instance.smallest_unit:
-        smallest_conversion = instance.previous_smallest_unit.conversion_to_top_level(
-        ) / instance.smallest_unit.conversion_to_top_level()
-        instance.quantity = instance.quantity * smallest_conversion
-        instance.save()
+
+    items = product.get_purchase_item_history()[:2]  # Fetch the latest two items, if available
+
+    # Function to handle 'average' calculation method
+    def average_price():
+        return items.aggregate(max_price=models.Avg('buy_price'))['max_price'] if items else None
+
+    # Function to handle 'highest' calculation method
+    def highest_price():
+        return items.aggregate(max_price=models.Max('buy_price'))['max_price'] if items else None
+
+    # Mapping price calculation methods to their corresponding logic
+    calculation_methods = {
+        'average': average_price,
+        'highest': highest_price,
+        'fifo': lambda: items[1].buy_price if len(items) == 2 else (items[0].buy_price if items else None),
+        'lifo': lambda: items[0].buy_price if items else None,
+    }
+
+    # Get the calculation method from the instance
+    calculation_method = calculation_methods.get(product.price_calculation, lambda: None)
+    
+    # Calculate buy_price using the selected method
+    buy_price = calculation_method()
+    
+    # If a buy_price was determined, update the instance's base price
+    if buy_price:
+        commit_base_price(product, buy_price)
 
 
 @receiver(post_save, sender=Product)
@@ -86,7 +98,6 @@ def calculate_product_base_price_by_smi(sender, instance, created, **kwargs):
     """
     if instance.status in [StockMovementItem.CHECKED, StockMovementItem.FINISHED]:
         update_product_base_price(instance.product)
-
 
 
 @receiver(post_save, sender=Product)
