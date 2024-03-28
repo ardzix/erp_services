@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from libs.admin import ApproveRejectMixin, BaseAdmin
@@ -68,17 +69,36 @@ class AccountAdmin(BaseAdmin):
     list_filter = [ParentCategoryAccountFilter, CategoryFilter]
 
 
+
+
+class JournalEntryInline(admin.TabularInline):
+    model = JournalEntry
+    extra = 1
+    fields = ['account', 'journal', 'amount', 'debit_credit', 'is_allocation']
+    raw_id_fields = ['account']
+    verbose_name_plural = _("Allocations")
+
 @admin.register(Transaction)
 class TransactionAdmin(BaseAdmin):
     list_display = ['account', 'transaction_date',
+                    'amount', 'created_at']
+    fields = ['account', 'transaction_date',
+                    'origin', 'origin_id','origin_type', 
                     'amount', 'description', 'created_at']
-    list_filter = ['account']
+    list_filter = ['account','transaction_type']
+    raw_id_fields = ['account']
+    readonly_fields = ['origin']
+    inlines = [JournalEntryInline]
 
 
 @admin.register(JournalEntry)
 class JournalEntryAdmin(BaseAdmin):
     list_display = ['transaction', 'journal',
                     'amount', 'debit_credit', 'created_at']
+    fields = ['transaction', 'journal', 'account',
+                    'amount', 'debit_credit', 'is_allocation']
+    
+    raw_id_fields = ['transaction', 'account']
     list_filter = ['journal']
 
 

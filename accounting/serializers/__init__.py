@@ -52,10 +52,25 @@ class TaxSerializer(serializers.ModelSerializer):
 
 
 class JournalEntrySerializer(serializers.ModelSerializer):
+    account_number = serializers.SlugRelatedField(
+        slug_field="number",
+        queryset=Account.objects.all(),
+        source="account",
+        required=True,
+        write_only=True)
+    
+    def to_representation(self, instance):
+        to_representation = super().to_representation(instance)
+        to_representation["account"] = {
+            "number": instance.account.number,
+            "str": instance.account.__str__(),
+        }
+        return to_representation
+    
     class Meta:
         model = JournalEntry
-        fields = ["id32", "transaction", "journal", "amount", "debit_credit"]
-        read_only_fields = ["id32"]
+        fields = ["id32", "account_number", "account", "journal", "amount", "debit_credit", "is_allocation"]
+        read_only_fields = ["id32", "account", "debit_credit", "is_allocation"]
 
 
 class GeneralLedgerSerializer(serializers.ModelSerializer):

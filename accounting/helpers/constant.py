@@ -54,3 +54,6 @@ JOURNAL_DEBIT_MAP = (
     (SALE, AR_ACCOUNT),
     (PURCHASE, AP_ACCOUNT),
 )
+
+CASH_IN = "cash_in"
+CASH_OUT = "cash_out"

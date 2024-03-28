@@ -63,7 +63,7 @@ def update_general_ledger(account, amount, transaction_type):
 
     # Retrieve or create the general ledger entry for the account
     ledger, _ = GeneralLedger.objects.get_or_create(account=account)
-
+    print(ledger, amount, transaction_type)
     # Update the ledger balance
     if transaction_type == DEBIT:
         ledger.balance += Decimal(amount)
