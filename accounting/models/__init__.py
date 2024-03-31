@@ -58,6 +58,7 @@ class Account(BaseModelGeneric):
     class Meta:
         verbose_name = _("Account")
         verbose_name_plural = _("Accounts")
+        ordering = ['number']
 
 
 class Transaction(BaseModelGeneric):
@@ -91,6 +92,7 @@ class Transaction(BaseModelGeneric):
     class Meta:
         verbose_name = _("Transaction")
         verbose_name_plural = _("Transactions")
+        ordering = ['-id']
 
 
 class JournalEntry(BaseModelGeneric):
@@ -113,6 +115,7 @@ class JournalEntry(BaseModelGeneric):
     class Meta:
         verbose_name = _("Journal Entry")
         verbose_name_plural = _("Journal Entries")
+        ordering = ['-id']
 
 
 class GeneralLedger(BaseModelGeneric):
@@ -125,6 +128,7 @@ class GeneralLedger(BaseModelGeneric):
     class Meta:
         verbose_name = _("General Ledger")
         verbose_name_plural = _("General Ledgers")
+        ordering = ['-id']
 
 
 class FinancialStatement(BaseModelGeneric):
@@ -137,6 +141,7 @@ class FinancialStatement(BaseModelGeneric):
     class Meta:
         verbose_name = _("Financial Statement")
         verbose_name_plural = _("Financial Statements")
+        ordering = ['-id']
 
 
 class FinancialEntry(BaseModelGeneric):
@@ -151,3 +156,4 @@ class FinancialEntry(BaseModelGeneric):
     class Meta:
         verbose_name = _("Financial Entry")
         verbose_name_plural = _("Financial Entries")
+        ordering = ['-id']

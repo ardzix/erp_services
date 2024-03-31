@@ -51,24 +51,29 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
             JournalEntry.objects.create(transaction=transaction, **allocation_data)
 
         return transaction
-
+    
     def update(self, instance, validated_data):
-        allocations_data = validated_data.pop('allocations', [])
+        allocations_data = validated_data.pop('journalentry_set', [])
         origin_type = validated_data.pop('origin_type', None)
         origin_id32 = validated_data.pop('origin_id32', None)
 
+        # Update Transaction instance fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+        instance.save()
 
         # Handle the 'origin' using ContentType
         self.handle_origin(instance, origin_type, origin_id32)
 
-        # Update or create related JournalEntry instances
-        JournalEntry.objects.filter(transaction=instance).delete()
+        # Delete existing JournalEntry instances
+        instance.journalentry_set.all().delete()
+
+        # Create new JournalEntry instances
         for allocation_data in allocations_data:
             JournalEntry.objects.create(transaction=instance, **allocation_data)
 
         return instance
+
 
     class Meta:
         model = Transaction
