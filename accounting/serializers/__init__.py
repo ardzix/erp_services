@@ -2,6 +2,19 @@ from rest_framework import serializers
 from ..models import Category, Account, Tax, GeneralLedger, JournalEntry
 
 
+class AccountRepresentationMixin:
+
+    def to_representation(self, instance):
+        to_representation = super().to_representation(instance)
+        to_representation["account"] = {
+            "number": instance.account.number,
+            "category": instance.account.category.parent.__str__(),
+            "sub_category": instance.account.category.__str__(),
+            "str": instance.account.__str__(),
+        }
+        return to_representation
+
+
 class CategorySerializer(serializers.ModelSerializer):
     parent_number = serializers.SlugRelatedField(
         slug_field="number",
@@ -9,7 +22,7 @@ class CategorySerializer(serializers.ModelSerializer):
         source="parent",
         required=False,
         write_only=True)
-    
+
     def to_representation(self, instance):
         to_representation = super().to_representation(instance)
         if instance.parent:
@@ -18,10 +31,12 @@ class CategorySerializer(serializers.ModelSerializer):
                 "str": instance.parent.__str__(),
             }
         return to_representation
+
     class Meta:
         model = Category
         fields = ["parent_number", "parent", "number", "name", "description"]
         read_only_fields = ["parent"]
+
 
 class AccountSerializer(serializers.ModelSerializer):
     category_number = serializers.SlugRelatedField(
@@ -30,7 +45,7 @@ class AccountSerializer(serializers.ModelSerializer):
         source="category",
         required=True,
         write_only=True)
-    
+
     def to_representation(self, instance):
         to_representation = super().to_representation(instance)
         to_representation["category"] = {
@@ -38,9 +53,11 @@ class AccountSerializer(serializers.ModelSerializer):
             "str": instance.category.__str__(),
         }
         return to_representation
+
     class Meta:
         model = Account
-        fields = ["category", "category_number", "number", "name", "description"]
+        fields = ["category", "category_number",
+                  "number", "name", "description"]
         read_only_fields = ["category"]
 
 
@@ -51,29 +68,22 @@ class TaxSerializer(serializers.ModelSerializer):
         read_only_fields = ["id32"]
 
 
-class JournalEntrySerializer(serializers.ModelSerializer):
+class JournalEntrySerializer(AccountRepresentationMixin, serializers.ModelSerializer):
     account_number = serializers.SlugRelatedField(
         slug_field="number",
         queryset=Account.objects.all(),
         source="account",
         required=True,
         write_only=True)
-    
-    def to_representation(self, instance):
-        to_representation = super().to_representation(instance)
-        to_representation["account"] = {
-            "number": instance.account.number,
-            "str": instance.account.__str__(),
-        }
-        return to_representation
-    
+
     class Meta:
         model = JournalEntry
-        fields = ["id32", "account_number", "account", "journal", "amount", "debit_credit", "is_allocation"]
+        fields = ["id32", "account_number", "account",
+                  "journal", "amount", "debit_credit", "is_allocation"]
         read_only_fields = ["id32", "account", "debit_credit", "is_allocation"]
 
 
-class GeneralLedgerSerializer(serializers.ModelSerializer):
+class GeneralLedgerSerializer(AccountRepresentationMixin, serializers.ModelSerializer):
     class Meta:
         model = GeneralLedger
         fields = ["id32", "account", "balance"]

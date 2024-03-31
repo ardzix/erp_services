@@ -33,7 +33,7 @@ class Category(BaseModelGeneric):
         blank=True, help_text=_("Enter the category description"))
 
     def __str__(self):
-        return _("Account Category #{number} - {category_name}").format(
+        return _("#{number} - {category_name}").format(
             number=self.number,
             category_name=self.name
         )
@@ -53,7 +53,7 @@ class Account(BaseModelGeneric):
     description = models.TextField(blank=True)
 
     def __str__(self):
-        return _("Account #{number} - {account_name}").format(number=self.number, account_name=self.name)
+        return _("#{number} - {account_name}").format(number=self.number, account_name=self.name)
 
     class Meta:
         verbose_name = _("Account")
@@ -86,7 +86,7 @@ class Transaction(BaseModelGeneric):
     
 
     def __str__(self):
-        return _("Transaction #{transaction_id} - {transaction_account}").format(transaction_id=self.id32, transaction_account=self.account)
+        return _("#{transaction_id} - {transaction_account}").format(transaction_id=self.id32, transaction_account=self.account)
 
     class Meta:
         verbose_name = _("Transaction")
@@ -108,7 +108,7 @@ class JournalEntry(BaseModelGeneric):
     is_allocation = models.BooleanField(default=True)
 
     def __str__(self):
-        return _("Journal Entry #{entry_id} - {entry_transaction}").format(entry_id=self.id32, entry_transaction=self.transaction)
+        return _("#{entry_id} - {entry_transaction}").format(entry_id=self.id32, entry_transaction=self.transaction)
 
     class Meta:
         verbose_name = _("Journal Entry")

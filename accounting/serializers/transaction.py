@@ -1,20 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 from ..models import Transaction, Account, JournalEntry
-from . import JournalEntrySerializer
+from . import JournalEntrySerializer, AccountRepresentationMixin
 
 
-class TransactionMixin:
-    def to_representation(self, instance):
-        to_representation = super().to_representation(instance)
-        to_representation["account"] = {
-            "number": instance.account.number,
-            "str": instance.account.__str__(),
-        }
-        return to_representation
-
-
-class TransactionSerializer(TransactionMixin, serializers.ModelSerializer):
+class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSerializer):
     account_number = serializers.SlugRelatedField(
         slug_field="number",
         queryset=Account.objects.all(),
@@ -101,7 +91,7 @@ class TransactionSerializer(TransactionMixin, serializers.ModelSerializer):
 
 
 
-class TransactionListSerializer(TransactionMixin, serializers.ModelSerializer):
+class TransactionListSerializer(AccountRepresentationMixin, serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = [
