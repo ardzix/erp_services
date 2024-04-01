@@ -45,9 +45,22 @@ class SMProductLocationSerializer(serializers.ModelSerializer):
 
 
 class StockMovementItemListSerializer(serializers.ModelSerializer):
+    def update(self, instances, validated_data):
+        # Maps for id->instance and id->data item.
+        item_mapping = {item.id32: item for item in instances}
+        data_mapping = {item['id32']: item for item in validated_data}
+
+        # Perform creations and updates.
+        ret = []
+        for item_id, data in data_mapping.items():
+            item = item_mapping.get(item_id, None)
+            if item is not None:
+                ret.append(self.child.update(item, data))
+
+        return ret
     class Meta:
         model = StockMovementItem
-        fields = ['id32', 'product', 'quantity', 'unit',
+        fields = ['id32', 'product', 'quantity', 'unit', 'buy_price',
                   'origin_movement_status', 'destination_movement_status']
 
     def to_representation(self, instance):
@@ -435,20 +448,6 @@ class DistinctStockMovementItemSerializer(serializers.Serializer):
         return SMProductLocationSerializer(ProductLocation.objects.filter(warehouse=stock_movement.destination, product__id32=instance.get('product__id32')), many=True).data
 
 
-class StockMovementItemListSerializer(serializers.ListSerializer):
-    def update(self, instances, validated_data):
-        # Maps for id->instance and id->data item.
-        item_mapping = {item.id32: item for item in instances}
-        data_mapping = {item['id32']: item for item in validated_data}
-
-        # Perform creations and updates.
-        ret = []
-        for item_id, data in data_mapping.items():
-            item = item_mapping.get(item_id, None)
-            if item is not None:
-                ret.append(self.child.update(item, data))
-
-        return ret
 
 
 class StockMovementItemBulkUpdateSerializer(serializers.Serializer):
