@@ -7,9 +7,6 @@ from common.models import File
 from ..helpers.constant import *
 
 
-
-
-
 class Tax(BaseModelGeneric):
     name = models.CharField(max_length=100)
     rate = models.DecimalField(
@@ -23,7 +20,7 @@ class Tax(BaseModelGeneric):
         verbose_name_plural = _("Taxes")
 
 
-class Category(BaseModelGeneric):
+class AccountCategory(BaseModelGeneric):
     number = models.PositiveIntegerField(help_text=_("Enter category number"))
     name = models.CharField(
         max_length=100, help_text=_("Enter the category name"))
@@ -40,15 +37,15 @@ class Category(BaseModelGeneric):
 
     class Meta:
         ordering = ['number']
-        verbose_name = _("Category")
-        verbose_name_plural = _("Categories")
+        verbose_name = _("Account Category")
+        verbose_name_plural = _("Account Categories")
 
 
 class Account(BaseModelGeneric):
     number = models.CharField(
         max_length=20, help_text=_("Enter account number"))
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE)
+        AccountCategory, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
 
@@ -61,20 +58,45 @@ class Account(BaseModelGeneric):
         ordering = ['number']
 
 
-class Transaction(BaseModelGeneric):
-    TRANSACTION_TYPES = [
-        (CASH_IN, _('Cash In')),
-        (CASH_OUT, _('Cash Out')),
-    ]
 
-    transaction_type = models.CharField(
-        max_length=20, choices=TRANSACTION_TYPES, default=CASH_IN)
+
+class TransactionCategory(BaseModelGeneric):
+    name = models.CharField(
+        max_length=100, help_text=_("Enter the category name"))
+    code = models.CharField(
+        max_length=20, help_text=_("Enter the category code"))
+    prefix = models.CharField(
+        blank=True, null=True,
+        max_length=20, help_text=_("Enter the category prefix"))
+    description = models.TextField(
+        blank=True, help_text=_("Enter the category description"))
+
+    def __str__(self):
+        return _("#{id32} - {category_name}").format(
+            id32=self.id32,
+            category_name=self.name
+        )
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = _("Transaction Category")
+        verbose_name_plural = _("Transaction Categories")
+
+
+class Transaction(BaseModelGeneric):
+    number = models.CharField(
+        max_length=100,
+        db_index=True,
+        blank=True,
+        null=True)
+    transaction_type = models.ForeignKey(TransactionCategory, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     transaction_date = models.DateField()
     amount = models.DecimalField(max_digits=19, decimal_places=2)
     description = models.TextField(blank=True)
     attachements = models.ManyToManyField(File, blank=True)
-    allocations = models.ManyToManyField(Account, related_name="account_allocations", through='JournalEntry', help_text=_("Select journal entry as allocations"))
+    allocations = models.ManyToManyField(Account, related_name="account_allocations",
+                                         through='JournalEntry', help_text=_("Select journal entry as allocations"))
     origin_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -84,10 +106,20 @@ class Transaction(BaseModelGeneric):
     origin_id = models.PositiveIntegerField(
         blank=True, null=True, help_text=_("Enter the ID of the origin"))
     origin = GenericForeignKey('origin_type', 'origin_id')
-    
 
     def __str__(self):
         return _("#{transaction_id} - {transaction_account}").format(transaction_id=self.id32, transaction_account=self.account)
+    
+    def save(self, *args, **kwargs):
+        """Overwrite the save method to incorporate custom logic."""
+
+        if not self.number:
+            prev = self.__class__.all_objects.order_by('id').last()
+            obj_id = prev.id + 1 if prev else 1
+            prefix = self.transaction_type.prefix if self.transaction_type.prefix else ""
+            self.number = f'{prefix}{self.account.category.number}{str(obj_id).zfill(6)}'
+
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Transaction")

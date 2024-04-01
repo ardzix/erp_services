@@ -25,7 +25,7 @@ class Category(BaseModelGeneric):
         )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['id']
         verbose_name = _("Category")
         verbose_name_plural = _("Categories")
 

@@ -1,6 +1,6 @@
 [
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 1,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -13,7 +13,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 2,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -65,7 +65,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 3,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -104,7 +104,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 4,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -234,7 +234,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 5,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -325,7 +325,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 6,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -364,7 +364,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 7,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -403,7 +403,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 8,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -559,7 +559,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 9,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -611,7 +611,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 10,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -650,7 +650,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 11,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -663,7 +663,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 12,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -871,7 +871,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 13,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -897,7 +897,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 14,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -936,7 +936,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 15,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -949,7 +949,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 16,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1001,7 +1001,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 17,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1053,7 +1053,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 18,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1066,7 +1066,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 19,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1118,7 +1118,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 20,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1183,7 +1183,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 21,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1196,7 +1196,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 22,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1287,7 +1287,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 23,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1339,7 +1339,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 24,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1352,7 +1352,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 25,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1417,7 +1417,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 26,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1508,7 +1508,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 27,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1521,7 +1521,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 29,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1560,7 +1560,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 28,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1573,7 +1573,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 30,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1612,7 +1612,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 27,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1625,7 +1625,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 29,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1664,7 +1664,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 28,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",
@@ -1677,7 +1677,7 @@
         }
     },
     {
-        "model": "accounting.category",
+        "model": "accounting.accountcategory",
         "pk": 30,
         "fields": {
             "created_at": "2023-09-12T00:00:00Z",

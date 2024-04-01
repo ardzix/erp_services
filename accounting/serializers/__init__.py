@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Category, Account, Tax, GeneralLedger, JournalEntry
+from ..models import AccountCategory, Account, Tax, GeneralLedger, JournalEntry
 
 
 class AccountRepresentationMixin:
@@ -15,10 +15,10 @@ class AccountRepresentationMixin:
         return to_representation
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class AccountCategorySerializer(serializers.ModelSerializer):
     parent_number = serializers.SlugRelatedField(
         slug_field="number",
-        queryset=Category.objects.all(),
+        queryset=AccountCategory.objects.all(),
         source="parent",
         required=False,
         write_only=True)
@@ -33,7 +33,7 @@ class CategorySerializer(serializers.ModelSerializer):
         return to_representation
 
     class Meta:
-        model = Category
+        model = AccountCategory
         fields = ["parent_number", "parent", "number", "name", "description"]
         read_only_fields = ["parent"]
 
@@ -41,7 +41,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class AccountSerializer(serializers.ModelSerializer):
     category_number = serializers.SlugRelatedField(
         slug_field="number",
-        queryset=Category.objects.all(),
+        queryset=AccountCategory.objects.all(),
         source="category",
         required=True,
         write_only=True)

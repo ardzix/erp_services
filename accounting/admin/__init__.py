@@ -1,11 +1,11 @@
 from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
-from libs.admin import ApproveRejectMixin, BaseAdmin
-from ..models import Category, Account, Transaction, JournalEntry, GeneralLedger, FinancialStatement, FinancialEntry
+from libs.admin import BaseAdmin
+from ..models import AccountCategory, Account, TransactionCategory, Transaction, JournalEntry, GeneralLedger, FinancialStatement, FinancialEntry
 
 
-class ParentCategoryFilter(SimpleListFilter):
+class ParentAccountCategoryFilter(SimpleListFilter):
     title = 'parent'  # or use _('parent') for i18n
     parameter_name = 'parent'
 
@@ -16,7 +16,7 @@ class ParentCategoryFilter(SimpleListFilter):
         human-readable name for the option that will appear in the right sidebar.
         """
         # Customize this queryset to list only the parents you want to filter by
-        parents = Category.objects.filter(
+        parents = AccountCategory.objects.filter(
             parent__isnull=True).order_by('number')
         return [(parent.id, f'{parent.number} {parent.name}') for parent in parents]
 
@@ -29,7 +29,9 @@ class ParentCategoryFilter(SimpleListFilter):
             # Filter the queryset based on the selected parent category
             return queryset.filter(parent__id=self.value())
         return queryset
-class ParentCategoryAccountFilter(ParentCategoryFilter):
+
+
+class ParentAccountCategoryAccountFilter(ParentAccountCategoryFilter):
 
     def queryset(self, request, queryset):
         if self.value():
@@ -38,13 +40,13 @@ class ParentCategoryAccountFilter(ParentCategoryFilter):
         return queryset
 
 
-class CategoryFilter(SimpleListFilter):
+class AccountCategoryFilter(SimpleListFilter):
     title = 'category'  # or use _('parent') for i18n
     parameter_name = 'category'
 
     def lookups(self, request, model_admin):
         # Customize this queryset to list only the parents you want to filter by
-        categories = Category.objects.filter(
+        categories = AccountCategory.objects.filter(
             parent__isnull=False).order_by('number')
         return [(category.id, f'{category.number} {category.name}') for category in categories]
 
@@ -55,20 +57,24 @@ class CategoryFilter(SimpleListFilter):
         return queryset
 
 
-
-
-@admin.register(Category)
-class CategoryAdmin(BaseAdmin):
+@admin.register(AccountCategory)
+class AccountCategoryAdmin(BaseAdmin):
     list_display = ['number', 'name']
-    list_filter = [ParentCategoryFilter]
+    list_filter = [ParentAccountCategoryFilter]
+    fields = ['number', 'name', 'description', 'parent']
+
+
+@admin.register(TransactionCategory)
+class TransactionCategoryAdmin(BaseAdmin):
+    list_display = ['code', 'name']
+    fields = ['code', 'name', 'description', 'prefix']
 
 
 @admin.register(Account)
 class AccountAdmin(BaseAdmin):
     list_display = ['number', 'name']
-    list_filter = [ParentCategoryAccountFilter, CategoryFilter]
-
-
+    list_filter = [ParentAccountCategoryAccountFilter, AccountCategoryFilter]
+    fields = ['number', 'category', 'name', 'description']
 
 
 class JournalEntryInline(admin.TabularInline):
@@ -78,14 +84,15 @@ class JournalEntryInline(admin.TabularInline):
     raw_id_fields = ['account']
     verbose_name_plural = _("Allocations")
 
+
 @admin.register(Transaction)
 class TransactionAdmin(BaseAdmin):
-    list_display = ['account', 'transaction_date',
+    list_display = ['number', 'transaction_date',
                     'amount', 'created_at']
-    fields = ['account', 'transaction_date',
-                    'origin', 'origin_id','origin_type', 
-                    'amount', 'description', 'created_at']
-    list_filter = ['account','transaction_type']
+    fields = ['number', 'account', 'transaction_date', 'transaction_type',
+              'origin', 'origin_id', 'origin_type',
+              'amount', 'description', 'created_at']
+    list_filter = ['account', 'transaction_type']
     raw_id_fields = ['account']
     readonly_fields = ['origin']
     inlines = [JournalEntryInline]
@@ -96,8 +103,8 @@ class JournalEntryAdmin(BaseAdmin):
     list_display = ['transaction', 'journal',
                     'amount', 'debit_credit', 'created_at']
     fields = ['transaction', 'journal', 'account',
-                    'amount', 'debit_credit', 'is_allocation']
-    
+              'amount', 'debit_credit', 'is_allocation']
+
     raw_id_fields = ['transaction', 'account']
     list_filter = ['journal']
 
