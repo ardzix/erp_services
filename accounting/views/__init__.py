@@ -30,6 +30,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filterset_class = CategoryFilter
     filter_backends = (filters.SearchFilter,
                        django_filters.DjangoFilterBackend, filters.OrderingFilter,)
+    search_fields = ['number', 'name']
 
 
 class AccountFilter(django_filters.FilterSet):
@@ -52,6 +53,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     filterset_class = AccountFilter
     filter_backends = (filters.SearchFilter,
                        django_filters.DjangoFilterBackend, filters.OrderingFilter,)
+    search_fields = ['number', 'name']
 
 
 class TaxViewSet(viewsets.ModelViewSet):
