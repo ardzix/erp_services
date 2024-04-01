@@ -36,7 +36,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class AccountFilter(django_filters.FilterSet):
     category_number = django_filters.NumberFilter(
         field_name='category__number', lookup_expr='exact')
+    category_number = django_filters.NumberFilter(method='filter_category_number',
+                                                          help_text='Put exact account category number to filter')
     number = django_filters.CharFilter(lookup_expr='iexact')
+
+    def filter_category_number(self, queryset, name, value):
+        if value:
+            return queryset.filter(Q(category__number=value) | Q(category__parent__number=value))
 
     class Meta:
         model = Account
