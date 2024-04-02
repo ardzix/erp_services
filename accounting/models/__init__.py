@@ -90,7 +90,7 @@ class Transaction(BaseModelGeneric):
         blank=True,
         null=True)
     transaction_type = models.ForeignKey(TransactionCategory, on_delete=models.CASCADE)
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.SET_NULL, blank=True, null=True)
     transaction_date = models.DateField()
     amount = models.DecimalField(max_digits=19, decimal_places=2)
     description = models.TextField(blank=True)

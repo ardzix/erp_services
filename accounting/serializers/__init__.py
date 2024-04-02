@@ -6,12 +6,13 @@ class AccountRepresentationMixin:
 
     def to_representation(self, instance):
         to_representation = super().to_representation(instance)
-        to_representation["account"] = {
-            "number": instance.account.number,
-            "category": instance.account.category.parent.__str__(),
-            "sub_category": instance.account.category.__str__(),
-            "str": instance.account.__str__(),
-        }
+        if instance.account:
+            to_representation["account"] = {
+                "number": instance.account.number,
+                "category": instance.account.category.parent.__str__(),
+                "sub_category": instance.account.category.__str__(),
+                "str": instance.account.__str__(),
+            }
         return to_representation
 
 
