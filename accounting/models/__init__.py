@@ -135,7 +135,7 @@ class JournalEntry(BaseModelGeneric):
 
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    journal = models.CharField(max_length=100)
+    journal = models.TextField(blank=True, null=True)
     amount = models.DecimalField(max_digits=19, decimal_places=2)
     debit_credit = models.CharField(
         max_length=10, choices=DEBIT_CREDIT_CHOICES, blank=True, null=True)

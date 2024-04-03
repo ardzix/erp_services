@@ -80,8 +80,8 @@ class JournalEntrySerializer(AccountRepresentationMixin, serializers.ModelSerial
     class Meta:
         model = JournalEntry
         fields = ["id32", "account_number", "account",
-                  "journal", "amount", "debit_credit", "is_allocation"]
-        read_only_fields = ["id32", "account", "debit_credit", "is_allocation"]
+                  "journal", "amount", "debit_credit"]
+        read_only_fields = ["id32", "account"]
 
 
 class GeneralLedgerSerializer(AccountRepresentationMixin, serializers.ModelSerializer):
