@@ -388,8 +388,11 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
-        sales_orders = SalesOrder.objects.filter(
-            id32__in=validated_data.pop('salesorder_id32s'))
+        if 'salesorder_id32s' in validated_data:
+            sales_orders = SalesOrder.objects.filter(
+                id32__in=validated_data.pop('salesorder_id32s'))
+        else:
+            sales_orders = []
         movement_evidence = validated_data.pop(
             'movement_evidence_id32') if 'movement_evidence_id32' in validated_data else None
         validated_data['movement_evidence'] = movement_evidence
