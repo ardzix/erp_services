@@ -1,5 +1,6 @@
 from django.db.models import F, Sum
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from common.serializers import UserListSerializer
 from common.models import File
@@ -299,8 +300,11 @@ class SalesOrderSerializer(SalesOrderListSerializer):
             unit_instance = Unit.objects.get(id32=unit.get('id32'))
             # Add the actual product to the item_data
             item_data['unit'] = unit_instance
-            OrderItem.objects.create(
-                order=sales_order, **item_data)
+            try:
+                OrderItem.objects.create(
+                    order=sales_order, **item_data)
+            except ValidationError as e:
+                raise serializers.ValidationError(e.message_dict)
 
         return sales_order
 

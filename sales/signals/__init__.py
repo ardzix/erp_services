@@ -45,7 +45,6 @@ from ..models import (
 # 10. generate_invoice_pdf_from_order_items: Generate invoice PDF if `OrderItem` is saved
 # 11. set_sales_order_to_processing: Associate SalesOrder's status is set to 'PROCESSING' and its approve() method is called
 # 12. set_sales_order_to_completed: Set the associated CustomerVisit's SalesOrder's status is set to 'COMPLETED'
-# 13. deduct_stock_on_so_processing: Deduct stock when sales order set to 'PROCESSING' if config says so
 
 # ~ Trip ~
 # 13. populate_trip_customer_from_template: Populates the trip's customers from a template when a new Trip instance is created.
