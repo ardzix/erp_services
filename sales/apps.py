@@ -7,5 +7,6 @@ class SalesConfig(AppConfig):
     icon_name = 'attach_money'
 
     def ready(self):
-        import sales.signals  # noqa
+        import sales.signals  
+        import sales.signals.addson 
 

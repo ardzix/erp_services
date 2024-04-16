@@ -1,11 +1,10 @@
-from pdb import post_mortem
 from django.db.models.signals import pre_save, post_save, pre_delete
+from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.db import models
-from django.dispatch import receiver
-from libs.constants import WAITING, ON_PROGRESS, COMPLETED, SKIPPED
+from libs.constants import WAITING, COMPLETED, SKIPPED
 from libs.utils import add_one_day
 from inventory.models import Product, StockMovementItem, WarehouseStock
 from ..helpers.sales_order import (canvasing_create_stock_movement,
@@ -46,6 +45,7 @@ from ..models import (
 # 10. generate_invoice_pdf_from_order_items: Generate invoice PDF if `OrderItem` is saved
 # 11. set_sales_order_to_processing: Associate SalesOrder's status is set to 'PROCESSING' and its approve() method is called
 # 12. set_sales_order_to_completed: Set the associated CustomerVisit's SalesOrder's status is set to 'COMPLETED'
+# 13. deduct_stock_on_so_processing: Deduct stock when sales order set to 'PROCESSING' if config says so
 
 # ~ Trip ~
 # 13. populate_trip_customer_from_template: Populates the trip's customers from a template when a new Trip instance is created.
@@ -103,6 +103,7 @@ def check_salesorder_before_approved(sender, instance, **kwargs):
     instance.unapproved_before = False
     instance.visit_before = False
     so_before = SalesOrder.objects.filter(pk=instance.pk).last()
+    instance.so_before = so_before
     if so_before:
         instance.approved_before = True if so_before.approved_at and so_before.approved_by else False
         instance.unapproved_before = True if so_before.unapproved_at and so_before.unapproved_by else False
