@@ -58,6 +58,7 @@ class ProductValidator:
 
 class ProductListSerializer(serializers.ModelSerializer):
     picture = serializers.SerializerMethodField()
+    quantity = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -66,6 +67,9 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     def get_picture(self, object):
         return object.picture.file.url if object.picture and object.picture.file else None
+    
+    def get_quantity(self, object):
+        return object.phsycal_quantity
 
 
 class SupplierSerializer(SupplierProductSerializer):
@@ -95,7 +99,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         fields = [
             'name', 'sku', 'description', 'last_buy_price', 'previous_buy_price', 'base_price', 'sell_price',
             'margin_type', 'margin_value', 'brand_str',
-            'category', 'quantity', 'phsycal_quantity', 'smallest_unit', 'purchasing_unit',
+            'category', 'phsycal_quantity', 'smallest_unit', 'purchasing_unit',
             'product_type', 'price_calculation', 'brand', 'minimum_quantity',
             'is_active', 'picture', 'suppliers'
             # add or remove fields as needed
@@ -141,7 +145,7 @@ class ProductEditSerializer(ProductValidator, serializers.ModelSerializer):
         fields = [
             'name', 'sku', 'description', 'base_price', 'sell_price',
             'margin_type', 'margin_value', 'brand_str',
-            'category_id32', 'quantity', 'smallest_unit_id32', 'purchasing_unit_id32',
+            'category_id32', 'smallest_unit_id32', 'purchasing_unit_id32',
             'product_type', 'price_calculation', 'brand_id32', 'minimum_quantity',
             'is_active'
             # add or remove fields as needed
