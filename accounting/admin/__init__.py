@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from libs.admin import BaseAdmin
-from ..models import AccountCategory, Account, TransactionCategory, Transaction, JournalEntry, GeneralLedger, FinancialStatement, FinancialEntry
+from ..models import AccountCategory, Account, TransactionCategory, Transaction, JournalEntry, GeneralLedger, ModuleAccount, FinancialStatement, FinancialEntry
 
 
 class ParentAccountCategoryFilter(SimpleListFilter):
@@ -98,6 +98,21 @@ class TransactionAdmin(BaseAdmin):
     inlines = [JournalEntryInline]
 
 
+@admin.register(ModuleAccount)
+class ModuleAccountAdmin(BaseAdmin):
+    list_display = ['name', 'transaction', 'account']
+    fields = ['name', 'transaction', 'account',
+              'debit_credit']
+
+    raw_id_fields = ['account']
+    list_filter = ['transaction']
+
+
+@admin.register(GeneralLedger)
+class GeneralLedgerAdmin(BaseAdmin):
+    list_display = ['account', 'balance']
+    list_filter = []
+
 @admin.register(JournalEntry)
 class JournalEntryAdmin(BaseAdmin):
     list_display = ['transaction', 'journal',
@@ -107,12 +122,6 @@ class JournalEntryAdmin(BaseAdmin):
 
     raw_id_fields = ['transaction', 'account']
     list_filter = ['journal']
-
-
-@admin.register(GeneralLedger)
-class GeneralLedgerAdmin(BaseAdmin):
-    list_display = ['account', 'balance']
-    list_filter = []
 
 
 @admin.register(FinancialStatement)

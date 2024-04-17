@@ -128,10 +128,6 @@ class Transaction(BaseModelGeneric):
 
 
 class JournalEntry(BaseModelGeneric):
-    DEBIT_CREDIT_CHOICES = [
-        (DEBIT, _('Debit')),
-        (CREDIT, _('Credit'))
-    ]
 
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
@@ -161,6 +157,25 @@ class GeneralLedger(BaseModelGeneric):
         verbose_name = _("General Ledger")
         verbose_name_plural = _("General Ledgers")
         ordering = ['-id']
+
+
+class ModuleAccount(BaseModelGeneric):
+    name = models.CharField(
+        unique=True, max_length=100, choices=TRANSACTION_MODULE_CHOICES, help_text=_("Enter the module account name"))
+    transaction = models.CharField(
+        max_length=25, choices=TRANSACTION_CHOICES, help_text=_("Enter the transaction"))
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    debit_credit = models.CharField(
+        max_length=10, choices=DEBIT_CREDIT_CHOICES, default=DEBIT)
+
+    def __str__(self):
+        return _("Module Account #{id32} - {name}").format(id32=self.id32, name=dict(TRANSACTION_CHOICES).get(self.name))
+
+    class Meta:
+        unique_together = ('transaction', 'account')
+        verbose_name = _("Module Account")
+        verbose_name_plural = _("Module Accounts")
+        ordering = ['name']
 
 
 class FinancialStatement(BaseModelGeneric):

@@ -8,7 +8,7 @@ from django.utils import timezone
 from datetime import timedelta
 from ..models import Transaction
 from ..filters import TransactionFilter
-from ..helpers.constant import SALE
+from ..helpers.constant import SALES_ORDER
 
 class TransactionSaleReportViewSet(viewsets.ViewSet):
     """
@@ -21,7 +21,7 @@ class TransactionSaleReportViewSet(viewsets.ViewSet):
         """
         Restricts the returned sales to transactions marked as SALE.
         """
-        queryset = Transaction.objects.filter(transaction_type=SALE)
+        queryset = Transaction.objects.filter(transaction_type=SALES_ORDER)
         return queryset
 
     @action(detail=False, methods=['get'], url_path='sales-statistics')
