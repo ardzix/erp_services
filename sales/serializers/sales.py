@@ -19,7 +19,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['id32', 'product_id32', 'product_name', 'unit_id32', 'unit_symbol', 'quantity', 'price']
-        read_only_fields = ['id32', 'price', 'product_name', 'unit_symbol']
+        read_only_fields = ['id32', 'product_name', 'unit_symbol']
 
     def validate(self, data):
         validated_data = super().validate(data)
