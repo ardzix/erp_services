@@ -36,13 +36,15 @@ def generate_financial_report_entries(sender, instance, created, **kwargs):
     financial_statement = instance.financial_statement
     financial_entries = financial_statement.financialentry_set.all()
     for entry in financial_entries:
-        journals = JournalEntry.objects.filter(account__category__parent=entry.category)
-        amount = journals.aggregate(total_amount=models.Sum('amount')).get('total_amount')
-        FinancialReportEntry.objects.get_or_create(
-            financial_report = instance,
-            entry = entry,
-            category = entry.category,
-            defaults={
-                "amount": amount if amount else 0
-            }
-        )
+        for category in AccountCategory.objects.filter(parent=entry.category):
+            journals = JournalEntry.objects.filter(account__category=category)
+            amount = journals.aggregate(total_amount=models.Sum('amount')).get('total_amount')
+            if amount:
+                FinancialReportEntry.objects.get_or_create(
+                    financial_report = instance,
+                    entry = entry,
+                    category = category,
+                    defaults={
+                        "amount": amount
+                    }
+                )
