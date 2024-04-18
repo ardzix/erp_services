@@ -1,9 +1,11 @@
+import uuid
 from django.contrib.gis.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
 from libs.base_model import BaseModelGeneric, User
+from libs.utils import uuid_to_base62
 from common.models import File
 from identities.models import Brand
 from django.db.models import Sum
@@ -144,7 +146,7 @@ class Product(BaseModelGeneric):
         max_length=100, help_text=_("Enter the product name"))
     alias = models.CharField(max_length=100, blank=True, null=True, help_text=_(
         "Enter the product alias name"))
-    sku = models.CharField(max_length=100, blank=True, null=True, help_text=_(
+    sku = models.CharField(max_length=100, blank=True, null=True, unique=True, help_text=_(
         "Enter the product stock keeping unit or barcode"))
     description = models.TextField(
         blank=True,
@@ -203,6 +205,8 @@ class Product(BaseModelGeneric):
     def save(self, *args, **kwargs):
         if not self.purchasing_unit:
             self.purchasing_unit = self.smallest_unit
+        if not self.sku:
+            self.sku = uuid_to_base62(uuid.uuid4())
         super().save(*args, **kwargs)
 
     def get_inbound_movement_item_history(self, exclude_zero_stock=True):

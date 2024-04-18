@@ -2,6 +2,7 @@ from django.contrib.gis.geos import Point
 from rest_framework import serializers
 from common.models import File, Configuration
 from datetime import timedelta
+import base64
 
 TRUE = ['true', 'True', 1, True]
 FALSE = ['false', 'False', 0, False]
@@ -87,3 +88,9 @@ def handle_location(validated_data):
         validated_data['location'] = Point(
             float(longitude), float(latitude))
     return validated_data
+
+def uuid_to_base62(uuid):
+    # Convert UUID to bytes, remove the UUID's hyphens, then encode
+    uuid_bytes = uuid.bytes
+    base62_uuid = base64.b64encode(uuid_bytes).rstrip(b'=').decode('ascii')
+    return base62_uuid.replace('+', '-').replace('/', '_')
