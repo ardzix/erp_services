@@ -48,6 +48,7 @@ class Account(BaseModelGeneric):
         AccountCategory, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    inverse_debit_credit = models.BooleanField(default=False)
 
     def __str__(self):
         return _("#{number} - {account_name}").format(number=self.number, account_name=self.name)
@@ -56,8 +57,6 @@ class Account(BaseModelGeneric):
         verbose_name = _("Account")
         verbose_name_plural = _("Accounts")
         ordering = ['number']
-
-
 
 
 class TransactionCategory(BaseModelGeneric):
@@ -89,8 +88,10 @@ class Transaction(BaseModelGeneric):
         db_index=True,
         blank=True,
         null=True)
-    transaction_type = models.ForeignKey(TransactionCategory, on_delete=models.CASCADE)
-    account = models.ForeignKey(Account, on_delete=models.SET_NULL, blank=True, null=True)
+    transaction_type = models.ForeignKey(
+        TransactionCategory, on_delete=models.CASCADE)
+    account = models.ForeignKey(
+        Account, on_delete=models.SET_NULL, blank=True, null=True)
     transaction_date = models.DateField()
     amount = models.DecimalField(max_digits=19, decimal_places=2)
     description = models.TextField(blank=True)
@@ -109,7 +110,7 @@ class Transaction(BaseModelGeneric):
 
     def __str__(self):
         return _("#{transaction_id} - {transaction_account}").format(transaction_id=self.id32, transaction_account=self.account)
-    
+
     def save(self, *args, **kwargs):
         """Overwrite the save method to incorporate custom logic."""
 
@@ -138,7 +139,7 @@ class JournalEntry(BaseModelGeneric):
     is_allocation = models.BooleanField(default=True)
 
     def __str__(self):
-        return _("#{entry_id} - {entry_transaction}").format(entry_id=self.id32, entry_transaction=self.transaction)
+        return _("#{entry_id} - {account}").format(entry_id=self.id32, account=self.account)
 
     class Meta:
         verbose_name = _("Journal Entry")
@@ -181,6 +182,7 @@ class ModuleAccount(BaseModelGeneric):
 class FinancialStatement(BaseModelGeneric):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    categories = models.ManyToManyField(AccountCategory, through='FinancialEntry')
 
     def __str__(self):
         return _("Financial Statement #{statement_id} - {statement_name}").format(statement_id=self.id32, statement_name=self.name)
@@ -188,19 +190,56 @@ class FinancialStatement(BaseModelGeneric):
     class Meta:
         verbose_name = _("Financial Statement")
         verbose_name_plural = _("Financial Statements")
-        ordering = ['-id']
+        ordering = ['name']
 
 
 class FinancialEntry(BaseModelGeneric):
     financial_statement = models.ForeignKey(
         FinancialStatement, on_delete=models.CASCADE)
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=19, decimal_places=2)
+    category = models.ForeignKey(AccountCategory, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return _("Financial Entry #{entry_id} - {entry_statement}").format(entry_id=self.id32, entry_statement=self.financial_statement)
+        return _("{statement}: {account}").format(statement=self.financial_statement.__str__(), account=self.category.__str__())
 
     class Meta:
         verbose_name = _("Financial Entry")
         verbose_name_plural = _("Financial Entries")
+        ordering = ['order']
+
+
+
+class FinancialReport(BaseModelGeneric):
+    financial_statement = models.ForeignKey(
+        FinancialStatement, on_delete=models.CASCADE)
+    start_date = models.DateField(help_text=_("Start date of the report"))
+    end_date = models.DateField(help_text=_("End date of the report"))
+
+    def __str__(self):
+        return _("Financial Report #{statement_id} - {statement_name} - {start_date}-{end_date}").format(
+            statement_id=self.id32, 
+            statement_name=self.financial_statement.name, 
+            start_date=self.start_date, 
+            end_date=self.end_date, )
+
+    class Meta:
+        unique_together = ('financial_statement', 'start_date', 'end_date')
+        verbose_name = _("Financial Report")
+        verbose_name_plural = _("Financial Reports")
         ordering = ['-id']
+
+
+class FinancialReportEntry(BaseModelGeneric):
+    financial_report = models.ForeignKey(
+        FinancialReport, on_delete=models.CASCADE)
+    entry = models.ForeignKey(FinancialEntry, on_delete=models.CASCADE)
+    category = models.ForeignKey(AccountCategory, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=19, decimal_places=2)
+
+    def __str__(self):
+        return _("{report}: {account}").format(report=self.financial_report.__str__(), account=self.category.__str__())
+
+    class Meta:
+        verbose_name = _("Financial Report Entry")
+        verbose_name_plural = _("Financial Report Entries")
+        ordering = ['entry__order']

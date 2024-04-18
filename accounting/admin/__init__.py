@@ -2,7 +2,9 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from libs.admin import BaseAdmin
-from ..models import AccountCategory, Account, TransactionCategory, Transaction, JournalEntry, GeneralLedger, ModuleAccount, FinancialStatement, FinancialEntry
+from ..models import (AccountCategory, Account, TransactionCategory, Transaction,
+                      JournalEntry, GeneralLedger, ModuleAccount, FinancialStatement,
+                      FinancialReport, FinancialReportEntry, FinancialEntry)
 
 
 class ParentAccountCategoryFilter(SimpleListFilter):
@@ -74,7 +76,8 @@ class TransactionCategoryAdmin(BaseAdmin):
 class AccountAdmin(BaseAdmin):
     list_display = ['number', 'name']
     list_filter = [ParentAccountCategoryAccountFilter, AccountCategoryFilter]
-    fields = ['number', 'category', 'name', 'description']
+    fields = ['number', 'category', 'name',
+              'description', 'inverse_debit_credit']
 
 
 class JournalEntryInline(admin.TabularInline):
@@ -113,6 +116,7 @@ class GeneralLedgerAdmin(BaseAdmin):
     list_display = ['account', 'balance']
     list_filter = []
 
+
 @admin.register(JournalEntry)
 class JournalEntryAdmin(BaseAdmin):
     list_display = ['transaction', 'journal',
@@ -124,13 +128,31 @@ class JournalEntryAdmin(BaseAdmin):
     list_filter = ['journal']
 
 
+class FinancialEntryInline(admin.TabularInline):
+    model = FinancialEntry
+    extra = 1
+    fields = ['category', 'order']
+    raw_id_fields = ['category']
+
+
 @admin.register(FinancialStatement)
 class FinancialStatementAdmin(BaseAdmin):
-    list_display = ['name', 'description']
+    list_display = ['name']
     list_filter = []
+    fields = ['name', 'description']
+    inlines = [FinancialEntryInline]
 
 
-@admin.register(FinancialEntry)
-class FinancialEntryAdmin(BaseAdmin):
-    list_display = ['financial_statement', 'account', 'amount']
-    list_filter = ['financial_statement']
+class FinancialReportEntryInline(admin.TabularInline):
+    model = FinancialReportEntry
+    extra = 1
+    fields = ['entry', 'category', 'amount']
+    read_only_fields = ['entry', 'category', 'amount']
+
+
+@admin.register(FinancialReport)
+class FinancialReportAdmin(BaseAdmin):
+    list_display = ['financial_statement', 'start_date', 'end_date']
+    list_filter = []
+    fields = ['financial_statement', 'start_date', 'end_date']
+    inlines = [FinancialReportEntryInline]

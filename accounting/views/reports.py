@@ -1,12 +1,15 @@
-from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_filters import rest_framework as django_filters
+from rest_framework import viewsets, permissions, filters
+from libs.pagination import CustomPagination
 from django.db.models import Sum, Value, DecimalField
 from django.db.models.functions import TruncDay, TruncMonth, Coalesce
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from datetime import timedelta
-from ..models import Transaction
+from ..models import Transaction, FinancialReport
+from ..serializers.report import FinancialReportSerializer, FinancialReportListSerializer
 from ..filters import TransactionFilter
 from ..helpers.constant import SALES_ORDER
 
@@ -73,3 +76,29 @@ class TransactionSaleReportViewSet(viewsets.ViewSet):
         for backend in list(self.filter_backends):
             queryset = backend().filter_queryset(self.request, queryset, view=self)
         return queryset
+
+
+
+class FinancialReporttFilter(django_filters.FilterSet):
+    financial_statement_id32 = django_filters.CharFilter(field_name='financial_statement__id32', lookup_expr='iexact',
+                                               help_text='Put financial statement id32 to filter')
+
+    class Meta:
+        model = FinancialReport
+        fields = ['financial_statement_id32']
+
+
+class FinancialReportViewSet(viewsets.ModelViewSet):
+    queryset = FinancialReport.objects.all()
+    lookup_field = 'id32'
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
+    pagination_class = CustomPagination
+    filterset_class = FinancialReporttFilter
+    filter_backends = (filters.SearchFilter,
+                       django_filters.DjangoFilterBackend, filters.OrderingFilter,)
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return FinancialReportListSerializer
+        return FinancialReportSerializer

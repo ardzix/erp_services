@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save, pre_save
+from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-from ..models import JournalEntry, Transaction
+from ..models import Account, AccountCategory, FinancialReportEntry, JournalEntry, Transaction, FinancialReport
 from ..helpers.transaction import update_general_ledger
 from ..helpers.constant import *
 
@@ -30,3 +31,18 @@ def assign_debit_credit(sender, instance, created, **kwargs):
         if commit:
             instance.save()
 
+@receiver(post_save, sender=FinancialReport)
+def generate_financial_report_entries(sender, instance, created, **kwargs):
+    financial_statement = instance.financial_statement
+    financial_entries = financial_statement.financialentry_set.all()
+    for entry in financial_entries:
+        journals = JournalEntry.objects.filter(account__category__parent=entry.category)
+        amount = journals.aggregate(total_amount=models.Sum('amount')).get('total_amount')
+        FinancialReportEntry.objects.get_or_create(
+            financial_report = instance,
+            entry = entry,
+            category = entry.category,
+            defaults={
+                "amount": amount if amount else 0
+            }
+        )
