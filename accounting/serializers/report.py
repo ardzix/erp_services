@@ -7,7 +7,7 @@ from ..models import AccountCategory, FinancialReport, FinancialStatement, Finan
 class FinancialStatementSerializer(serializers.ModelSerializer):
     class Meta:
         model = FinancialStatement
-        fields = ["name", "description"]
+        fields = ["id32", "name", "description"]
 
 
 class FinancialReportEntrySerializer(serializers.ModelSerializer):
@@ -102,6 +102,6 @@ class FinancialReportSerializer(serializers.ModelSerializer):
 class FinancialReportListSerializer(FinancialReportSerializer):
     class Meta:
         model = FinancialReport
-        fields = ["id32", "financial_statement",
+        fields = ["id32", "financial_statement", "financial_statement_id32",
                   "start_date", "end_date"]
         read_only_fields = ["id32", "financial_statement"]

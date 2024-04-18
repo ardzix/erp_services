@@ -110,6 +110,6 @@ class FinancialReportViewSet(viewsets.ModelViewSet):
                        django_filters.DjangoFilterBackend, filters.OrderingFilter,)
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action in ['list', 'create']:
             return FinancialReportListSerializer
         return FinancialReportSerializer
