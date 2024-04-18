@@ -9,4 +9,5 @@ class SalesConfig(AppConfig):
     def ready(self):
         import sales.signals  
         import sales.signals.addson 
+        import sales.signals.accounting 
 

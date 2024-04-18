@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
 from libs.base_model import BaseModelGeneric, User
-from libs.utils import uuid_to_base62
+from libs.utils import hash_uuid
 from common.models import File
 from identities.models import Brand
 from django.db.models import Sum
@@ -206,7 +206,7 @@ class Product(BaseModelGeneric):
         if not self.purchasing_unit:
             self.purchasing_unit = self.smallest_unit
         if not self.sku:
-            self.sku = uuid_to_base62(uuid.uuid4())
+            self.sku = hash_uuid(uuid.uuid4())
         super().save(*args, **kwargs)
 
     def get_inbound_movement_item_history(self, exclude_zero_stock=True):

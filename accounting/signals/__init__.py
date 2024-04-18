@@ -11,7 +11,7 @@ from ..helpers.constant import *
 
 @receiver(post_save, sender=Transaction)
 def generate_journal_entry(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.account:
         JournalEntry.objects.create(
             transaction=instance,
             account=instance.account,

@@ -109,16 +109,17 @@ class Transaction(BaseModelGeneric):
     origin = GenericForeignKey('origin_type', 'origin_id')
 
     def __str__(self):
-        return _("#{transaction_id} - {transaction_account}").format(transaction_id=self.id32, transaction_account=self.account)
+        return self.number
 
     def save(self, *args, **kwargs):
         """Overwrite the save method to incorporate custom logic."""
 
         if not self.number:
+            category_number = self.account.category.number if self.account else '00'
             prev = self.__class__.all_objects.order_by('id').last()
             obj_id = prev.id + 1 if prev else 1
             prefix = self.transaction_type.prefix if self.transaction_type.prefix else ""
-            self.number = f'{prefix}{self.account.category.number}{str(obj_id).zfill(6)}'
+            self.number = f'{prefix}{category_number}{str(obj_id).zfill(6)}'
 
         super().save(*args, **kwargs)
 
