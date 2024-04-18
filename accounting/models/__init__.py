@@ -129,7 +129,6 @@ class Transaction(BaseModelGeneric):
 
 
 class JournalEntry(BaseModelGeneric):
-
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     journal = models.TextField(blank=True, null=True)
@@ -214,6 +213,8 @@ class FinancialReport(BaseModelGeneric):
         FinancialStatement, on_delete=models.CASCADE)
     start_date = models.DateField(help_text=_("Start date of the report"))
     end_date = models.DateField(help_text=_("End date of the report"))
+    attachment = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_attachment', blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return _("Financial Report #{statement_id} - {statement_name} - {start_date}-{end_date}").format(

@@ -154,5 +154,5 @@ class FinancialReportEntryInline(admin.TabularInline):
 class FinancialReportAdmin(BaseAdmin):
     list_display = ['financial_statement', 'start_date', 'end_date']
     list_filter = []
-    fields = ['financial_statement', 'start_date', 'end_date']
+    fields = ['financial_statement', 'start_date', 'end_date', 'attachment']
     inlines = [FinancialReportEntryInline]
