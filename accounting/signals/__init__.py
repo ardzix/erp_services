@@ -38,7 +38,7 @@ def assign_debit_credit(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=FinancialReport)
 def generate_financial_report_entries(sender, instance, created, **kwargs):
-    from ..serializers.report import FinancialReportSerializer
+    from ..serializers.report_hjk import FinancialReportSerializer
     financial_statement = instance.financial_statement
     financial_entries = financial_statement.financialentry_set.all()
     for entry in financial_entries:
@@ -61,7 +61,7 @@ def generate_financial_report_entries(sender, instance, created, **kwargs):
         context = FinancialReportSerializer(instance).data
         context['tenant_info'] = get_tenant_info()
         pdf_content = render_to_pdf(
-            'document/financial_statement.html', context)
+            'document/financial_statement_hjk.html', context)
         if pdf_content:
             filename = f"Financial Statement_{financial_statement.__str__()}.pdf"
             file = save_pdf_to_file(pdf_content, filename)
