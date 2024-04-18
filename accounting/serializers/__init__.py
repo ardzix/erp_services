@@ -109,3 +109,8 @@ class ModuleAccountSerializer(AccountRepresentationMixin, serializers.ModelSeria
         model = ModuleAccount
         fields = ["id32", "name", "transaction", "account", "debit_credit"]
         read_only_fields = ["id32"]
+
+
+class ModuleAccountTransactionChoiceSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    name = serializers.CharField()

@@ -1,12 +1,14 @@
 from django.utils.translation import gettext_lazy as _
 from django_filters import rest_framework as django_filters
 from django.db.models import Q
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework import viewsets, mixins, permissions, filters
 from libs.pagination import CustomPagination
 from ..models import AccountCategory, Account, Tax, TransactionCategory, Transaction, JournalEntry, GeneralLedger, ModuleAccount
-from ..serializers import AccountSerializer, AccountCategorySerializer, TaxSerializer, JournalEntrySerializer, GeneralLedgerSerializer, ModuleAccountSerializer
+from ..serializers import AccountSerializer, AccountCategorySerializer, TaxSerializer, JournalEntrySerializer, GeneralLedgerSerializer, ModuleAccountSerializer, ModuleAccountTransactionChoiceSerializer
 from ..serializers.transaction import TransactionListSerializer, TransactionSerializer, TransactionCategorySerializer
-from ..helpers.constant import DEBIT_CREDIT_CHOICES, TRANSACTION_CHOICES
+from ..helpers.constant import DEBIT_CREDIT_CHOICES, TRANSACTION_CHOICES, TRANSACTION_MODULE_CHOICES
 
 
 class AccountCategoryFilter(django_filters.FilterSet):
@@ -209,3 +211,12 @@ class ModuleAccountViewSet(viewsets.ModelViewSet):
     filterset_class = ModuleAccountFilter
     filter_backends = (filters.SearchFilter,
                        django_filters.DjangoFilterBackend, filters.OrderingFilter,)
+
+
+class ModuleAccountTransactionChoiceView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        # Convert choices tuple to a format suitable for serialization
+        choices_list = [{'code': choice[0], 'name': choice[1]} for choice in TRANSACTION_MODULE_CHOICES]
+        serializer = ModuleAccountTransactionChoiceSerializer(choices_list, many=True)
+        return Response(serializer.data)
