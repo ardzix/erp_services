@@ -55,7 +55,7 @@ urlpatterns = [
 
     path('api/me/', MeView.as_view(), name='me'),
     path('api/auth/login/', CustomAuthToken.as_view(), name='api-login'),
-    path('api/accounting/module_account/transaction-choices/', ModuleAccountTransactionChoiceView.as_view(), name='accounting_module_account_transaction_choice'),
+    path('api/accounting/module_account/name-choices/', ModuleAccountTransactionChoiceView.as_view(), name='accounting_module_account_name_choice'),
     path('api/accounting/', include(accounting_router.urls)),
     path('api/common/', include(common_router.urls)),
     path('api/hr/', include(hr_router.urls)),
