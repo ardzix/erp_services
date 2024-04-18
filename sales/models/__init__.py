@@ -184,7 +184,7 @@ class SalesOrder(BaseModelGeneric):
     status = models.CharField(
         max_length=255,  # Adjusting for the added descriptions
         choices=STATUS_CHOICES,
-        default=SUBMITTED,
+        default=DRAFT,
         help_text=_('Current status of the sales order.')
     )
     type = models.CharField(

@@ -15,6 +15,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     unit_id32 = serializers.CharField(source='unit.id32')
     unit_symbol = serializers.CharField(source='unit.symbol', read_only=True)
+    price = serializers.DecimalField(max_digits=19, decimal_places=2, required=False)
 
     class Meta:
         model = OrderItem
@@ -40,8 +41,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
         except Unit.DoesNotExist:
             raise serializers.ValidationError(
                 {"unit_id32": "Unit with this id32 does not exist or not suits with the product."})
-
-        validated_data['price'] = unit.conversion_to_top_level() * product.sell_price
+        if 'price' not in validated_data or validated_data['price'] == 0:
+            validated_data['price'] = unit.conversion_to_top_level() * product.sell_price
         return validated_data
 
 
