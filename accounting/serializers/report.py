@@ -53,36 +53,37 @@ class FinancialReportSerializer(serializers.ModelSerializer):
             "str": instance.financial_statement.__str__(),
         }
 
-        # Initialize a dictionary to hold the grouped entries
-        grouped_entries = {}
+        if 'grouped_entries' in to_representation:
+            # Initialize a dictionary to hold the grouped entries
+            grouped_entries = {}
 
-        # Loop through each entry in the serialized data
-        for entry in to_representation['grouped_entries']:
-            parent_category = entry.pop('parent_category')
-            parent_cat_number = parent_category['number']
-            parent_cat_name = parent_category['name']
+            # Loop through each entry in the serialized data
+            for entry in to_representation['grouped_entries']:
+                parent_category = entry.pop('parent_category')
+                parent_cat_number = parent_category['number']
+                parent_cat_name = parent_category['name']
 
-            # Create a key for each unique parent category
-            if parent_cat_number not in grouped_entries:
+                # Create a key for each unique parent category
+                if parent_cat_number not in grouped_entries:
 
-                journals = JournalEntry.objects.filter(
-                    account__category__parent__number=parent_cat_number,
-                    transaction__transaction_date__gte=instance.start_date,
-                    transaction__transaction_date__lte=instance.end_date)
-                total_amount = journals.aggregate(
-                    total_amount=models.Sum('amount')).get('total_amount')
-                grouped_entries[parent_cat_number] = {
-                    "parent_category_number": parent_cat_number,
-                    "parent_category_name": parent_cat_name,
-                    "total_amount": total_amount,
-                    "entries": []
-                }
+                    journals = JournalEntry.objects.filter(
+                        account__category__parent__number=parent_cat_number,
+                        transaction__transaction_date__gte=instance.start_date,
+                        transaction__transaction_date__lte=instance.end_date)
+                    total_amount = journals.aggregate(
+                        total_amount=models.Sum('amount')).get('total_amount')
+                    grouped_entries[parent_cat_number] = {
+                        "parent_category_number": parent_cat_number,
+                        "parent_category_name": parent_cat_name,
+                        "total_amount": total_amount,
+                        "entries": []
+                    }
 
-            # Append the entry to the correct category group
-            grouped_entries[parent_cat_number]['entries'].append(entry)
+                # Append the entry to the correct category group
+                grouped_entries[parent_cat_number]['entries'].append(entry)
 
-        # Replace the original list of entries with the grouped entries
-        to_representation['grouped_entries'] = list(grouped_entries.values())
+            # Replace the original list of entries with the grouped entries
+            to_representation['grouped_entries'] = list(grouped_entries.values())
         return to_representation
 
     class Meta:
