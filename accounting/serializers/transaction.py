@@ -28,10 +28,22 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
     origin_type = serializers.ChoiceField(
         choices=['employee', 'supplier', 'customer'], write_only=True, required=False)
     origin_id32 = serializers.CharField(write_only=True, required=False)
+    allocation_str = serializers.SerializerMethodField()
+
+    def get_allocation_queryset(self, obj):
+        return obj.journalentry_set.filter(is_allocation=True)
 
     def get_allocations_data(self, obj):
-        allocations = obj.journalentry_set.filter(is_allocation=True)
-        return JournalEntrySerializer(allocations, many=True).data
+        return JournalEntrySerializer(self.get_allocation_queryset(obj), many=True).data
+    
+    def get_allocation_str(self, obj):
+        allocations = self.get_allocation_queryset(obj)
+        allocation_str = []
+        for allocation in allocations:
+            allocation_str.append(f'{allocation.account.number} - {allocation.account.name}')
+        return ", ".join(allocation_str)
+
+
 
     def handle_origin(self, instance, origin_type, origin_id32):
         if origin_type and origin_id32:
@@ -100,6 +112,7 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
             'account',
             'account_number',
             'allocations',
+            'allocation_str',
             'allocations_data',
             'amount',
             'attachements',
@@ -113,12 +126,13 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
         read_only_fields = ["id32", "account", "origin"]
 
 
-class TransactionListSerializer(AccountRepresentationMixin, serializers.ModelSerializer):
+class TransactionListSerializer(TransactionSerializer):
     class Meta:
         model = Transaction
         fields = [
             "id32",
             "account",
+            "allocation_str",
             "transaction_date",
             "amount",
             "description",
