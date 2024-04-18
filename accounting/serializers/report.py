@@ -4,6 +4,12 @@ from common.serializers import FileLiteSerializer
 from ..models import AccountCategory, FinancialReport, FinancialStatement, FinancialReportEntry, FinancialEntry, JournalEntry
 
 
+class FinancialStatementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FinancialStatement
+        fields = ["name", "description"]
+
+
 class FinancialReportEntrySerializer(serializers.ModelSerializer):
     parent_category = serializers.SlugRelatedField(
         slug_field='parent',

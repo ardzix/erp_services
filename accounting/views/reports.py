@@ -1,17 +1,28 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as django_filters
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, permissions, filters, mixins
 from libs.pagination import CustomPagination
 from django.db.models import Sum, Value, DecimalField
 from django.db.models.functions import TruncDay, TruncMonth, Coalesce
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from datetime import timedelta
-from ..models import Transaction, FinancialReport
-from ..serializers.report import FinancialReportSerializer, FinancialReportListSerializer
+from ..models import Transaction, FinancialReport, FinancialStatement
+from ..serializers.report import FinancialReportSerializer, FinancialReportListSerializer, FinancialStatementSerializer
 from ..filters import TransactionFilter
 from ..helpers.constant import SALES_ORDER
+
+
+
+
+class FinancialStatementViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = FinancialStatement.objects.all()
+    lookup_field = 'id32'
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
+    pagination_class = CustomPagination
+    serializer_class = FinancialStatementSerializer
 
 class TransactionSaleReportViewSet(viewsets.ViewSet):
     """
