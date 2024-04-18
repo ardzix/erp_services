@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db import models
+from common.serializers import FileLiteSerializer
 from ..models import AccountCategory, FinancialReport, FinancialStatement, FinancialReportEntry, FinancialEntry, JournalEntry
 
 
@@ -43,6 +44,8 @@ class FinancialReportSerializer(serializers.ModelSerializer):
     grouped_entries = FinancialReportEntrySerializer(
         many=True, source='financialreportentry_set')
 
+    attachment = FileLiteSerializer(many=False, read_only=True)
+
     def to_representation(self, instance):
         to_representation = super().to_representation(instance)
         to_representation["financial_statement"] = {
@@ -63,8 +66,8 @@ class FinancialReportSerializer(serializers.ModelSerializer):
             if parent_cat_number not in grouped_entries:
 
                 journals = JournalEntry.objects.filter(
-                    account__category__parent__number=parent_cat_number, 
-                    transaction__transaction_date__gte=instance.start_date, 
+                    account__category__parent__number=parent_cat_number,
+                    transaction__transaction_date__gte=instance.start_date,
                     transaction__transaction_date__lte=instance.end_date)
                 total_amount = journals.aggregate(
                     total_amount=models.Sum('amount')).get('total_amount')
@@ -84,8 +87,8 @@ class FinancialReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FinancialReport
-        fields = ["id32", "financial_statement",
-                  "financial_statement_id32", "start_date", "end_date", "grouped_entries"]
+        fields = ["id32", "financial_statement", "financial_statement_id32",
+                  "start_date", "end_date", "grouped_entries", "attachment"]
         read_only_fields = ["id32", "financial_statement", "grouped_entries"]
 
 
