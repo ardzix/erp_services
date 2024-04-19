@@ -195,6 +195,20 @@ class CustomerSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
+
+class CustomerCreateSerializer(CustomerSerializer):
+    
+
+    class Meta:
+        model = Customer
+        fields = [
+            'id32',
+            'address',
+            'contact_number',
+            'name',
+        ]
+
+        read_only_fields = ['id32']
 class CustomerListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer

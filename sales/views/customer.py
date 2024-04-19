@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets
 from libs.pagination import CustomPagination
-from ..serializers.customer import CustomerSerializer, CustomerListSerializer, CustomerMapSerializer, StoreTypeSerializer
+from ..serializers.customer import CustomerSerializer, CustomerListSerializer, CustomerMapSerializer, StoreTypeSerializer, CustomerCreateSerializer
 from ..models import Customer, StoreType
 
 
@@ -49,6 +49,8 @@ class CustomerViewSet(viewsets.ModelViewSet):
             return CustomerListSerializer
         elif self.action == 'map':
             return CustomerMapSerializer
+        elif self.action == 'create':
+            return CustomerCreateSerializer
         return CustomerSerializer
 
     def create(self, requests, *args, **kwargs):
