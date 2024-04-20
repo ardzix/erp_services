@@ -101,6 +101,10 @@ class Customer(Contact):
 
     def __str__(self):
         return _('Customer #{id32} [{name}]').format(id32=self.id32, name=self.name)
+    
+    def save(self, *args, **kwargs):
+        self.role = "Customer"
+        return super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-id']

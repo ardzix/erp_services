@@ -3,20 +3,10 @@ from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
 from common.models import File
 from inventory.models import Product, StockMovement, Unit, Warehouse
+from identities.models import Contact
 
 
-class Supplier(BaseModelGeneric):
-    name = models.CharField(
-        max_length=100,
-        help_text=_("Enter the supplier's name")
-    )
-    contact_number = models.CharField(
-        max_length=15,
-        help_text=_("Enter the contact number")
-    )
-    address = models.TextField(
-        help_text=_("Enter the address")
-    )
+class Supplier(Contact):
     location = models.PointField(
         geography=True,
         null=True,
@@ -32,6 +22,10 @@ class Supplier(BaseModelGeneric):
         verbose_name=_("Company Profile"),
         help_text=_("Select the company profile for this supplier")
     )
+
+    def save(self, *args, **kwargs):
+        self.role = "Supplier"
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return _("Supplier #{id32} - {name}").format(id32=self.id32, name=self.name)
@@ -115,18 +109,18 @@ class PurchaseOrder(BaseModelGeneric):
 
     def __str__(self):
         return _("Purchase Order #{id32}").format(id32=self.id32)
-    
+
     @property
     def subtotal(self):
         amount = 0
         for item in self.purchaseorderitem_set.all():
             amount += item.subtotal
         return amount
-    
+
     @property
     def subtotal_after_discount(self):
         return self.subtotal - self.discount_amount
-    
+
     @property
     def total(self):
         return self.subtotal_after_discount + self.tax_amount
@@ -222,6 +216,7 @@ class InvalidPOItem(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _("Invalid Purchase Order Item")
         verbose_name_plural = _("Invalid Purchase Order Items")
+
 
 class Shipment(BaseModelGeneric):
     purchase_order = models.ForeignKey(

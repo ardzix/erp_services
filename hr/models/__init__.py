@@ -28,6 +28,10 @@ class Employee(Contact):
 
     def __str__(self):
         return _("Employee #{emp_id} - {emp_name}").format(emp_id=self.id32, emp_name=self.user.username)
+    
+    def save(self, *args, **kwargs):
+        self.role = "Employee"
+        return super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-id']

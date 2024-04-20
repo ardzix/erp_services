@@ -29,9 +29,10 @@ class Contact(BaseModelGeneric):
     address = models.TextField(help_text=_("Contact's address"))
     contact_number = models.CharField(
         max_length=15, help_text=_("Contact's contact number"))
+    role = models.CharField(max_length=25, default="Contact")
 
     def __str__(self, *args, **kwargs):
-        return self.name
+        return f'{self.role}: {self.name}'
 
     class Meta:
         verbose_name = _("Company Profile")
@@ -44,6 +45,10 @@ class Brand(Contact):
 
     def __str__(self):
         return _("Brand #{brand_id} - {brand_name}").format(brand_id=self.id32, brand_name=self.name)
+    
+    def save(self, *args, **kwargs):
+        self.role = "Brand"
+        return super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Brand")
