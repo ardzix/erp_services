@@ -24,7 +24,7 @@ class Supplier(BaseModelGeneric):
         help_text=_("Enter the location coordinates")
     )
     company_profile = models.ForeignKey(
-        'identities.CompanyProfile',
+        'identities.Contact',
         on_delete=models.SET_NULL,
         blank=True,
         null=True,

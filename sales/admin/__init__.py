@@ -21,10 +21,9 @@ from ..models import (
 class CustomerAdmin(BaseAdmin):
     list_display = ['id32', 'name',
                     'contact_number', 'address', 'show_location']
-    list_filter = ['company_profile']
     search_fields = ['name', 'contact_number', 'address']
 
-    fields = ['name', 'contact_number', 'company_profile',
+    fields = ['name', 'contact_number',
               'administrative_lv1', 'administrative_lv2', 'administrative_lv3', 'administrative_lv4',
               'rt', 'rw', 'store_name', 'payment_type', 'store_type',
               'id_card', 'store_front', 'store_street', 'signature',

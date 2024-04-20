@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
 from common.models import File
+from identities.models import Contact
 from ..helpers.constant import *
 
 
@@ -98,15 +99,9 @@ class Transaction(BaseModelGeneric):
     attachements = models.ManyToManyField(File, blank=True)
     allocations = models.ManyToManyField(Account, related_name="account_allocations",
                                          through='JournalEntry', help_text=_("Select journal entry as allocations"))
-    origin_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        blank=True, null=True,
-        help_text=_("Select the content type of the origin")
+    source = models.ForeignKey(
+        Contact, blank=True, null=True, on_delete=models.SET_NULL
     )
-    origin_id = models.PositiveIntegerField(
-        blank=True, null=True, help_text=_("Enter the ID of the origin"))
-    origin = GenericForeignKey('origin_type', 'origin_id')
 
     def __str__(self):
         return self.number

@@ -1,10 +1,10 @@
 from rest_framework import viewsets, permissions
 from libs.pagination import CustomPagination
-from ..models import UserProfile, CompanyProfile, Brand
+from ..models import UserProfile, Contact, Brand
 from ..serializers import (
     UserProfileSerializer, 
     UserProfileDetailSerializer,
-    CompanyProfileSerializer,
+    ContactSerializer,
     BrandSerializer,
     FileSerializer
 )
@@ -20,9 +20,9 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             return UserProfileDetailSerializer
         return UserProfileSerializer
 
-class CompanyProfileViewSet(viewsets.ModelViewSet):
-    queryset = CompanyProfile.objects.all()
-    serializer_class = CompanyProfileSerializer
+class ContactViewSet(viewsets.ModelViewSet):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
     lookup_field = 'id32'
     pagination_class = CustomPagination 

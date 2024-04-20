@@ -23,27 +23,22 @@ class UserProfile(BaseModelGeneric):
         verbose_name_plural = _("User Profiles")
 
 
-class CompanyProfile(BaseModelGeneric):
-    company_name = models.CharField(
-        max_length=100, help_text=_("Name of the company"))
-    address = models.TextField(help_text=_("Company's address"))
+class Contact(BaseModelGeneric):
+    name = models.CharField(
+        max_length=100, help_text=_("Name of the contact"))
+    address = models.TextField(help_text=_("Contact's address"))
     contact_number = models.CharField(
-        max_length=15, help_text=_("Company's contact number"))
-    # Add any other company-specific fields you need
+        max_length=15, help_text=_("Contact's contact number"))
 
     def __str__(self, *args, **kwargs):
-        return self.company_name
+        return self.name
 
     class Meta:
         verbose_name = _("Company Profile")
         verbose_name_plural = _("Company Profiles")
 
 
-class Brand(BaseModelGeneric):
-    company = models.ForeignKey(CompanyProfile, on_delete=models.SET_NULL,
-                                blank=True, null=True, help_text=_("Company to which the brand belongs"))
-    name = models.CharField(
-        max_length=100, help_text=_("Enter the brand name"))
+class Brand(Contact):
     description = models.TextField(
         blank=True, help_text=_("Enter the brand description"))
 

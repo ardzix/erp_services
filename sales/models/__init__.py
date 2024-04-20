@@ -8,7 +8,7 @@ from libs.base_model import BaseModelGeneric, User
 from libs.constants import (WAITING, ON_PROGRESS, ARRIVED, COMPLETED, SKIPPED, VAT_DEFAULT)
 from common.models import File, AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
 from inventory.models import Product, StockMovement, Unit, Warehouse
-from identities.models import CompanyProfile
+from identities.models import Contact
 
 APPROVED_BY = 'Approved by'
 APPROVED_AT = 'Approved at'
@@ -28,7 +28,7 @@ class StoreType(BaseModelGeneric):
         verbose_name_plural = _('Store Types')
 
 
-class Customer(BaseModelGeneric):
+class Customer(Contact):
     CBD = 'cbd'
     COD = 'cod'
     CREDIT = 'credit'
@@ -38,26 +38,11 @@ class Customer(BaseModelGeneric):
         (CREDIT, _('Credit'))
     ]
 
-    name = models.CharField(
-        max_length=100, help_text=_('Enter the customer\'s name'))
-    contact_number = models.CharField(
-        max_length=15, help_text=_('Enter the contact number'))
-    address = models.TextField(help_text=_('Enter the address'))
     location = models.PointField(
         geography=True,
         null=True,
         blank=True,
         help_text=_('Enter the location coordinates')
-    )
-
-    company_profile = models.ForeignKey(
-        CompanyProfile,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name='customers_profile',
-        verbose_name=_('Company Profile'),
-        help_text=_('Select the company profile associated with the customer')
     )
     administrative_lv1 = models.ForeignKey(AdministrativeLvl1, blank=True, null=True,
                                            on_delete=models.SET_NULL, help_text='%s %s' % (_(ENTER_THE), _('Administrative Lvl 1')))

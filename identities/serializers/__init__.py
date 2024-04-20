@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from common.serializers import FileSerializer
-from ..models import UserProfile, CompanyProfile, Brand, File
+from ..models import UserProfile, Contact, Brand, File
 
 class UserProfileSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
@@ -20,13 +20,13 @@ class UserProfileDetailSerializer(serializers.ModelSerializer):
         fields = ['id32', 'profile_picture', 'bio', 'contact_number']
 
 
-class CompanyProfileSerializer(serializers.ModelSerializer):
+class ContactSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CompanyProfile
+        model = Contact
         fields = ['id32', 'company_name', 'address', 'contact_number']
 
 class BrandSerializer(serializers.ModelSerializer):
-    company = serializers.PrimaryKeyRelatedField(queryset=CompanyProfile.objects.all())
+    company = serializers.PrimaryKeyRelatedField(queryset=Contact.objects.all())
 
     class Meta:
         model = Brand
