@@ -1,0 +1,74 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jurnal Voucher: {{ transaction_type }}</title>
+    <style>
+        body {
+            width: 21cm;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+        }
+        .header, .footer {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .invoice-header {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        .totals {
+            margin-top: 20px;
+            float: right;
+            text-align: right;
+        }
+        .customer-details, .publisher-details {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>JURNAL VOUCHER {{ transaction_type }}</h2>
+    </div>
+    <p>
+    <strong>Nomor Referensi: {{ number }}</strong><br>
+    Tanggal: {{ transaction_date }}<br>
+    Rekening: {{ account.str }}<br>
+    Sumber: {{source.name}} {{source.contact_number}}<br>
+    Keterangan: {{ description }}<br>
+    </p>
+    <table>
+        <caption>Alokasi</caption>
+        <thead>
+            <tr>
+                <th scope="col">No Rekening</th>
+                <th scope="col">Nominal</th>
+                <th scope="col">Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for allocation in allocations %}
+            <tr>
+                <td>{{ allocation.account }}</td>
+                <td>{{ allocation.amount }}</td>
+                <td>{{ allocation.journal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+</body>
+</html>

@@ -113,6 +113,8 @@ class Transaction(BaseModelGeneric):
     source = models.ForeignKey(
         Contact, blank=True, null=True, on_delete=models.SET_NULL
     )
+    attachment = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_attachment', blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.number

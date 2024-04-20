@@ -1,8 +1,9 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, m2m_changed
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from common.helpers import get_tenant_info
+from identities.models import Contact
 from libs.pdf import render_to_pdf, save_pdf_to_file
 from ..models import AccountCategory, FinancialReportEntry, JournalEntry, Transaction, FinancialReport
 from ..helpers.transaction import update_general_ledger
@@ -67,3 +68,21 @@ def generate_financial_report_entries(sender, instance, created, **kwargs):
             file = save_pdf_to_file(pdf_content, filename)
             instance.attachment = file
             instance.save()
+
+
+
+@receiver(post_save, sender=JournalEntry)
+def generate_transaction_pdf(sender, instance, created, **kwargs):
+    transaction = instance.transaction
+    if transaction and not transaction.attachment:
+        from ..serializers.transaction import TransactionSerializer  # Import inside function to prevent circular imports
+        context = TransactionSerializer(transaction).data
+        allocations = transaction.journalentry_set.filter(is_allocation=True)
+        context['allocations'] = allocations
+        context['source'] = Contact.objects.get(id=context['source']) if context['source'] else None
+        pdf_content = render_to_pdf('document/journal_voucher.html', context)
+        if pdf_content:
+            filename = f"Journal_{transaction.transaction_type}_{transaction.number}.pdf"
+            file = save_pdf_to_file(pdf_content, filename)
+            transaction.attachment = file
+            transaction.save()

@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 from identities.models import Contact
+from common.serializers import FileLiteSerializer
 from ..models import Transaction, Account, JournalEntry, TransactionCategory
 from . import JournalEntrySerializer, AccountRepresentationMixin
 
@@ -34,6 +35,7 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
         write_only=True
     )
     allocation_str = serializers.SerializerMethodField()
+    attachment = FileLiteSerializer(many=False, read_only=True)
 
     def get_allocation_queryset(self, obj):
         return obj.journalentry_set.filter(is_allocation=True)
@@ -97,7 +99,8 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
             'source',
             'source_id32',
             'transaction_date',
-            'transaction_type'
+            'transaction_type',
+            'attachment'
         ]
         read_only_fields = ["id32", "account", "source"]
 

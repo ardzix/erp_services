@@ -93,7 +93,7 @@ class TransactionAdmin(BaseAdmin):
     list_display = ['number', 'transaction_date',
                     'amount', 'created_at']
     fields = ['number', 'account', 'transaction_date', 'transaction_type',
-              'source', 'amount', 'description', 'created_at']
+              'source', 'amount', 'description', 'attachment', 'created_at']
     list_filter = ['account', 'transaction_type']
     raw_id_fields = ['account']
     inlines = [JournalEntryInline]

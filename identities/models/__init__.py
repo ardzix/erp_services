@@ -28,7 +28,7 @@ class Contact(BaseModelGeneric):
         max_length=100, help_text=_("Name of the contact"))
     address = models.TextField(help_text=_("Contact's address"))
     contact_number = models.CharField(
-        max_length=15, help_text=_("Contact's contact number"))
+        max_length=25, help_text=_("Contact's contact number"))
     role = models.CharField(max_length=25, default="Contact")
 
     def __str__(self, *args, **kwargs):
