@@ -44,7 +44,7 @@ class AccountCategory(BaseModelGeneric):
 
 class Account(BaseModelGeneric):
     number = models.CharField(
-        max_length=20, help_text=_("Enter account number"))
+        unique=True, max_length=20, help_text=_("Enter account number"), blank=True, null=True)
     category = models.ForeignKey(
         AccountCategory, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
@@ -53,6 +53,17 @@ class Account(BaseModelGeneric):
 
     def __str__(self):
         return _("#{number} - {account_name}").format(number=self.number, account_name=self.name)
+
+    def save(self, *args, **kwargs):
+        """Overwrite the save method to incorporate custom logic."""
+
+        if not self.number:
+            category_number = self.category.number 
+            prev = self.__class__.all_objects.order_by('id').last()
+            obj_id = prev.id + 1 if prev else 1
+            self.number = f'{category_number}00-00-{str(obj_id).zfill(3)}'
+
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Account")
