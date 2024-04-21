@@ -39,7 +39,7 @@ class AccountFilter(django_filters.FilterSet):
         field_name='category__number', lookup_expr='exact')
     category_number = django_filters.NumberFilter(method='filter_category_number',
                                                   help_text='Put exact account category number to filter')
-    number = django_filters.CharFilter(lookup_expr='iexact')
+    number = django_filters.CharFilter(lookup_expr='contains')
 
     def filter_category_number(self, queryset, name, value):
         if value:
