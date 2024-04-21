@@ -206,6 +206,9 @@ class CustomerCreateSerializer(CustomerSerializer):
             'address',
             'contact_number',
             'name',
+            'id_card_id32',
+            'store_front',
+            'store_front_id32',
         ]
 
         read_only_fields = ['id32']
