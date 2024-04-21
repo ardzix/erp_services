@@ -40,7 +40,6 @@ class SupplierDetailSerializer(serializers.ModelSerializer):
 
 
 class SupplierCreateSerializer(ContactID32Mixin, serializers.ModelSerializer):
-    contact_id32 = serializers.CharField(write_only=True, source="contact.id32", required=False)
 
     class Meta:
         model = Supplier
