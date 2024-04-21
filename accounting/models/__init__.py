@@ -107,7 +107,6 @@ class Transaction(BaseModelGeneric):
     transaction_date = models.DateField()
     amount = models.DecimalField(max_digits=19, decimal_places=2)
     description = models.TextField(blank=True)
-    attachements = models.ManyToManyField(File, blank=True)
     allocations = models.ManyToManyField(Account, related_name="account_allocations",
                                          through='JournalEntry', help_text=_("Select journal entry as allocations"))
     source = models.ForeignKey(

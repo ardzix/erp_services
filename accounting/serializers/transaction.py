@@ -94,7 +94,7 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
             'allocation_str',
             'allocations_data',
             'amount',
-            'attachements',
+            'attachment',
             'description',
             'source',
             'source_id32',
@@ -116,4 +116,5 @@ class TransactionListSerializer(TransactionSerializer):
             "amount",
             "description",
             "transaction_type",
+            "attachment"
         ]
