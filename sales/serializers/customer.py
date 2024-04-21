@@ -39,7 +39,6 @@ class CustomerSerializer(serializers.ModelSerializer):
             'administrative_lv2',
             'administrative_lv3',
             'administrative_lv4',
-            'company_profile',
             'contact_number',
             'credit_limit_amount',
             'credit_limit_qty',

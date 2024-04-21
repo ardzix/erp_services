@@ -23,7 +23,7 @@ class UserProfileDetailSerializer(serializers.ModelSerializer):
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ['id32', 'company_name', 'address', 'contact_number']
+        fields = ['id32', 'name', 'address', 'contact_number']
 
 class BrandSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Contact.objects.all())

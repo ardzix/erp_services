@@ -13,15 +13,6 @@ class Supplier(Contact):
         blank=True,
         help_text=_("Enter the location coordinates")
     )
-    company_profile = models.ForeignKey(
-        'identities.Contact',
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name='suppliers_profile',
-        verbose_name=_("Company Profile"),
-        help_text=_("Select the company profile for this supplier")
-    )
 
     def save(self, *args, **kwargs):
         self.role = "Supplier"

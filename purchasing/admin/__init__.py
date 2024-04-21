@@ -6,8 +6,7 @@ from ..models import Supplier, SupplierProduct, PurchaseOrder, PurchaseOrderItem
 @admin.register(Supplier)
 class SupplierAdmin(BaseAdmin):
     list_display = ['id32', 'name', 'contact_number', 'address']
-    list_filter = ['company_profile']
-    fields = ['name', 'contact_number', 'address', 'location', 'company_profile']
+    fields = ['name', 'contact_number', 'address', 'location']
 
 
 @admin.register(SupplierProduct)

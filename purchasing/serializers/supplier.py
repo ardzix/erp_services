@@ -7,21 +7,20 @@ from ..models import Supplier, SupplierProduct
 
 
 class ContactID32Mixin:
-    def validate_company_profile_id32(self, value):
+    def validate_contact_id32(self, value):
         if not Contact.objects.filter(id32=value).exists():
             raise serializers.ValidationError({
-                "company_profile_id32": _("Invalid company profile ID32.")
+                "contact_id32": _("Invalid company profile ID32.")
             })
         return value
 
 class SupplierListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
-        fields = ['id32', 'created_at', 'name', 'company_profile']
+        fields = ['id32', 'created_at', 'name', 'contact_number']
 
 
 class SupplierDetailSerializer(serializers.ModelSerializer):
-    company_profile = ContactSerializer(read_only=True)
     location_coordinate = serializers.SerializerMethodField()
 
     def get_location_coordinate(self, obj):
@@ -36,43 +35,27 @@ class SupplierDetailSerializer(serializers.ModelSerializer):
         model = Supplier
         fields = [
             'id32', 'created_at', 'name', 'contact_number', 'address', 'location', 
-            'location_coordinate', 'company_profile'
+            'location_coordinate'
         ]
 
 
 class SupplierCreateSerializer(ContactID32Mixin, serializers.ModelSerializer):
-    company_profile_id32 = serializers.CharField(write_only=True, source="company_profile.id32", required=False)
+    contact_id32 = serializers.CharField(write_only=True, source="contact.id32", required=False)
 
     class Meta:
         model = Supplier
-        fields = ['id32', 'created_at', 'name', 'contact_number', 'address', 'company_profile_id32']
+        fields = ['id32', 'created_at', 'name', 'contact_number', 'address']
         read_only_fields = ['id32', 'created_at']
-
-    def create(self, validated_data):
-        if 'company_profile' in validated_data:
-            company_profile_id32 = validated_data.pop('company_profile')['id32']
-            company_profile = Contact.objects.get(id32=company_profile_id32)
-            validated_data['company_profile'] = company_profile
-        return super().create(validated_data)
 
 
 class SupplierEditSerializer(ContactID32Mixin, serializers.ModelSerializer):
-    company_profile_id32 = serializers.CharField(write_only=True, source="company_profile.id32", required=False)
-
     class Meta:
         model = Supplier
         fields = [
             'id32', 'created_at', 'name', 'contact_number', 'address', 'location', 
-            'company_profile_id32'
         ]
         read_only_fields = ['id32', 'created_at']
 
-    def update(self, instance, validated_data):
-        if 'company_profile' in validated_data:
-            company_profile_id32 = validated_data.pop('company_profile')['id32']
-            company_profile = Contact.objects.get(id32=company_profile_id32)
-            validated_data['company_profile'] = company_profile
-        return super().update(instance, validated_data)
 
 
 class SupplierProductSerializer(serializers.ModelSerializer):
