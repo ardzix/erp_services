@@ -41,8 +41,9 @@ class Customer(BaseModelGeneric):
     name = models.CharField(
         max_length=100, help_text=_('Enter the customer\'s name'))
     contact_number = models.CharField(
+        blank= True, null=True,
         max_length=15, help_text=_('Enter the contact number'))
-    address = models.TextField(help_text=_('Enter the address'))
+    address = models.TextField(help_text=_('Enter the address'), blank= True, null=True,)
     location = models.PointField(
         geography=True,
         null=True,
