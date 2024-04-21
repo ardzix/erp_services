@@ -82,6 +82,15 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
                 transaction=instance, **allocation_data)
 
         return instance
+    
+    def to_representation(self, instance):
+        representation =  super().to_representation(instance)
+        if 'source' in representation:
+            representation['source'] = {
+                'id32': instance.source.id32,
+                'str': instance.source.__str__(),
+            }
+        return representation
 
     class Meta:
         model = Transaction
@@ -110,11 +119,11 @@ class TransactionListSerializer(TransactionSerializer):
         model = Transaction
         fields = [
             "id32",
+            "number",
             "account",
             "allocation_str",
             "transaction_date",
             "amount",
-            "description",
             "transaction_type",
             "attachment"
         ]
