@@ -90,6 +90,10 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
                 'id32': instance.source.id32,
                 'str': instance.source.__str__(),
             }
+        representation['transaction_type'] = {
+            'code': instance.transaction_type.code,
+            'name': instance.transaction_type.name,
+        }
         return representation
 
     class Meta:
