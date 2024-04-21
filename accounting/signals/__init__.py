@@ -79,7 +79,7 @@ def generate_transaction_pdf(sender, instance, created, **kwargs):
         context = TransactionSerializer(transaction).data
         allocations = transaction.journalentry_set.filter(is_allocation=True)
         context['allocations'] = allocations
-        context['source'] = Contact.objects.get(id=context['source']) if context['source'] else None
+        context['source'] = Contact.objects.get(id32=context['source']['id32']) if context['source'] else None
         pdf_content = render_to_pdf('document/journal_voucher.html', context)
         if pdf_content:
             filename = f"Journal_{transaction.transaction_type}_{transaction.number}.pdf"
