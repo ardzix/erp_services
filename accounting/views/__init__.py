@@ -189,7 +189,9 @@ class ModuleAccountFilter(django_filters.FilterSet):
     debit_credit = django_filters.ChoiceFilter(choices=DEBIT_CREDIT_CHOICES,
                                                help_text='Filter by type: debit or credit')
     transaction = django_filters.ChoiceFilter(choices=TRANSACTION_CHOICES,
-                                              help_text='Filter by type: debit or credit')
+                                              help_text='Filter module by its transaction type')
+    name = django_filters.ChoiceFilter(choices=TRANSACTION_MODULE_CHOICES,
+                                              help_text='Filter module by its name')
 
     def filter_account_category_number(self, queryset, name, value):
         if value:
@@ -197,7 +199,7 @@ class ModuleAccountFilter(django_filters.FilterSet):
 
     class Meta:
         model = ModuleAccount
-        fields = ['transaction', 'account_category_number',
+        fields = ['name', 'transaction', 'account_category_number',
                   'account_number', 'debit_credit']
 
 

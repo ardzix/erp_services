@@ -75,7 +75,7 @@ class TransactionCategory(BaseModelGeneric):
     name = models.CharField(
         max_length=100, help_text=_("Enter the category name"))
     code = models.CharField(
-        max_length=20, help_text=_("Enter the category code"))
+        max_length=100, help_text=_("Enter the category code"))
     prefix = models.CharField(
         blank=True, null=True,
         max_length=20, help_text=_("Enter the category prefix"))

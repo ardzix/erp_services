@@ -44,8 +44,12 @@ CASH_OUT = "cash_out"
 # Transaction Module
 SALES_ORDER_CREDIT = 'sales_order_credit'
 SALES_ORDER_DEBIT = 'sales_order_debit'
+SALES_ADVANCE_PAYMENT = 'sales_advance_payment'
+PURCHASING_ADVANCE_PAYMENT = 'purchasing_advance_payment'
 
 TRANSACTION_MODULE_CHOICES = (
     (SALES_ORDER_CREDIT, _('Sales order credit')),
-    (SALES_ORDER_DEBIT, _('Sales order debit'))
+    (SALES_ORDER_DEBIT, _('Sales order debit')),
+    (SALES_ADVANCE_PAYMENT, _('Sales advance payment')),
+    (SALES_ORDER_DEBIT, _('Purchasing advance payment')),
 )
