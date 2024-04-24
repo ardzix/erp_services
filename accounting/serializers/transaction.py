@@ -129,5 +129,6 @@ class TransactionListSerializer(TransactionSerializer):
             "transaction_date",
             "amount",
             "transaction_type",
-            "attachment"
+            "attachment",
+            "source"
         ]
