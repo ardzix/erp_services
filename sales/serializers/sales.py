@@ -7,7 +7,7 @@ from common.models import File
 from inventory.models import Product, Unit, Warehouse, StockMovement
 from .customer import CustomerLiteSerializer
 from .trip import CustomerVisitStatusSerializer
-from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment
+from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment, Receivable
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -360,3 +360,36 @@ class SalesOrderSerializer(SalesOrderListSerializer):
 class SalesReportSerializer(serializers.Serializer):
     total_sales = serializers.DecimalField(max_digits=19, decimal_places=2, required=False)
     total_quantity = serializers.IntegerField(required=False)
+
+
+class ReceivableSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+    
+        representation['customer'] = {
+            'id32': instance.customer.id32,
+            'str': instance.customer.__str__(),
+        }
+        representation['order'] = {
+            'id32': instance.order.id32,
+            'str': instance.order.__str__(),
+        }
+        representation['invoice'] = {
+            'id32': instance.invoice.id32,
+            'number': instance.invoice.number,
+            'str': instance.invoice.__str__(),
+        }
+        if instance.payment:
+            representation['payment'] = {
+                'id32': instance.payment.id32,
+                'str': instance.payment.__str__(),
+            }
+        return representation
+
+    class Meta:
+        model = Receivable
+        fields = ['id32', 'customer', 'order', 'invoice','payment', 'amount', 'paid_at',
+                  'less_30_days_amount', 'less_60_days_amount', 'less_90_days_amount', 'more_than_90_days_amount'
+                  ]
+        read_only_fields = ['id32','customer', 'order', 
+                            'invoice', 'payment']

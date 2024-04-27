@@ -36,6 +36,6 @@ def create_next_trip_on_trip_complete(sender, instance, **kwargs):
         receivable.save()
 
         customer = receivable.customer
-        if customer.receivables.exists():
+        if not customer.receivables.exists():
             customer.has_receivable = False
             customer.save()

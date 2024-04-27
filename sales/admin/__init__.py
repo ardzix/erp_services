@@ -75,10 +75,10 @@ class OrderItemAdmin(BaseAdmin):
 
 @admin.register(Invoice)
 class InvoiceAdmin(BaseAdmin):
-    list_display = ['id32', 'order', 'invoice_date', 'total_amount']
+    list_display = ['id32', 'number', 'order', 'invoice_date', 'total_amount']
     list_filter = ['order__customer', 'invoice_date', 'approved_by']
     search_fields = ['id32', 'order__id32']
-    fields = ['order', 'invoice_date', 'amount', 'vat', 'approved_by', 'approved_at', 'attachment']
+    fields = ['number', 'order', 'invoice_date', 'amount', 'vat', 'approved_by', 'approved_at', 'attachment']
     raw_id_fields = ['order']
 
     def total_amount(self, instance):
