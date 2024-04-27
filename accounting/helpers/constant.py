@@ -51,5 +51,5 @@ TRANSACTION_MODULE_CHOICES = (
     (SALES_ORDER_CREDIT, _('Sales order credit')),
     (SALES_ORDER_DEBIT, _('Sales order debit')),
     (SALES_ADVANCE_PAYMENT, _('Sales advance payment')),
-    (SALES_ORDER_DEBIT, _('Purchasing advance payment')),
+    (PURCHASING_ADVANCE_PAYMENT, _('Purchasing advance payment')),
 )
