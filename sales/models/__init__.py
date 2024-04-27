@@ -77,6 +77,7 @@ class Customer(Contact):
     due_date = models.PositiveIntegerField(blank=True, null=True, help_text=_('Due date of credit payment in day.'))
     credit_limit_amount =  models.DecimalField(max_digits=19, decimal_places=2, default=0, help_text=_('Credit limit amount this customer can apply.'))
     credit_limit_qty = models.PositiveIntegerField(blank=True, null=True, help_text=_('Total credit qty this customer can apply.'))
+    has_receivable = models.BooleanField(default=False)
 
     @property
     def province(self):
@@ -98,6 +99,14 @@ class Customer(Contact):
                 'longitude': self.location.x
             }
         return None
+    
+    @property
+    def receivables(self):
+        return self.customer_receivables.filter(paid_at__isnull=True)
+    
+    @property
+    def receivable_amount(self):
+        return self.receivables.aggregate(total_amount=models.Sum('amount')).get('total_amount')
 
     def __str__(self):
         return _('Customer #{id32} [{name}]').format(id32=self.id32, name=self.name)
@@ -183,7 +192,17 @@ class SalesOrder(BaseModelGeneric):
         Warehouse, blank=True, null=True, on_delete=models.SET_NULL)
     visit = models.ForeignKey(
         'CustomerVisit', blank=True, null=True, on_delete=models.SET_NULL)
+    vat = models.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        validators=[
+            MinValueValidator(0),  # minimum value is 0
+            MaxValueValidator(1)   # maximum value is 1
+        ],
+        default=0,
+        help_text=_('Value Added Tax percentage in decimal'))
     is_paid = models.BooleanField(default=False)
+    is_paid_in_terms = models.BooleanField(default=False)
 
     def __str__(self):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)
@@ -199,7 +218,7 @@ class SalesOrder(BaseModelGeneric):
 
     @property
     def invoice(self):
-        return Invoice.objects.filter(oerder=self).last()
+        return Invoice.objects.filter(order=self).last()
 
     @property
     def customer_visits(self):
@@ -207,19 +226,22 @@ class SalesOrder(BaseModelGeneric):
 
     @property
     def subtotal(self):
-       return self.invoice.subtotal
+        amount = 0
+        for item in self.order_items.all():
+            amount += item.price * item.quantity
+        return amount
     
     @property
     def vat_percent(self):
-        return self.invoice.vat_percent
+        return self.vat * 100
 
     @property
     def vat_amount(self):
-        return self.invoice.vat_amount
+        return Decimal(self.vat) * Decimal(self.subtotal)
 
     @property
     def total(self):
-        return self.invoice.total
+        return self.subtotal + self.vat_amount
 
 
 class OrderItem(BaseModelGeneric):
@@ -252,7 +274,7 @@ class OrderItem(BaseModelGeneric):
             product=self.product.name,
             product_id32=self.product.id32,
             quantity=self.quantity,
-            unit=self.unit.symbol
+            unit=self.unit.symbol if self.unit else '-'
         )
     
     @property
@@ -270,7 +292,7 @@ class OrderItem(BaseModelGeneric):
 
 
 class Invoice(BaseModelGeneric):
-    order = models.OneToOneField(
+    order = models.ForeignKey(
         SalesOrder,
         on_delete=models.CASCADE,
         help_text=_('Select the order associated with the invoice')
@@ -301,6 +323,13 @@ class Invoice(BaseModelGeneric):
         help_text=_('Value Added Tax percentage in decimal'))
     attachment = models.ForeignKey(
         File, related_name='%(app_label)s_%(class)s_attachment', blank=True, null=True, on_delete=models.SET_NULL)
+    amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_('Enter the payment amount')
+    )
 
     class Meta:
         ordering = ['-id']
@@ -328,10 +357,7 @@ class Invoice(BaseModelGeneric):
 
     @property
     def subtotal(self):
-        amount = 0
-        for item in self.order.order_items.all():
-            amount += item.price * item.quantity
-        return amount
+        return self.amount if self.amount else 0
 
     @property
     def vat_percent(self):
@@ -416,6 +442,51 @@ class SalesPayment(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _('Payment')
         verbose_name_plural = _('Payments')
+
+
+class Receivable(BaseModelGeneric):
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name='customer_receivables',
+        help_text=_('Select the customer associated with the order')
+    )
+    order = models.ForeignKey(
+        SalesOrder,
+        on_delete=models.CASCADE,
+        related_name='order_receivables',
+        related_query_name='orderitem',
+        help_text=_('Select the order associated with the item')
+    )
+    invoice = models.ForeignKey(
+        Invoice,
+        on_delete=models.CASCADE,
+        related_name='invoice_receivables',
+        help_text=_('Select the invoice associated with the payment')
+    )
+    payment = models.ForeignKey(
+        SalesPayment,
+        on_delete=models.CASCADE,
+        related_name='payments',
+        blank=True,
+        null=True,
+        help_text=_('Select the invoice associated with the payment')
+    )
+    amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        help_text=_('Enter receivable amount')
+    )
+    paid_at = models.DateTimeField(blank=True, null=True)
+
+    @property
+    def is_paid(self):
+        return True if self.paid_at else None
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = _('Receivable')
+        verbose_name_plural = _('Receivables')
 
 
 class TripTemplate(BaseModelGeneric):
