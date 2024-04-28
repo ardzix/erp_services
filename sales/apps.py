@@ -10,4 +10,5 @@ class SalesConfig(AppConfig):
         import sales.signals  
         import sales.signals.addson 
         import sales.signals.accounting 
+        import sales.signals.receivable 
 

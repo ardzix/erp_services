@@ -197,7 +197,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 class CustomerListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['id32', 'name', 'store_name', 'contact_number', 'address']
+        fields = ['id32', 'name', 'store_name', 'contact_number', 'address', 'receivable_amount']
 
 
 class CustomerLiteSerializer(serializers.ModelSerializer):

@@ -1,3 +1,5 @@
+import decimal
+from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 from django.contrib.gis.db import models
@@ -5,7 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from libs.utils import get_config_value
 from libs.base_model import BaseModelGeneric, User
-from libs.constants import (WAITING, ON_PROGRESS, ARRIVED, COMPLETED, SKIPPED, VAT_DEFAULT)
+from libs.constants import (
+    WAITING, ON_PROGRESS, ARRIVED, COMPLETED, SKIPPED, VAT_DEFAULT)
 from common.models import File, AdministrativeLvl1, AdministrativeLvl2, AdministrativeLvl3, AdministrativeLvl4
 from inventory.models import Product, StockMovement, Unit, Warehouse
 from identities.models import Contact
@@ -64,7 +67,8 @@ class Customer(Contact):
         null=True,
         blank=True,
     )
-    store_type = models.ForeignKey(StoreType, blank=True, null=True, on_delete=models.SET_NULL)
+    store_type = models.ForeignKey(
+        StoreType, blank=True, null=True, on_delete=models.SET_NULL)
     id_card = models.ForeignKey(File, related_name='%(app_label)s_%(class)s_id_card',
                                 blank=True, null=True, on_delete=models.SET_NULL)
     store_front = models.ForeignKey(
@@ -74,9 +78,13 @@ class Customer(Contact):
     signature = models.ForeignKey(
         File, related_name='%(app_label)s_%(class)s_signature', blank=True, null=True, on_delete=models.SET_NULL)
 
-    due_date = models.PositiveIntegerField(blank=True, null=True, help_text=_('Due date of credit payment in day.'))
-    credit_limit_amount =  models.DecimalField(max_digits=19, decimal_places=2, default=0, help_text=_('Credit limit amount this customer can apply.'))
-    credit_limit_qty = models.PositiveIntegerField(blank=True, null=True, help_text=_('Total credit qty this customer can apply.'))
+    due_date = models.PositiveIntegerField(
+        blank=True, null=True, help_text=_('Due date of credit payment in day.'))
+    credit_limit_amount = models.DecimalField(max_digits=19, decimal_places=2, default=0, help_text=_(
+        'Credit limit amount this customer can apply.'))
+    credit_limit_qty = models.PositiveIntegerField(
+        blank=True, null=True, help_text=_('Total credit qty this customer can apply.'))
+    has_receivable = models.BooleanField(default=False)
 
     @property
     def province(self):
@@ -99,9 +107,17 @@ class Customer(Contact):
             }
         return None
 
+    @property
+    def receivables(self):
+        return self.customer_receivables.filter(paid_at__isnull=True)
+
+    @property
+    def receivable_amount(self):
+        return self.receivables.aggregate(total_amount=models.Sum('amount')).get('total_amount')
+
     def __str__(self):
         return _('Customer #{id32} [{name}]').format(id32=self.id32, name=self.name)
-    
+
     def save(self, *args, **kwargs):
         self.role = "Customer"
         return super().save(*args, **kwargs)
@@ -183,7 +199,17 @@ class SalesOrder(BaseModelGeneric):
         Warehouse, blank=True, null=True, on_delete=models.SET_NULL)
     visit = models.ForeignKey(
         'CustomerVisit', blank=True, null=True, on_delete=models.SET_NULL)
+    vat = models.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        validators=[
+            MinValueValidator(0),  # minimum value is 0
+            MaxValueValidator(1)   # maximum value is 1
+        ],
+        default=0,
+        help_text=_('Value Added Tax percentage in decimal'))
     is_paid = models.BooleanField(default=False)
+    is_paid_in_terms = models.BooleanField(default=False)
 
     def __str__(self):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)
@@ -199,7 +225,7 @@ class SalesOrder(BaseModelGeneric):
 
     @property
     def invoice(self):
-        return Invoice.objects.filter(oerder=self).last()
+        return Invoice.objects.filter(order=self).last()
 
     @property
     def customer_visits(self):
@@ -207,19 +233,22 @@ class SalesOrder(BaseModelGeneric):
 
     @property
     def subtotal(self):
-       return self.invoice.subtotal
-    
+        amount = 0
+        for item in self.order_items.all():
+            amount += item.price * item.quantity
+        return amount
+
     @property
     def vat_percent(self):
-        return self.invoice.vat_percent
+        return self.vat * 100
 
     @property
     def vat_amount(self):
-        return self.invoice.vat_amount
+        return Decimal(self.vat) * Decimal(self.subtotal)
 
     @property
     def total(self):
-        return self.invoice.total
+        return self.subtotal + self.vat_amount
 
 
 class OrderItem(BaseModelGeneric):
@@ -252,9 +281,9 @@ class OrderItem(BaseModelGeneric):
             product=self.product.name,
             product_id32=self.product.id32,
             quantity=self.quantity,
-            unit=self.unit.symbol
+            unit=self.unit.symbol if self.unit else '-'
         )
-    
+
     @property
     def total_price(self):
         return Decimal(self.quantity) * Decimal(self.price)
@@ -270,12 +299,19 @@ class OrderItem(BaseModelGeneric):
 
 
 class Invoice(BaseModelGeneric):
-    order = models.OneToOneField(
+    number = models.CharField(
+        max_length=100,
+        db_index=True,
+        blank=True,
+        null=True)
+    order = models.ForeignKey(
         SalesOrder,
         on_delete=models.CASCADE,
         help_text=_('Select the order associated with the invoice')
     )
     invoice_date = models.DateField(help_text=_('Enter the invoice date'))
+    due_date = models.DateField(
+        blank=True, null=True, help_text=_('Enter the invoice due date'))
     approved_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -301,21 +337,50 @@ class Invoice(BaseModelGeneric):
         help_text=_('Value Added Tax percentage in decimal'))
     attachment = models.ForeignKey(
         File, related_name='%(app_label)s_%(class)s_attachment', blank=True, null=True, on_delete=models.SET_NULL)
+    amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_('Enter the payment amount')
+    )
 
     class Meta:
         ordering = ['-id']
         verbose_name = _('Invoice')
         verbose_name_plural = _('Invoices')
 
+    def __str__(self):
+        return _('Invoice #{id32} - {order}').format(id32=self.id32, order=self.order)
+
+    def _due_within_days(self, days):
+        """Helper to determine if the due date is within a specified number of days."""
+        amount = self.amount if self.amount else 0
+        if self.is_paid or not self.due_date:
+            return 0
+        target_date = timezone.now().date() + timedelta(days=days)
+        return amount if self.due_date <= target_date else 0
+
+    def _due_after_days(self, days):
+        """Helper to determine if the due date is more than a specified number of days away."""
+        amount = self.amount if self.amount else 0
+        if self.is_paid or not self.due_date:
+            return 0
+        target_date = timezone.now().date() + timedelta(days=days)
+        return amount if self.due_date > target_date else 0
+
     def save(self, *args, **kwargs):
+
+        if not self.number and self.id32:
+            prefix = 'INV'
+            tz = timezone.now()
+            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{self.id32.zfill(3)}'
+
         # Check if vat is None and set default value
         if self.vat is None:
             self.vat = get_config_value('vat_percent', VAT_DEFAULT)
 
         super(Invoice, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return _('Invoice #{id32} - {order}').format(id32=self.id32, order=self.order)
 
     @property
     def customer(self):
@@ -328,10 +393,7 @@ class Invoice(BaseModelGeneric):
 
     @property
     def subtotal(self):
-        amount = 0
-        for item in self.order.order_items.all():
-            amount += item.price * item.quantity
-        return amount
+        return self.amount if self.amount else 0
 
     @property
     def vat_percent(self):
@@ -348,6 +410,26 @@ class Invoice(BaseModelGeneric):
     @property
     def payments(self):
         return self.salespayment_set.all().order_by('-created_at')
+
+    @property
+    def is_paid(self):
+        return True if self.payment_status and self.payment_status == SalesPayment.SETTLEMENT else False
+
+    @property
+    def less_30_days_amount(self):
+        return self._due_within_days(30)
+
+    @property
+    def less_60_days_amount(self):
+        return self._due_within_days(60) - self.less_30_days_amount
+
+    @property
+    def less_90_days_amount(self):
+        return self._due_within_days(90) - self.less_60_days_amount
+
+    @property
+    def more_than_90_days_amount(self):
+        return self._due_after_days(90)
 
 
 class SalesPayment(BaseModelGeneric):
@@ -416,6 +498,68 @@ class SalesPayment(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _('Payment')
         verbose_name_plural = _('Payments')
+
+
+class Receivable(BaseModelGeneric):
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name='customer_receivables',
+        help_text=_('Select the customer associated with the order')
+    )
+    order = models.ForeignKey(
+        SalesOrder,
+        on_delete=models.CASCADE,
+        related_name='order_receivables',
+        related_query_name='orderitem',
+        help_text=_('Select the order associated with the item')
+    )
+    invoice = models.ForeignKey(
+        Invoice,
+        on_delete=models.CASCADE,
+        related_name='invoice_receivables',
+        help_text=_('Select the invoice associated with the payment')
+    )
+    payment = models.ForeignKey(
+        SalesPayment,
+        on_delete=models.CASCADE,
+        related_name='payments',
+        blank=True,
+        null=True,
+        help_text=_('Select the invoice associated with the payment')
+    )
+    amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        help_text=_('Enter receivable amount')
+    )
+    paid_at = models.DateTimeField(blank=True, null=True)
+
+    @property
+    def is_paid(self):
+        return True if self.paid_at else None
+    
+    @property
+    def less_30_days_amount(self):
+        return self.invoice.less_30_days_amount
+
+    @property
+    def less_60_days_amount(self):
+        return self.invoice.less_60_days_amount
+
+    @property
+    def less_90_days_amount(self):
+        return self.invoice.less_90_days_amount
+
+    @property
+    def more_than_90_days_amount(self):
+        return self.invoice.more_than_90_days_amount
+
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = _('Receivable')
+        verbose_name_plural = _('Receivables')
 
 
 class TripTemplate(BaseModelGeneric):
@@ -506,7 +650,8 @@ class Trip(BaseModelGeneric):
     status = models.CharField(
         max_length=50, choices=STATUS_CHOICES, default=WAITING)
     is_delivery_processed = models.BooleanField(default=False)
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    parent = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         ordering = ['-id']
