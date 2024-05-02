@@ -172,6 +172,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'libs.middleware.CustomTokenAuthentication',
     ],
+    "COERCE_DECIMAL_TO_STRING": False,
 }
 
 # swagger settings

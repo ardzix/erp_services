@@ -182,12 +182,17 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
     )
     total_amount = serializers.SerializerMethodField()
     trip_id32s = serializers.SerializerMethodField()
+    qty = serializers.SerializerMethodField()
+    invoice_number = serializers.SerializerMethodField()
+    total_margin_amount = serializers.SerializerMethodField()
+    margin_percent = serializers.SerializerMethodField()
 
     class Meta:
         model = SalesOrder
-        fields = ['id32', 'customer', 'order_date', 'is_paid',
-                  'approved_by', 'total_amount', 'status', 'trip_id32s']
-        read_only_fields = ['id32', 'approved_by', 'customer']
+        fields = ['id32', 'customer', 'order_date', 'is_paid', 'approved_by', 'total_amount',
+                  'status', 'trip_id32s', 'qty', 'invoice_number', 'total_margin_amount', 'margin_percent', 'bonus']
+        read_only_fields = ['id32', 'approved_by', 'customer', 'qty',
+                            'invoice_number', 'total_margin_amount', 'margin_percent']
 
     def get_total_amount(self, obj):
         total_amount = obj.order_items.aggregate(
@@ -198,6 +203,29 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
     def get_trip_id32s(self, obj):
         return obj.customervisit_set.values_list('trip__id32', flat=True)
 
+    def get_qty(self, obj):
+        qty = obj.order_items.aggregate(
+            total_qty=Sum('quantity')).get('total_qty')
+        qty = 0 if not qty else qty
+        return qty
+
+    def get_invoice_number(self, obj):
+        return obj.invoice.id32 if hasattr(obj, "invoice") else None
+
+    def get_total_margin_amount(self, obj):
+        margin_amount = obj.order_items.aggregate(margin=Sum(
+            F('price') * F('quantity')) - Sum(F('product__base_price') * F('quantity'))).get('margin')
+        margin_amount = 0 if not margin_amount else margin_amount
+        return margin_amount
+
+    def get_margin_percent(self, obj):
+        total_margin_amount = self.get_total_margin_amount(obj)
+        total_amount = self.get_total_amount(obj)
+
+        try:
+            return round(total_margin_amount/total_amount * 100, 2)
+        except:
+            return 0
 
 class SalesOrderDetailSerializer(SalesOrderListSerializer):
     order_items = OrderItemSerializer(many=True)
