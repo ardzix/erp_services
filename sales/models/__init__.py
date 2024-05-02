@@ -196,6 +196,10 @@ class SalesOrder(BaseModelGeneric):
     visit = models.ForeignKey(
         'CustomerVisit', blank=True, null=True, on_delete=models.SET_NULL)
     is_paid = models.BooleanField(default=False)
+    bonus = models.DecimalField(max_digits=19,
+                                decimal_places=2,
+                                default=0,
+                                help_text=_('Enter the bonus amount'))
 
     def __str__(self):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)

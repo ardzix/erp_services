@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from django.contrib.gis.geos import Point
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Sum, F
 from common.models import File
 from libs.utils import validate_file_by_id32, handle_file_fields, handle_location
-from ..models import Customer, StoreType
+from ..models import Customer, StoreType, OrderItem
 
 
 class StoreTypeSerializer(serializers.ModelSerializer):
@@ -213,10 +214,52 @@ class CustomerCreateSerializer(CustomerSerializer):
 
         read_only_fields = ['id32']
 class CustomerListSerializer(serializers.ModelSerializer):
+    omzet = serializers.SerializerMethodField()
+    qty = serializers.SerializerMethodField()
+    margin = serializers.SerializerMethodField()
+    margin_percent = serializers.SerializerMethodField()
     class Meta:
         model = Customer
-        fields = ['id32', 'name', 'store_name', 'contact_number', 'address']
+        fields = ['id32', 'name', 'store_name', 'contact_number',
+                  'address', 'omzet', 'qty', 'margin', 'margin_percent']
+    
+    def _get_order_items(self):
+        return self.context.get('order_items')
 
+    def get_omzet(self, obj):
+        order_items = self._get_order_items()
+        if not order_items:
+            return
+
+        total_omzet = order_items.aggregate(total_omzet=Sum(
+            F('price') * F('quantity'))).get("total_omzet")
+        return total_omzet if total_omzet else 0
+
+    def get_qty(self, obj):
+        order_items = self._get_order_items()
+        if not order_items:
+            return
+        total_qty = order_items.aggregate(
+            total_qty=Sum('quantity')).get("total_qty")
+        return total_qty if total_qty else 0
+
+    def get_margin(self, obj):
+        order_items = self._get_order_items()
+        if not order_items:
+            return
+        margin_amount = order_items.aggregate(margin=Sum(
+            F('price') * F('quantity')) - Sum(F('product__base_price') * F('quantity'))).get('margin')
+        margin_amount = 0 if not margin_amount else margin_amount
+        return margin_amount
+
+    def get_margin_percent(self, obj):
+        total_omzet = self.get_omzet(obj)
+        total_margin = self.get_margin(obj)
+
+        try:
+            return round(total_margin/total_omzet * 100, 2)
+        except:
+            return 0
 
 class CustomerLiteSerializer(serializers.ModelSerializer):
     class Meta:
