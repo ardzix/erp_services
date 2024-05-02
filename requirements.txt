@@ -80,3 +80,5 @@ uritools==4.0.2
 urllib3==1.26.16
 webencodings==0.5.1
 xhtml2pdf==0.2.11
+XlsxWriter==3.0.6
+openpyxl==3.1.2
