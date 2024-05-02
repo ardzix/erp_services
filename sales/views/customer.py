@@ -82,10 +82,10 @@ class CustomerViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(queryset)
         if page:
             serializer = self.get_serializer(page, many=True, context=context)
+            return Response(serializer.data)
         else:
             serializer = self.get_serializer(queryset, context=context)
             return self.get_paginated_response(serializer.data)
-        return super().list(request, *args, **kwargs)
 
     def create(self, requests, *args, **kwargs):
         return super().create(requests, *args, **kwargs)
