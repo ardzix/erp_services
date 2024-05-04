@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from inventory.views import stock_movement
 from libs.utils import validate_file_by_id32
-from purchasing.models import PurchaseOrderItem
+from purchasing.models import PurchaseOrder, PurchaseOrderItem
 from sales.models import SalesOrder
 from ..models import StockMovement, StockMovementItem, Product, Unit, ProductLocation
 
@@ -282,7 +282,7 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
         model = StockMovement
         fields = ['id32', 'created_at', 'origin', 'destination', 'origin_type',
                   'destination_type', 'movement_date', 'status', 'movement_evidence',
-                  'items', 'last_purchase_order']
+                  'items', 'last_purchase_order', 'purchase_order']
         read_only_fields = ['id32', 'created_at', 'last_purchase_order']
 
     def to_representation(self, instance):
@@ -291,6 +291,11 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
             representation['movement_evidence'] = {
                 'id32': instance.movement_evidence.id32,
                 'url': instance.movement_evidence.file.url
+            }
+        if instance.purchase_order:
+            representation['purchase_order'] = {
+                'id32': instance.purchase_order.id32,
+                'str': instance.purchase_order.__str__()
             }
         if instance.last_purchase_order:
             representation['last_purchase_order'] = {
@@ -307,17 +312,23 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         choices=['warehouse', 'supplier', 'customer'], write_only=True)
     origin_id32 = serializers.CharField(write_only=True)
     destination_id32 = serializers.CharField(write_only=True)
+    destination_id32 = serializers.CharField(write_only=True)
     movement_evidence_id32 = serializers.CharField(
         write_only=True, required=False)
     items = StockMovementItemSerializer(many=True, required=False)
     salesorder_id32s = serializers.ListField(required=False, write_only=True)
+    purchase_order_id32 = serializers.SlugRelatedField(
+        slug_field="id32",
+        queryset=PurchaseOrder.objects.all(),
+        required=True,
+    )
 
     class Meta:
         model = StockMovement
         fields = ['id32', 'created_at', 'status', 'movement_date', 'destination_type',
                   'destination_id32', 'origin_type', 'origin_id32', 'movement_evidence_id32',
-                  'movement_evidence', 'items', 'salesorder_id32s', 'generate_items_from_sales']
-        read_only_fields = ['id32', 'created_at', 'movement_evidence']
+                  'movement_evidence', 'items', 'salesorder_id32s', 'generate_items_from_sales', 'purchase_order_id32']
+        read_only_fields = ['id32', 'created_at', 'movement_evidence', "purchase_order_id32"]
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
