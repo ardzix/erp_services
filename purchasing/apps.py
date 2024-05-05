@@ -8,3 +8,4 @@ class PurchasingConfig(AppConfig):
 
     def ready(self):
         import purchasing.signals  # noqa
+        import purchasing.signals.payable

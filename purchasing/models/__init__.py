@@ -20,9 +20,11 @@ class Supplier(Contact):
     def save(self, *args, **kwargs):
 
         if not self.number:
+            prev = self.__class__.all_objects.order_by('id').last()
+            obj_id = prev.id + 1 if prev else 1
             prefix = 'SUP'
             tz = timezone.now()
-            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{str(self.pk).zfill(4)}'
+            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{str(obj_id).zfill(4)}'
 
         self.role = "Supplier"
         return super().save(*args, **kwargs)
@@ -125,12 +127,13 @@ class PurchaseOrder(BaseModelGeneric):
     def save(self, *args, **kwargs):
 
         if not self.number:
+            prev = self.__class__.all_objects.order_by('id').last()
+            obj_id = prev.id + 1 if prev else 1
             prefix = 'PO'
             tz = timezone.now()
-            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{str(self.pk).zfill(4)}'
+            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{str(obj_id).zfill(4)}'
 
         return super().save(*args, **kwargs)
-
 
     def _due_within_days(self, days):
         """Helper to determine if the due date is within a specified number of days."""
@@ -160,7 +163,8 @@ class PurchaseOrder(BaseModelGeneric):
 
     @property
     def payment_status(self):
-        payment = PurchaseOrderPayment.objects.filter(purchase_order=self).last()
+        payment = PurchaseOrderPayment.objects.filter(
+            purchase_order=self).last()
         return payment.status if payment else None
 
     @property
@@ -401,7 +405,7 @@ class Payable(BaseModelGeneric):
     @property
     def is_paid(self):
         return True if self.paid_at else None
-    
+
     @property
     def less_30_days_amount(self):
         return self.order.less_30_days_amount
@@ -417,7 +421,6 @@ class Payable(BaseModelGeneric):
     @property
     def more_than_90_days_amount(self):
         return self.order.more_than_90_days_amount
-
 
     class Meta:
         ordering = ['-id']

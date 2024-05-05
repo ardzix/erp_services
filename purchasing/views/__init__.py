@@ -23,7 +23,7 @@ from ..serializers.purchase_order import (
 class SupplierFilter(CreatedAtFilterMixin):
     class Meta:
         model = Supplier
-        fields = ['created_at_range']
+        fields = ['created_at_range', 'has_payable']
 
 
 class SupplierViewSet(viewsets.ModelViewSet):

@@ -7,11 +7,14 @@ from ..models import Payable, PurchaseOrderPayment
 
 @receiver(post_save, sender=StockMovement)
 def on_sm_created(sender, instance, created, **kwargs):
-    if instance.status_before != instance.status and instance.status == StockMovement.DELIVERED and instance.purchase_order:
+    print('goes here')
+    print(instance.status, instance.status_before, instance.status, instance.purchase_order)
+    if instance.status_before != instance.status and instance.status in [StockMovement.DELIVERED, StockMovement.PUT] and instance.purchase_order:
+        print('executing payable')
         supplier = instance.purchase_order.supplier
         Payable.objects.get_or_create(
             supplier=supplier,
-            order=instance.order,
+            order=instance.purchase_order,
             stock_movement=instance,
             amount=instance.buy_price
         )
