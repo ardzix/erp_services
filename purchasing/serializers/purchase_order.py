@@ -17,7 +17,7 @@ class PurchaseOrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseOrderItem
-        fields = ['id32', 'product', 'product_name', 'quantity', 'po_price', 'number']
+        fields = ['id32', 'product', 'product_name', 'quantity', 'po_price']
         read_only_fields = ['id32']
 
     def validate_product(self, product):
@@ -41,7 +41,7 @@ class InvalidPOItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvalidPOItem
         fields = ['id32', 'purchase_order', 'product',
-                  'name', 'quantity', 'price', 'unit', 'discount', 'number']
+                  'name', 'quantity', 'price', 'unit', 'discount']
         read_only_fields = ['id32']
 
 # PurchaseOrder Serializer

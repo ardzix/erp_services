@@ -20,7 +20,7 @@ class Supplier(Contact):
         if not self.number:
             prefix = 'SUP'
             tz = timezone.now()
-            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{self.pk.zfill(4)}'
+            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{str(self.pk).zfill(4)}'
 
         self.role = "Supplier"
         return super().save(*args, **kwargs)
@@ -115,7 +115,7 @@ class PurchaseOrder(BaseModelGeneric):
         if not self.number:
             prefix = 'PO'
             tz = timezone.now()
-            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{self.pk.zfill(4)}'
+            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{str(self.pk).zfill(4)}'
 
         return super().save(*args, **kwargs)
 
