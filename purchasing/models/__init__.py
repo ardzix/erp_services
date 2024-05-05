@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
+from django.utils import timezone
 from common.models import File
 from inventory.models import Product, StockMovement, Unit, Warehouse
 from identities.models import Contact
@@ -15,6 +16,12 @@ class Supplier(Contact):
     )
 
     def save(self, *args, **kwargs):
+
+        if not self.number:
+            prefix = 'SUP'
+            tz = timezone.now()
+            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{self.pk.zfill(4)}'
+
         self.role = "Supplier"
         return super().save(*args, **kwargs)
 

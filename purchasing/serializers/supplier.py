@@ -35,7 +35,7 @@ class SupplierDetailSerializer(serializers.ModelSerializer):
         model = Supplier
         fields = [
             'id32', 'created_at', 'name', 'contact_number', 'address', 'location', 
-            'location_coordinate'
+            'location_coordinate', 'number'
         ]
 
 
@@ -43,7 +43,7 @@ class SupplierCreateSerializer(ContactID32Mixin, serializers.ModelSerializer):
 
     class Meta:
         model = Supplier
-        fields = ['id32', 'created_at', 'name', 'contact_number', 'address']
+        fields = ['id32', 'created_at', 'name', 'contact_number', 'address', 'number']
         read_only_fields = ['id32', 'created_at']
 
 
@@ -51,7 +51,7 @@ class SupplierEditSerializer(ContactID32Mixin, serializers.ModelSerializer):
     class Meta:
         model = Supplier
         fields = [
-            'id32', 'created_at', 'name', 'contact_number', 'address', 'location', 
+            'id32', 'created_at', 'name', 'contact_number', 'address', 'location', 'number'
         ]
         read_only_fields = ['id32', 'created_at']
 

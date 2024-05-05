@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
+from django.utils import timezone
 from libs.base_model import BaseModelGeneric
 from common.models import File
 
@@ -24,6 +24,8 @@ class UserProfile(BaseModelGeneric):
 
 
 class Contact(BaseModelGeneric):
+    number = models.CharField(
+        unique=True, max_length=20, help_text=_("Enter account number"), blank=True, null=True)
     name = models.CharField(
         max_length=100, help_text=_("Name of the contact"))
     address = models.TextField(help_text=_("Contact's address"))
