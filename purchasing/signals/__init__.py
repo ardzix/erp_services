@@ -80,6 +80,7 @@ def create_stock_movement(sender, instance, **kwargs):
             origin_id=instance.supplier.id,
             destination_type=destination_ct if instance.destination_warehouse else None,
             destination_id=instance.destination_warehouse.id if instance.destination_warehouse else None,
+            purchase_order = instance
         )
         instance.stock_movement = sm
         instance.save()

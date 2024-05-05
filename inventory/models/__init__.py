@@ -331,8 +331,6 @@ class ProductLog(models.Model):
 
     def save(self, *args, **kwargs):
         if self.quantity_change != 0 or round(self.buy_price_change, 2) != 0 or round(self.base_price_change, 2) != 0 or round(self.sell_price_change, 2) != 0:
-            print(self.quantity_change, self.buy_price_change,
-                  self.base_price_change, self.sell_price_change)
             return super().save(*args, **kwargs)
 
     class Meta:
