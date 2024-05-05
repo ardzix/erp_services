@@ -320,7 +320,7 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
     purchase_order_id32 = serializers.SlugRelatedField(
         slug_field="id32",
         queryset=PurchaseOrder.objects.all(),
-        required=True,
+        required=False,
     )
 
     class Meta:
