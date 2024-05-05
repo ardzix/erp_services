@@ -17,7 +17,7 @@ class PurchaseOrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseOrderItem
-        fields = ['id32', 'product', 'product_name', 'quantity', 'po_price']
+        fields = ['id32', 'product', 'product_name', 'quantity', 'po_price', 'number']
         read_only_fields = ['id32']
 
     def validate_product(self, product):
@@ -41,7 +41,7 @@ class InvalidPOItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvalidPOItem
         fields = ['id32', 'purchase_order', 'product',
-                  'name', 'quantity', 'price', 'unit', 'discount']
+                  'name', 'quantity', 'price', 'unit', 'discount', 'number']
         read_only_fields = ['id32']
 
 # PurchaseOrder Serializer
@@ -58,7 +58,7 @@ class PurchaseOrderListSerializer(serializers.ModelSerializer):
         model = PurchaseOrder
         fields = ['id32', 'supplier',
                   'supplier_name', 'order_date', 'approval',
-                  'total']
+                  'total', 'number']
         read_only_fields = ['id32', 'approval']
 
 # Nested serializer for detail and create views
@@ -82,7 +82,7 @@ class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
         model = PurchaseOrder
         fields = ['id32', 'supplier', 'supplier_name', 'destination_warehouse', 'order_date',
                   'approval', 'items', 'invalid_items', 'invalid_item_evidence_id32', 'invalid_item_evidence',
-                  'discount_amount', 'tax_amount', 'subtotal', 'subtotal_after_discount', 'total']
+                  'discount_amount', 'tax_amount', 'subtotal', 'subtotal_after_discount', 'total', 'number']
         read_only_fields = ['id32', 'approval',
                             'invalid_items', 'invalid_item_evidence']
 

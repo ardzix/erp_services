@@ -62,6 +62,8 @@ class SupplierProduct(BaseModelGeneric):
 
 
 class PurchaseOrder(BaseModelGeneric):
+    number = models.CharField(
+        unique=True, max_length=20, help_text=_("Enter account number"), blank=True, null=True)
     supplier = models.ForeignKey(
         Supplier,
         on_delete=models.CASCADE,
@@ -107,6 +109,15 @@ class PurchaseOrder(BaseModelGeneric):
 
     def __str__(self):
         return _("Purchase Order #{id32}").format(id32=self.id32)
+
+    def save(self, *args, **kwargs):
+
+        if not self.number:
+            prefix = 'PO'
+            tz = timezone.now()
+            self.number = f'{prefix}{tz.year}{str(tz.month).zfill(2)}{self.pk.zfill(4)}'
+
+        return super().save(*args, **kwargs)
 
     @property
     def subtotal(self):
