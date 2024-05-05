@@ -96,7 +96,8 @@ class WarehouseTypeForm(forms.ModelForm):
 class StockMovementItemInline(admin.TabularInline):
     model = StockMovementItem
     extra = 1
-    fields = ['product', 'quantity', 'buy_price', 'unit', 'origin_movement_status', 'destination_movement_status', 'order']
+    fields = ['product', 'quantity', 'buy_price', 'unit',
+              'origin_movement_status', 'destination_movement_status', 'order']
     raw_id_fields = ['product']
     verbose_name_plural = _("Stock Movement Items")
 
@@ -108,9 +109,9 @@ class StockMovementAdmin(BaseAdmin):
     list_filter = ['movement_date', 'status',
                    FromWarehouseFilter, ToWarehouseFilter]
     search_fields = ['product__name']
-    fields = ['status', 'movement_date', 'origin', 'origin_id',
-              'origin_type', 'destination', 'destination_id', 'destination_type']
-    readonly_fields = ['origin', 'destination']
+    fields = ['status', 'movement_date', 'origin', 'origin_id', 'origin_type',
+              'destination', 'destination_id', 'destination_type', 'purchase_order', 'buy_price']
+    readonly_fields = ['origin', 'destination', 'buy_price']
     inlines = [StockMovementItemInline]
 
     def origin(self, obj):

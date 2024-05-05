@@ -35,7 +35,7 @@ class Supplier(Contact):
         return self.supplier_payables.filter(paid_at__isnull=True)
 
     @property
-    def receivable_amount(self):
+    def payable_amount(self):
         return self.payables.aggregate(total_amount=models.Sum('amount')).get('total_amount')
 
     class Meta:
@@ -421,8 +421,8 @@ class Payable(BaseModelGeneric):
 
     class Meta:
         ordering = ['-id']
-        verbose_name = _('Receivable')
-        verbose_name_plural = _('Receivables')
+        verbose_name = _('Payable')
+        verbose_name_plural = _('Payables')
 
 
 class VendorPerformance(BaseModelGeneric):

@@ -487,6 +487,11 @@ class StockMovement(BaseModelGeneric):
     @property
     def last_purchase_order(self):
         return self.purchaseorder_set.order_by('id').last()
+    
+    @property
+    def buy_price(self):
+        buy_price = self.items.aggregate(total=models.Sum('buy_price')).get('total')
+        return buy_price if buy_price else 0
 
 
 class StockMovementItem(BaseModelGeneric):

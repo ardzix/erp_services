@@ -7,7 +7,7 @@ from sales.models import Invoice, SalesPayment, Receivable
 
 
 @receiver(post_save, sender=Invoice)
-def handle_customer_visit_completed(sender, instance, created, **kwargs):
+def invoice_created(sender, instance, created, **kwargs):
     if created:
         customer = instance.order.customer
         Receivable.objects.get_or_create(

@@ -33,12 +33,6 @@ class CustomerAdmin(BaseAdmin):
     readonly_fields = ['receivable_amount']
     raw_id_fields = ['administrative_lv1', 'administrative_lv2',
                      'administrative_lv3', 'administrative_lv4']
-    
-
-    
-    def receivable_amount(self, obj):
-        return obj.receivable_amount
-    receivable_amount.short_description = 'Receivable Amount'
 
     def show_location(self, obj):
         return f"Latitude: {obj.location.y}, Longitude: {obj.location.x}" if obj.location else None
