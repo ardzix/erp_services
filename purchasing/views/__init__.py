@@ -86,6 +86,7 @@ class PurchaseOrderFilter(CreatedAtFilterMixin, django_filters.FilterSet):
     approval = django_filters.ChoiceFilter(
         method='filter_approval', choices=APPROVAL_CHOICES, label='Approval Status'
     )
+    supplier_id32 = django_filters.CharFilter(field_name="supplier__id32")
 
     class Meta:
         model = PurchaseOrder
