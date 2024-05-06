@@ -3,27 +3,23 @@ from django.utils import timezone
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from libs.permission import CanApprovePurchaseOrderPermission
 from inventory.models import Product
-from ..models import Supplier, SupplierProduct, PurchaseOrder, InvalidPOItem
+from ..filter import SupplierFilter, PayableFilter, PurchaseOrderFilter
+from ..models import Supplier, SupplierProduct, PurchaseOrder, InvalidPOItem, Payable
 from ..serializers.supplier import (
     SupplierListSerializer,
     SupplierDetailSerializer,
     SupplierCreateSerializer,
     SupplierEditSerializer,
     SupplierProductSerializer,
-    BulkAddProductsSerializer
+    BulkAddProductsSerializer,
 )
 from ..serializers.purchase_order import (
     PurchaseOrderListSerializer, PurchaseOrderDetailSerializer, InvalidPOItemSerializer)
+from ..serializers.payable import PayableSerializer
 
-
-class SupplierFilter(CreatedAtFilterMixin):
-    class Meta:
-        model = Supplier
-        fields = ['created_at_range', 'has_payable']
 
 
 class SupplierViewSet(viewsets.ModelViewSet):
@@ -73,34 +69,6 @@ class SupplierProductViewSet(viewsets.ModelViewSet):
                 supplier=supplier, product_id=product_id, created_by=request.user)
 
         return Response({"detail": "Products added successfully to the supplier."})
-
-
-class PurchaseOrderFilter(CreatedAtFilterMixin, django_filters.FilterSet):
-    APPROVAL_CHOICES = [
-        ('all', 'All'),
-        ('requested', 'Requested'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-    ]
-
-    approval = django_filters.ChoiceFilter(
-        method='filter_approval', choices=APPROVAL_CHOICES, label='Approval Status'
-    )
-    supplier_id32 = django_filters.CharFilter(field_name="supplier__id32")
-
-    class Meta:
-        model = PurchaseOrder
-        # Only model-specific fields go here
-        fields = ['approval', 'created_at_range']
-
-    def filter_approval(self, queryset, name, value):
-        if value == 'requested':
-            return queryset.filter(approved_at__isnull=True, unapproved_at__isnull=True)
-        elif value == 'approved':
-            return queryset.filter(approved_at__isnull=False, unapproved_at__isnull=True)
-        elif value == 'rejected':
-            return queryset.filter(approved_at__isnull=True, unapproved_at__isnull=False)
-        return queryset  # return all for 'all' and if the choice is not one of the listed above
 
 
 class PurchaseOrderViewSet(viewsets.ModelViewSet):
@@ -161,3 +129,19 @@ class InvalidPOItemViewSet(viewsets.ModelViewSet):
     lookup_field = 'id32'
     pagination_class = CustomPagination
     http_method_names = ['post', 'patch', 'head', 'options']
+
+
+
+class PayableViewSet(viewsets.ModelViewSet):
+    queryset = Payable.objects.all().order_by('-created_at')
+    serializer_class = PayableSerializer
+    lookup_field = 'id32'
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
+    pagination_class = CustomPagination
+    filterset_class = PayableFilter
+    filter_backends = (filters.SearchFilter,
+                       django_filters.DjangoFilterBackend, filters.OrderingFilter,)
+    search_fields = ['supplier__name', 'supplier__number']
+    # To restrict certain actions:
+    http_method_names = ['get', 'head', 'options']

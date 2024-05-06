@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from libs.admin import ApproveRejectMixin, BaseAdmin
-from ..models import Supplier, SupplierProduct, PurchaseOrder, PurchaseOrderItem, Shipment, VendorPerformance
+from ..models import Payable, Supplier, SupplierProduct, PurchaseOrder, PurchaseOrderItem, Shipment, VendorPerformance
 
 @admin.register(Supplier)
 class SupplierAdmin(BaseAdmin):
@@ -52,3 +52,14 @@ class VendorPerformanceAdmin(BaseAdmin):
     list_filter = ['supplier', 'rating']
     fields = ['supplier', 'rating', 'comments']
 
+
+
+@admin.register(Payable)
+class PayableAdmin(BaseAdmin):
+    list_display = ['id32', 'supplier', 'order',
+                    'amount', 'is_paid']
+    list_filter = ['supplier']
+    search_fields = ['supplier__name']
+    fields = ['supplier', 'order', 'stock_movement', 'payment', 'shipment', 'amount',
+              'paid_at']
+    raw_id_fields = ['supplier', 'order', 'stock_movement', 'payment', 'shipment']

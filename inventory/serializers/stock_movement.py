@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from inventory.views import stock_movement
 from libs.utils import validate_file_by_id32
 from purchasing.models import PurchaseOrder, PurchaseOrderItem
+from purchasing.serializers import purchase_order
 from sales.models import SalesOrder
 from ..models import StockMovement, StockMovementItem, Product, Unit, ProductLocation
 
@@ -407,6 +408,7 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         movement_evidence = validated_data.pop(
             'movement_evidence_id32') if 'movement_evidence_id32' in validated_data else None
         validated_data['movement_evidence'] = movement_evidence
+        validated_data['purchase_order'] = PurchaseOrder.objects.filter(id32=validated_data.pop('purchase_order_id32')).first()
         stock_movement = StockMovement.objects.create(**validated_data)
         if stock_movement.generate_items_from_sales:
             for item_data in items_data:
@@ -417,6 +419,7 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         return stock_movement
 
     def update(self, instance, validated_data):
+        validated_data['purchase_order'] = PurchaseOrder.objects.filter(id32=validated_data.pop('purchase_order_id32')).first()
         if 'items' in validated_data:
             validated_data.pop('items')
         if 'movement_evidence_id32' in validated_data:
