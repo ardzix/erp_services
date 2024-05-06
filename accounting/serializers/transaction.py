@@ -31,7 +31,7 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
         slug_field='id32',
         queryset=Contact.objects.all(),
         source='source',
-        required=True,
+        required=False,
         write_only=True
     )
     allocation_str = serializers.SerializerMethodField()
