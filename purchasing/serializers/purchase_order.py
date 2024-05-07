@@ -15,17 +15,25 @@ class PurchaseOrderItemSerializer(serializers.ModelSerializer):
     product = serializers.SlugRelatedField(
         slug_field='id32', queryset=Product.objects.all())
 
-    class Meta:
-        model = PurchaseOrderItem
-        fields = ['id32', 'product', 'product_name', 'quantity', 'po_price']
-        read_only_fields = ['id32']
-
     def validate_product(self, product):
         if product.purchasing_unit is None:
             raise serializers.ValidationError({
                 "product": _("The product's purchasing unit has not been set.")
             })
         return product
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['unit'] = {
+            'id32': instance.unit.id32,
+            'symbol': instance.unit.symbol
+        }
+        return representation
+
+    class Meta:
+        model = PurchaseOrderItem
+        fields = ['id32', 'product', 'product_name', 'quantity', 'po_price', 'unit']
+        read_only_fields = ['id32']
 
 # InvalidPOItem Serializer
 
