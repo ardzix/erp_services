@@ -1,7 +1,9 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from rest_framework import serializers
 from django.utils import timezone
 from inventory.models import StockMovement
+from django.utils.translation import gettext_lazy as _
 from purchasing.serializers import purchase_order
 from ..models import Payable, PurchaseOrderPayment
 
@@ -44,7 +46,10 @@ def create_next_trip_on_trip_complete(sender, instance, **kwargs):
 
 
 @receiver(pre_save, sender=StockMovement)
-def merge_stock_movement(sender, instance, **kwargs):
+def check_po(sender, instance, **kwargs):
     prev_stock_movement = StockMovement.objects.filter(purchase_order=instance.purchase_order).first()
     if prev_stock_movement:
         instance.pk = prev_stock_movement.pk
+        raise serializers.ValidationError({
+            'purchase_order_id32': _("Stock movement with given purchase order is already exists.")
+        })
