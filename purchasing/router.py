@@ -1,8 +1,9 @@
 from rest_framework.routers import DefaultRouter
-from .views import (SupplierViewSet, SupplierProductViewSet, PurchaseOrderViewSet, InvalidPOItemViewSet, PurchaseOrderPaymentViewSet)
+from .views import (SupplierViewSet, SupplierProductViewSet, PurchaseOrderViewSet, InvalidPOItemViewSet, PurchaseOrderPaymentViewSet, PayableViewSet)
 
 router = DefaultRouter()
 router.register('purchase_order', PurchaseOrderViewSet, basename='purchase_order')
+router.register('payable', PayableViewSet, basename='payable')
 router.register('payment', PurchaseOrderPaymentViewSet, basename='payment')
 router.register('invalid_po_item', InvalidPOItemViewSet, basename='invalid_po_item')
 router.register('supplier', SupplierViewSet, basename='supplier')
