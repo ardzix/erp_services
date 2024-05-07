@@ -7,7 +7,7 @@ from libs.pagination import CustomPagination
 from libs.permission import CanApprovePurchaseOrderPermission
 from inventory.models import Product
 from ..filter import SupplierFilter, PayableFilter, PurchaseOrderFilter
-from ..models import Supplier, SupplierProduct, PurchaseOrder, InvalidPOItem, Payable
+from ..models import Supplier, SupplierProduct, PurchaseOrder, InvalidPOItem, Payable, PurchaseOrderPayment
 from ..serializers.supplier import (
     SupplierListSerializer,
     SupplierDetailSerializer,
@@ -19,6 +19,7 @@ from ..serializers.supplier import (
 from ..serializers.purchase_order import (
     PurchaseOrderListSerializer, PurchaseOrderDetailSerializer, InvalidPOItemSerializer)
 from ..serializers.payable import PayableSerializer
+from ..serializers.payment import PurchaseOrderPaymentSerializer
 
 
 
@@ -145,3 +146,13 @@ class PayableViewSet(viewsets.ModelViewSet):
     search_fields = ['supplier__name', 'supplier__number']
     # To restrict certain actions:
     http_method_names = ['get', 'head', 'options']
+
+
+
+class PurchaseOrderPaymentViewSet(viewsets.ModelViewSet):
+    queryset = PurchaseOrderPayment.objects.all().order_by('-created_at')
+    serializer_class = PurchaseOrderPaymentSerializer
+    lookup_field = 'id32'
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
+    pagination_class = CustomPagination
