@@ -85,7 +85,7 @@ class TransactionSerializer(AccountRepresentationMixin, serializers.ModelSeriali
     
     def to_representation(self, instance):
         representation =  super().to_representation(instance)
-        if 'source' in representation:
+        if instance.source:
             representation['source'] = {
                 'id32': instance.source.id32,
                 'str': instance.source.__str__(),
