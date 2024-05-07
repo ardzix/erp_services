@@ -18,10 +18,11 @@ class PayableSerializer(serializers.ModelSerializer):
             'id32': instance.stock_movement.id32,
             'str': instance.stock_movement.__str__(),
         }
-        representation['shipment'] = {
-            'id32': instance.shipment.id32,
-            'str': instance.shipment.__str__(),
-        }
+        if instance.shipment:
+            representation['shipment'] = {
+                'id32': instance.shipment.id32,
+                'str': instance.shipment.__str__(),
+            }
         if instance.payment:
             representation['payment'] = {
                 'id32': instance.payment.id32,
