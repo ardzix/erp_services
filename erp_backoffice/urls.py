@@ -65,7 +65,6 @@ urlpatterns = [
     path('api/production/', include(production_router.urls)),
     path('api/purchasing/', include(purchasing_router.urls)),
     path('api/sales/', include(sales_router.urls)),
-    path('api/sales/reports', include(sales_router.urls)),
     path('api/sales/report/', SalesReportAPIView.as_view(), name='sales_report'),
 
 
