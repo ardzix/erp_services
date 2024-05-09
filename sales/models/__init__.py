@@ -200,6 +200,10 @@ class SalesOrder(BaseModelGeneric):
                                 decimal_places=2,
                                 default=0,
                                 help_text=_('Enter the bonus amount'))
+    down_payment = models.DecimalField(max_digits=19,
+                                decimal_places=2,
+                                default=0,
+                                help_text=_('Enter the DP amount'))
 
     def __str__(self):
         return _('Order #{id32} - {customer}').format(id32=self.id32, customer=self.customer)

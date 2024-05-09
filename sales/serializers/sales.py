@@ -1,4 +1,5 @@
 from django.db.models import F, Sum
+from datetime import datetime, timedelta
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
@@ -15,11 +16,13 @@ class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     unit_id32 = serializers.CharField(source='unit.id32')
     unit_symbol = serializers.CharField(source='unit.symbol', read_only=True)
-    price = serializers.DecimalField(max_digits=19, decimal_places=2, required=False)
+    price = serializers.DecimalField(
+        max_digits=19, decimal_places=2, required=False)
 
     class Meta:
         model = OrderItem
-        fields = ['id32', 'product_id32', 'product_name', 'unit_id32', 'unit_symbol', 'quantity', 'price']
+        fields = ['id32', 'product_id32', 'product_name',
+                  'unit_id32', 'unit_symbol', 'quantity', 'price']
         read_only_fields = ['id32', 'product_name', 'unit_symbol']
 
     def validate(self, data):
@@ -42,13 +45,15 @@ class OrderItemSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"unit_id32": "Unit with this id32 does not exist or not suits with the product."})
         if 'price' not in validated_data or validated_data['price'] == 0:
-            validated_data['price'] = unit.conversion_to_top_level() * product.sell_price
+            validated_data['price'] = unit.conversion_to_top_level() * \
+                product.sell_price
         return validated_data
 
 
 class SalesPaymentSerializer(serializers.ModelSerializer):
     invoice_id32 = serializers.CharField(write_only=True)
-    payment_evidence_id32 = serializers.CharField(write_only=True, required=False)
+    payment_evidence_id32 = serializers.CharField(
+        write_only=True, required=False)
 
     class Meta:
         model = SalesPayment
@@ -57,7 +62,6 @@ class SalesPaymentSerializer(serializers.ModelSerializer):
             'payment_evidence_id32', 'payment_evidence', 'status'
         ]
         read_only_fields = ['id32', 'invoice', 'payment_evidence']
-
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -102,11 +106,13 @@ class SalesPaymentSerializer(serializers.ModelSerializer):
             validated_data['invoice'] = Invoice.objects.get(id32=invoice_id32)
         file_id32 = validated_data.pop('payment_evidence_id32', None)
         if file_id32:
-            validated_data['payment_evidence'] = File.objects.get(id32=file_id32)
+            validated_data['payment_evidence'] = File.objects.get(
+                id32=file_id32)
         try:
             return super().create(validated_data)
         except Exception as e:
             raise serializers.ValidationError(e)
+
 
 class SalesPaymentPartialUpdateSerializer(serializers.ModelSerializer):
     payment_evidence_id32 = serializers.CharField(write_only=True)
@@ -124,15 +130,18 @@ class SalesPaymentPartialUpdateSerializer(serializers.ModelSerializer):
                 _("File with this id32 does not exist."))
 
     def update(self, instance, validated_data):
-        payment_evidence_id32 = validated_data.pop('payment_evidence_id32', None)
+        payment_evidence_id32 = validated_data.pop(
+            'payment_evidence_id32', None)
         if payment_evidence_id32:
-            instance.payment_evidence = File.objects.get(id32=payment_evidence_id32)
+            instance.payment_evidence = File.objects.get(
+                id32=payment_evidence_id32)
         return super().update(instance, validated_data)
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
     order_id32 = serializers.CharField(source='order.id32', read_only=True)
-    approved_by_username = serializers.CharField(source='approved_by.username', read_only=True)
+    approved_by_username = serializers.CharField(
+        source='approved_by.username', read_only=True)
     payments = SalesPaymentSerializer(many=True, read_only=True)
 
     class Meta:
@@ -141,7 +150,8 @@ class InvoiceSerializer(serializers.ModelSerializer):
             'id32', 'order_id32', 'invoice_date', 'approved_by_username',
             'approved_at', 'subtotal', 'vat_percent', 'vat_amount', 'total', 'payments', 'attachment'
         ]
-        read_only_fields = ['id32', 'approved_at', 'subtotal', 'vat_percent', 'vat_amount', 'total', 'attachment']
+        read_only_fields = ['id32', 'approved_at', 'subtotal',
+                            'vat_percent', 'vat_amount', 'total', 'attachment']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -180,26 +190,38 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
         source='customer.name',
         read_only=True
     )
+    amount = serializers.SerializerMethodField()
     total_amount = serializers.SerializerMethodField()
     trip_id32s = serializers.SerializerMethodField()
     qty = serializers.SerializerMethodField()
     invoice_number = serializers.SerializerMethodField()
     total_margin_amount = serializers.SerializerMethodField()
     margin_percent = serializers.SerializerMethodField()
+    sales = serializers.SerializerMethodField()
+    due_date = serializers.SerializerMethodField()
 
     class Meta:
         model = SalesOrder
-        fields = ['id32', 'customer', 'order_date', 'is_paid', 'approved_by', 'total_amount',
-                  'status', 'trip_id32s', 'qty', 'invoice_number', 'total_margin_amount', 'margin_percent', 'bonus']
+        fields = ['id32', 'customer', 'order_date', 'is_paid', 'approved_by', 'amount', 'total_amount', 'down_payment', 'due_date',
+                  'status', 'trip_id32s', 'qty', 'invoice_number', 'total_margin_amount', 'margin_percent', 'bonus', 'sales']
         read_only_fields = ['id32', 'approved_by', 'customer', 'qty',
                             'invoice_number', 'total_margin_amount', 'margin_percent']
+        
+    def get_due_date(self, obj):
+        return obj.order_date + timedelta(days=obj.customer.due_date) if obj.customer.due_date else obj.order_date
 
-    def get_total_amount(self, obj):
-        total_amount = obj.order_items.aggregate(
+    def get_sales(self, obj):
+        return f'{obj.created_by.first_name} {obj.created_by.last_name} ({obj.created_by.email})'
+
+    def get_amount(self, obj):
+        amount = obj.order_items.aggregate(
             total_price=Sum(F('price') * F('quantity'))).get('total_price')
-        total_amount = 0 if not total_amount else total_amount
-        return total_amount
+        amount = 0 if not amount else amount
+        return amount
     
+    def get_total_amount(self, obj):
+        return self.get_amount(obj) - obj.down_payment if obj.down_payment else self.get_amount(obj)
+
     def get_trip_id32s(self, obj):
         return obj.customervisit_set.values_list('trip__id32', flat=True)
 
@@ -220,12 +242,13 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
 
     def get_margin_percent(self, obj):
         total_margin_amount = self.get_total_margin_amount(obj)
-        total_amount = self.get_total_amount(obj)
+        total_amount = self.get_amount(obj)
 
         try:
             return round(total_margin_amount/total_amount * 100, 2)
         except:
             return 0
+
 
 class SalesOrderDetailSerializer(SalesOrderListSerializer):
     order_items = OrderItemSerializer(many=True)
@@ -386,5 +409,6 @@ class SalesOrderSerializer(SalesOrderListSerializer):
 
 
 class SalesReportSerializer(serializers.Serializer):
-    total_sales = serializers.DecimalField(max_digits=19, decimal_places=2, required=False)
+    total_sales = serializers.DecimalField(
+        max_digits=19, decimal_places=2, required=False)
     total_quantity = serializers.IntegerField(required=False)
