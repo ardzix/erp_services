@@ -202,10 +202,17 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SalesOrder
-        fields = ['id32', 'customer', 'order_date', 'is_paid', 'approved_by', 'amount', 'total_amount', 'down_payment', 'due_date',
-                  'status', 'trip_id32s', 'qty', 'invoice_number', 'total_margin_amount', 'margin_percent', 'bonus', 'sales']
-        read_only_fields = ['id32', 'approved_by', 'customer', 'qty',
-                            'invoice_number', 'total_margin_amount', 'margin_percent']
+        fields = [
+            'id32', 'amount', 'approved_by', 'bonus', 'customer', 'down_payment', 
+            'due_date', 'invoice_number', 'is_paid', 'margin_percent', 'order_date',
+            'qty', 'sales', 'status', 'total_amount', 'total_margin_amount', 'trip_id32s'
+        ]
+
+        read_only_fields = [
+            'id32', 'approved_by', 'customer', 'invoice_number', 
+            'margin_percent', 'qty', 'total_margin_amount'
+        ]
+
         
     def get_due_date(self, obj):
         return obj.order_date + timedelta(days=obj.customer.due_date) if obj.customer.due_date else obj.order_date
@@ -260,10 +267,14 @@ class SalesOrderDetailSerializer(SalesOrderListSerializer):
 
     class Meta:
         model = SalesOrder
-        fields = ['id32', 'customer', 'order_date', 'approved_by',
-                  'total_amount', 'order_items', 'delivery_status',
-                  'status', 'type', 'invoice', 'is_paid', 'customer_visits',
-                  'warehouse', 'trip_id32s']
+        fields = [
+            'id32', 'amount', 'approved_by', 'bonus', 'customer', 'customer_visits',
+            'delivery_status', 'down_payment', 'due_date', 'invoice',
+            'invoice_number', 'is_paid', 'margin_percent', 'order_date',
+            'order_items', 'qty', 'sales', 'status', 'total_amount',
+            'total_margin_amount', 'trip_id32s', 'type', 'warehouse'
+        ]
+
         read_only_fields = ['id32', 'approved_by',
                             'customer', 'delivery_status']
 
