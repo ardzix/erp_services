@@ -305,7 +305,7 @@ class SalesOrderSerializer(SalesOrderListSerializer):
 
     class Meta:
         model = SalesOrder
-        fields = ['id32', 'customer_id32', 'warehouse_id32', 'status',
+        fields = ['id32', 'customer_id32', 'warehouse_id32', 'status', 'bonus', 'down_payment',
                   'order_date', 'total_amount', 'order_items']
         read_only_fields = ['id32']
 
