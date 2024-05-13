@@ -3,19 +3,22 @@ from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from drf_yasg import utils as drf_yasg_utils, openapi
 from django.utils.translation import gettext_lazy as _
 from django_filters import rest_framework as django_filters
-from django.db.models import Sum, F
+from django.db.models import Sum, F, CharField, Value
+from django.db.models.functions import Concat
 from django.shortcuts import HttpResponse
+from django.contrib.auth.models import User
 from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from libs.excel import create_xlsx_file
 from common.serializers import FileSerializer
 from common.models import File
 from ..scripts import generate_invoice_pdf_for_instances
-from ..serializers.sales import (SalesOrderSerializer, SalesOrderListSerializer,
-                                 SalesOrderDetailSerializer, InvoiceSerializer, SalesPaymentSerializer, SalesPaymentPartialUpdateSerializer)
-from ..models import SalesOrder, Invoice, SalesPayment, CustomerVisit, OrderItem
+from ..serializers.sales import (SalesOrderSerializer, SalesOrderListSerializer, SalesOrderDetailSerializer, InvoiceSerializer,
+                                 SalesPaymentSerializer, SalesPaymentPartialUpdateSerializer, RecordingSalesListSerializer, RecordingSalesDetailSerializer)
+from ..models import SalesOrder, Invoice, SalesPayment, CustomerVisit, OrderItem, Customer
 
 
 class SalesFilter(CreatedAtFilterMixin):
@@ -157,3 +160,181 @@ class SalesPaymentViewSet(viewsets.ModelViewSet):
         if self.action == 'partial_update':
             return SalesPaymentPartialUpdateSerializer
         return super().get_serializer_class()
+
+
+class RecordingSalesViewSet(viewsets.GenericViewSet):
+    so_sales_ids = SalesOrder.objects.values_list("created_by", flat=True)
+    queryset = User.objects.filter(id__in=list(set(so_sales_ids)))
+    lookup_field = 'id'
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    pagination_class = CustomPagination
+    filter_backends = (filters.SearchFilter, )
+    search_manual_parametrs = [openapi.Parameter(
+        "search",
+        in_=openapi.IN_QUERY,
+        type=openapi.TYPE_STRING,
+        description="Search customer by name",
+    )]
+
+    def get_serializer_class(self):
+        return {"retrieve": RecordingSalesDetailSerializer}.get(self.action, RecordingSalesListSerializer)
+
+    def list(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        search = request.query_params.get("search")
+        if search:
+            queryset = queryset.annotate(
+                full_name=Concat('first_name', Value(' '),
+                                 'last_name', output_field=CharField())
+            ).filter(
+                full_name__icontains=search
+            )
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset)
+            return Response(serializer.data)
+
+    @drf_yasg_utils.swagger_auto_schema(manual_parameters=search_manual_parametrs)
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        search = request.query_params.get("search")
+
+        customer_ids = SalesOrder.objects.filter(
+            created_by=instance).values_list("customer_id", flat=True)
+        queryset = Customer.objects.filter(id__in=list(set(customer_ids)))
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        page = self.paginate_queryset(queryset)
+        serializer_class = self.get_serializer_class()
+        if page is not None:
+            serializer = serializer_class(
+                page, many=True, context={"sales": instance})
+            return self.get_paginated_response(serializer.data)
+        else:
+            serializer = serializer_class(
+                queryset, context={"sales": instance})
+            return Response(serializer.data)
+
+    @action(methods=["GET"], detail=False, url_path="excel")
+    def export_excel(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        headers = {
+            "full_name": "Nama Sales",
+            "total_amount": "Total Omzet",
+            "qty": "Quantity",
+            "total_margin_amount": "Margin",
+            "margin_percent": "% Margin",
+        }
+
+        def get_item(user):
+            current_order_items = OrderItem.objects.filter(
+                order__deleted_at__isnull=True, order__created_by=user)
+            aggragators = current_order_items.aggregate(total_amount=Sum(F('price') * F('quantity')), total_qty=Sum('quantity'),
+                                                        total_margin=F('total_amount') - Sum(F('product__base_price') * F('quantity')))
+            total_amount = aggragators.get("total_amount") or 0
+            total_qty = aggragators.get("total_qty") or 0
+            total_margin = aggragators.get("total_margin") or 0
+
+            try:
+                margin_percent = round(total_margin/total_amount * 100, 2)
+            except:
+                margin_percent = 0
+
+            return total_amount, total_qty, total_margin, margin_percent
+
+        items = []
+        for user in queryset:
+            total_amount, total_qty, total_margin, margin_percent = get_item(
+                user)
+            items.append({
+                "full_name": user.get_full_name(),
+                "total_amount": total_amount,
+                "qty": total_qty,
+                "total_margin_amount": total_margin,
+                "margin_percent": margin_percent
+            })
+
+        output = create_xlsx_file(headers, items, True)
+        output.seek(0)
+        filename = (
+            f"recordingsales_{datetime.datetime.now().strftime('%Y-%m-%d')}.xlsx"
+        )
+        http_response = HttpResponse(
+            output,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        http_response["Content-Disposition"] = "attachment; filename=%s" % filename
+        http_response["Access-Control-Expose-Headers"] = "Content-Disposition"
+
+        return http_response
+
+    @drf_yasg_utils.swagger_auto_schema(manual_parameters=search_manual_parametrs)
+    @action(methods=["GET"], detail=True, url_path="excel")
+    def export_excel_detail(self, request, *args, **kwargs):
+        instance = self.get_object()
+        search = request.query_params.get("search")
+
+        customer_ids = SalesOrder.objects.filter(
+            created_by=instance).values_list("customer_id", flat=True)
+        queryset = Customer.objects.filter(id__in=list(set(customer_ids)))
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+
+        headers = {
+            "customer_name": "Nama Pelanggan",
+            "omzet": "Omzet",
+            "qty": "Quantity",
+            "margin_amount": "Margin",
+            "margin_percent": "% Margin",
+        }
+
+        def get_items(customer):
+            order_items = OrderItem.objects.filter(
+                order__deleted_at__isnull=True, order__customer=customer)
+            total_omzet = order_items.aggregate(total_omzet=Sum(
+                F('price') * F('quantity'))).get("total_omzet") or 0
+
+            total_qty = order_items.aggregate(
+                total_qty=Sum('quantity')).get("total_qty") or 0
+
+            margin_amount = order_items.aggregate(margin=Sum(
+                F('price') * F('quantity')) - Sum(F('product__base_price') * F('quantity'))).get('margin') or 0
+
+            try:
+                margin_percent = round(margin_amount/total_omzet * 100, 2)
+            except:
+                margin_percent = 0
+
+            return {
+                "customer_name": customer.name,
+                "omzet": total_omzet,
+                "qty": total_qty,
+                "margin_amount": margin_amount,
+                "margin_percent": margin_percent
+            }
+
+        items = []
+        for customer in queryset:
+            items.append(get_items(customer))
+
+        output = create_xlsx_file(headers, items, True)
+        output.seek(0)
+        filename = (
+            f"recordingsales_of_{instance.get_full_name()}_{datetime.datetime.now().strftime('%Y-%m-%d')}.xlsx"
+        )
+        http_response = HttpResponse(
+            output,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        http_response["Content-Disposition"] = "attachment; filename=%s" % filename
+        http_response["Access-Control-Expose-Headers"] = "Content-Disposition"
+
+        return http_response

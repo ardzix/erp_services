@@ -1,4 +1,4 @@
-from django.db.models import F, Sum
+from django.db.models import F, Sum, ExpressionWrapper, DecimalField
 from datetime import datetime, timedelta
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -203,17 +203,16 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SalesOrder
         fields = [
-            'id32', 'amount', 'approved_by', 'bonus', 'customer', 'down_payment', 
+            'id32', 'amount', 'approved_by', 'bonus', 'customer', 'down_payment',
             'due_date', 'invoice_number', 'is_paid', 'margin_percent', 'order_date',
             'qty', 'sales', 'status', 'total_amount', 'total_margin_amount', 'trip_id32s'
         ]
 
         read_only_fields = [
-            'id32', 'approved_by', 'customer', 'invoice_number', 
+            'id32', 'approved_by', 'customer', 'invoice_number',
             'margin_percent', 'qty', 'total_margin_amount'
         ]
 
-        
     def get_due_date(self, obj):
         return obj.order_date + timedelta(days=obj.customer.due_date) if obj.customer.due_date else obj.order_date
 
@@ -225,7 +224,7 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
             total_price=Sum(F('price') * F('quantity'))).get('total_price')
         amount = 0 if not amount else amount
         return amount
-    
+
     def get_total_amount(self, obj):
         return self.get_amount(obj) - obj.down_payment if obj.down_payment else self.get_amount(obj)
 
@@ -423,3 +422,104 @@ class SalesReportSerializer(serializers.Serializer):
     total_sales = serializers.DecimalField(
         max_digits=19, decimal_places=2, required=False)
     total_quantity = serializers.IntegerField(required=False)
+
+
+class RecordingSalesListSerializer(serializers.Serializer):
+    id = serializers.CharField()
+
+    def to_representation(self, instance):
+        order_items = OrderItem.objects.filter(
+            order__deleted_at__isnull=True, order__created_by=instance)
+        total_margin_amount = order_items.aggregate(
+            total_margin_amount=Sum(F('price') * F('quantity')) -
+            Sum(F('product__base_price') * F('quantity'))
+        ).get("total_margin_amount") or 0
+
+        total_amount = order_items.aggregate(
+            total_amount=Sum(F('price') * F('quantity'))
+        ).get("total_amount") or 0
+
+        total_quantity = order_items.aggregate(
+            total_quantity=Sum('quantity')
+        ).get("total_quantity") or 0
+
+        total_dp = order_items.aggregate(
+            total_dp=Sum('order__down_payment')
+        ).get("total_dp") or 0
+
+        total_amount_after_dp = total_amount - total_dp
+
+        try:
+            margin_percent = round(total_margin_amount/total_amount * 100, 2)
+        except:
+            pass
+
+        to_representation = super().to_representation(instance)
+        return {
+            **to_representation,
+            "full_name": instance.get_full_name(),
+            "total_margin_amount": total_margin_amount,
+            "margin_percent": margin_percent,
+            "total_amount": total_amount,
+            "total_amount_after_dp": total_amount_after_dp,
+            "qty": total_quantity
+        }
+
+
+class RecordingSalesDetailSerializer(serializers.Serializer):
+    omzet = serializers.SerializerMethodField()
+    margin = serializers.SerializerMethodField()
+    margin_percent = serializers.SerializerMethodField()
+    qty = serializers.SerializerMethodField()
+
+    def _get_order_items(self, instance):
+        return OrderItem.objects.filter(order__deleted_at__isnull=True, order__customer=instance)
+
+    def get_omzet(self, obj):
+        order_items = self._get_order_items(obj)
+        if not order_items:
+            return
+
+        total_omzet = order_items.aggregate(total_omzet=Sum(
+            F('price') * F('quantity'))).get("total_omzet")
+        return total_omzet if total_omzet else 0
+
+    def get_qty(self, obj):
+        order_items = self._get_order_items(obj)
+        if not order_items:
+            return
+        total_qty = order_items.aggregate(
+            total_qty=Sum('quantity')).get("total_qty")
+        return total_qty if total_qty else 0
+
+    def get_margin(self, obj):
+        order_items = self._get_order_items(obj)
+        if not order_items:
+            return
+        margin_amount = order_items.aggregate(margin=Sum(
+            F('price') * F('quantity')) - Sum(F('product__base_price') * F('quantity'))).get('margin')
+        margin_amount = 0 if not margin_amount else margin_amount
+        return margin_amount
+
+    def get_margin_percent(self, obj):
+        total_omzet = self.get_omzet(obj)
+        total_margin = self.get_margin(obj)
+
+        try:
+            return round(total_margin/total_omzet * 100, 2)
+        except:
+            return 0
+
+    def to_representation(self, instance):
+        to_representation = super().to_representation(instance)
+        customer = CustomerLiteSerializer(instance).data
+        sales = self.context["sales"]
+
+        return {
+            **to_representation,
+            "customer": customer,
+            "sales": {
+                "id": sales.id,
+                "full_name": sales.get_full_name()
+            }
+        }
