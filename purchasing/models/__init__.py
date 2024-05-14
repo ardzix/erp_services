@@ -1,11 +1,26 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import now
 from libs.base_model import BaseModelGeneric, User
 from common.models import File
 from inventory.models import Product, StockMovement, Unit, Warehouse
 
 
 class Supplier(BaseModelGeneric):
+    PAYMENT_TERM_CASH = 0
+    PAYMENT_TERM_7_DAYS = 7
+    PAYMENT_TERM_14_DAYS = 14
+    PAYMENT_TERM_21_DAYS = 21
+    PAYMENT_TERM_30_DAYS = 30
+
+    PAYMENT_TERMS_CHOICES = [
+        (PAYMENT_TERM_CASH, 'Tunai'),
+        (PAYMENT_TERM_7_DAYS, '7 Hari'),
+        (PAYMENT_TERM_14_DAYS, '14 Hari'),
+        (PAYMENT_TERM_21_DAYS, '21 Hari'),
+        (PAYMENT_TERM_30_DAYS, '1 Bulan'),
+    ]
+
     name = models.CharField(
         max_length=100,
         help_text=_("Enter the supplier's name")
@@ -32,6 +47,12 @@ class Supplier(BaseModelGeneric):
         verbose_name=_("Company Profile"),
         help_text=_("Select the company profile for this supplier")
     )
+    payment_term = models.IntegerField(choices=PAYMENT_TERMS_CHOICES,
+                                       default=PAYMENT_TERM_CASH,
+                                       help_text="Enter payment term to decide billing date Purchase Order")
+
+    def get_payment_term_display(self):
+        return dict(self.PAYMENT_TERMS).get(self.payment_term, 'Unknown')
 
     def __str__(self):
         return _("Supplier #{id32} - {name}").format(id32=self.id32, name=self.name)
@@ -112,24 +133,44 @@ class PurchaseOrder(BaseModelGeneric):
         default=0,
         help_text=_("Enter the tax amount for purchase order")
     )
+    billing_due_date = models.DateField(default=now)
+    down_payment = models.DecimalField(max_digits=19,
+                                       decimal_places=2,
+                                       default=0,
+                                       help_text=_('Enter the DP amount'))
 
     def __str__(self):
         return _("Purchase Order #{id32}").format(id32=self.id32)
-    
+
     @property
     def subtotal(self):
         amount = 0
         for item in self.purchaseorderitem_set.all():
             amount += item.subtotal
         return amount
-    
+
     @property
     def subtotal_after_discount(self):
         return self.subtotal - self.discount_amount
-    
+
     @property
     def total(self):
-        return self.subtotal_after_discount + self.tax_amount
+        return self.subtotal_after_discount + self.tax_amount - self.down_payment
+
+    @property
+    def margin(self):
+        total = self.subtotal_after_discount
+        amount = 0
+        for item in self.purchaseorderitem_set.all():
+            amount += item.margin
+        return amount - total
+
+    @property
+    def magin_percent(self):
+        try:
+            return round(self.margin/self.subtotal_after_discount * 100, 2)
+        except:
+            return 0
 
     class Meta:
         ordering = ['-id']
@@ -171,6 +212,10 @@ class PurchaseOrderItem(BaseModelGeneric):
     @property
     def subtotal(self):
         return self.po_price * self.quantity
+
+    @property
+    def margin(self):
+        return self.subtotal - (self.quantity * self.product.base_price)
 
     def __str__(self):
         return _("Purchase Order Item #{id32} - {product}").format(id32=self.id32, product=self.product)
@@ -222,6 +267,7 @@ class InvalidPOItem(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _("Invalid Purchase Order Item")
         verbose_name_plural = _("Invalid Purchase Order Items")
+
 
 class Shipment(BaseModelGeneric):
     purchase_order = models.ForeignKey(
