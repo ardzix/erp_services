@@ -193,10 +193,12 @@ class RecordingSalesViewSet(viewsets.GenericViewSet):
             if len(dates) == 2:
                 start_date, end_date = dates
                 so = so.filter(
-                    created_at__gte=start_date, created_at__lte=end_date)
+                    created_at__date__gte=start_date, created_at__date__lte=end_date)
 
         so_sales_ids = so.values_list("created_by", flat=True)
         queryset = User.objects.filter(id__in=list(set(so_sales_ids)))
+
+        self.so = so
         return queryset
 
     @drf_yasg_utils.swagger_auto_schema(manual_parameters=[search_manual_parametrs[1]])
@@ -207,11 +209,11 @@ class RecordingSalesViewSet(viewsets.GenericViewSet):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True, context={
-                                             "search": search, "request": request})
+                                             "search": search, "request": request, "so": self.so})
             return self.get_paginated_response(serializer.data)
         else:
             serializer = self.get_serializer(
-                queryset,  context={"search": search, "request": request})
+                queryset,  context={"search": search, "request": request, "so": self.so})
             return Response(serializer.data)
 
     @drf_yasg_utils.swagger_auto_schema(manual_parameters=search_manual_parametrs)
@@ -219,23 +221,21 @@ class RecordingSalesViewSet(viewsets.GenericViewSet):
         instance = self.get_object()
         search = request.query_params.get("search")
 
-        customer_ids = SalesOrder.objects.filter(
-            created_by=instance).values_list("customer_id", flat=True)
+        so = self.so.filter(created_by=instance)
+        customer_ids = so.values_list("customer_id", flat=True)
         queryset = Customer.objects.filter(id__in=list(set(customer_ids)))
         if search:
             queryset = queryset.filter(name__icontains=search)
-
-        serializer = self.get_serializer(queryset, many=True)
 
         page = self.paginate_queryset(queryset)
         serializer_class = self.get_serializer_class()
         if page is not None:
             serializer = serializer_class(
-                page, many=True, context={"sales": instance})
+                page, many=True, context={"sales": instance, "so": so})
             return self.get_paginated_response(serializer.data)
         else:
             serializer = serializer_class(
-                queryset, context={"sales": instance})
+                queryset, context={"sales": instance, "so": so})
             return Response(serializer.data)
 
     # @action(methods=["GET"], detail=False, url_path="excel")
@@ -298,8 +298,8 @@ class RecordingSalesViewSet(viewsets.GenericViewSet):
         instance = self.get_object()
         search = request.query_params.get("search")
 
-        customer_ids = SalesOrder.objects.filter(
-            created_by=instance).values_list("customer_id", flat=True)
+        so = self.so.filter(created_by=instance)
+        customer_ids = so.values_list("customer_id", flat=True)
         queryset = Customer.objects.filter(id__in=list(set(customer_ids)))
         if search:
             queryset = queryset.filter(name__icontains=search)
@@ -314,7 +314,7 @@ class RecordingSalesViewSet(viewsets.GenericViewSet):
 
         def get_items(customer):
             order_items = OrderItem.objects.filter(
-                order__deleted_at__isnull=True, order__customer=customer)
+                order__in=so, order__customer=customer)
             total_omzet = order_items.aggregate(total_omzet=Sum(
                 F('price') * F('quantity'))).get("total_omzet") or 0
 
