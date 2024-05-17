@@ -427,13 +427,14 @@ class SalesReportSerializer(serializers.Serializer):
 class RecordingSalesListSerializer(serializers.Serializer):
     def to_representation(self, instance):
         search = self.context.get("search")
-        customer_ids = SalesOrder.objects.filter(
-            created_by=instance).values_list("customer_id", flat=True)
+        so = self.context.get("so")
+        customer_ids = so.filter(created_by=instance).values_list(
+            "customer_id", flat=True)
         customers = Customer.objects.filter(id__in=list(set(customer_ids)))
         if search:
             customers = customers.filter(name__icontains=search)
         customer_data = RecordingSalesDetailSerializer(
-            customers, many=True, context={"sales": instance, "hide_sales_obj": True})
+            customers, many=True, context={"sales": instance, "hide_sales_obj": True, "so": so})
 
         return {
             "sales": {
@@ -451,7 +452,9 @@ class RecordingSalesDetailSerializer(serializers.Serializer):
     qty = serializers.SerializerMethodField()
 
     def _get_order_items(self, instance):
-        return OrderItem.objects.filter(order__deleted_at__isnull=True, order__customer=instance)
+        so = self.context["so"]
+
+        return OrderItem.objects.filter(order__customer=instance, order__in=so)
 
     def get_omzet(self, obj):
         order_items = self._get_order_items(obj)
@@ -495,11 +498,7 @@ class RecordingSalesDetailSerializer(serializers.Serializer):
 
         is_hide_sales = self.context.get("hide_sales_obj", False)
         if not is_hide_sales:
-            data = {"sales": {
-                "id": sales.id,
-                    "full_name": sales.get_full_name()
-                    }
-                    }
+            data = {"sales": {"id": sales.id, "full_name": sales.get_full_name()}}
         else:
             data = {}
 
