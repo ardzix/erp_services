@@ -425,44 +425,22 @@ class SalesReportSerializer(serializers.Serializer):
 
 
 class RecordingSalesListSerializer(serializers.Serializer):
-    id = serializers.CharField()
-
     def to_representation(self, instance):
-        order_items = OrderItem.objects.filter(
-            order__deleted_at__isnull=True, order__created_by=instance)
-        total_margin_amount = order_items.aggregate(
-            total_margin_amount=Sum(F('price') * F('quantity')) -
-            Sum(F('product__base_price') * F('quantity'))
-        ).get("total_margin_amount") or 0
+        search = self.context.get("search")
+        customer_ids = SalesOrder.objects.filter(
+            created_by=instance).values_list("customer_id", flat=True)
+        customers = Customer.objects.filter(id__in=list(set(customer_ids)))
+        if search:
+            customers = customers.filter(name__icontains=search)
+        customer_data = RecordingSalesDetailSerializer(
+            customers, many=True, context={"sales": instance, "hide_sales_obj": True})
 
-        total_amount = order_items.aggregate(
-            total_amount=Sum(F('price') * F('quantity'))
-        ).get("total_amount") or 0
-
-        total_quantity = order_items.aggregate(
-            total_quantity=Sum('quantity')
-        ).get("total_quantity") or 0
-
-        total_dp = order_items.aggregate(
-            total_dp=Sum('order__down_payment')
-        ).get("total_dp") or 0
-
-        total_amount_after_dp = total_amount - total_dp
-
-        try:
-            margin_percent = round(total_margin_amount/total_amount * 100, 2)
-        except:
-            pass
-
-        to_representation = super().to_representation(instance)
         return {
-            **to_representation,
-            "full_name": instance.get_full_name(),
-            "total_margin_amount": total_margin_amount,
-            "margin_percent": margin_percent,
-            "total_amount": total_amount,
-            "total_amount_after_dp": total_amount_after_dp,
-            "qty": total_quantity
+            "sales": {
+                "id": instance.id,
+                "full_name": instance.get_full_name()
+            },
+            "customers": customer_data.data
         }
 
 
@@ -515,11 +493,18 @@ class RecordingSalesDetailSerializer(serializers.Serializer):
         customer = CustomerLiteSerializer(instance).data
         sales = self.context["sales"]
 
+        is_hide_sales = self.context.get("hide_sales_obj", False)
+        if not is_hide_sales:
+            data = {"sales": {
+                "id": sales.id,
+                    "full_name": sales.get_full_name()
+                    }
+                    }
+        else:
+            data = {}
+
         return {
+            **data,
             **to_representation,
             "customer": customer,
-            "sales": {
-                "id": sales.id,
-                "full_name": sales.get_full_name()
-            }
         }

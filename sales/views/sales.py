@@ -163,39 +163,55 @@ class SalesPaymentViewSet(viewsets.ModelViewSet):
 
 
 class RecordingSalesViewSet(viewsets.GenericViewSet):
-    so_sales_ids = SalesOrder.objects.values_list("created_by", flat=True)
-    queryset = User.objects.filter(id__in=list(set(so_sales_ids)))
     lookup_field = 'id'
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
     pagination_class = CustomPagination
-    filter_backends = (filters.SearchFilter, )
+    filter_backends = (filters.OrderingFilter, filters.SearchFilter)
     search_manual_parametrs = [openapi.Parameter(
         "search",
         in_=openapi.IN_QUERY,
         type=openapi.TYPE_STRING,
         description="Search customer by name",
+    ), openapi.Parameter(
+        "created_at_range",
+        in_=openapi.IN_QUERY,
+        type=openapi.TYPE_STRING,
+        description="Filter by created_at sales order",
+
     )]
 
     def get_serializer_class(self):
         return {"retrieve": RecordingSalesDetailSerializer}.get(self.action, RecordingSalesListSerializer)
 
+    def get_queryset(self):
+        so = SalesOrder.objects.filter()
+
+        created_at_range = self.request.query_params.get("created_at_range")
+        if created_at_range:
+            # Split the value on a comma to extract the start and end dates
+            dates = created_at_range.split(',')
+            if len(dates) == 2:
+                start_date, end_date = dates
+                so = so.filter(
+                    created_at__gte=start_date, created_at__lte=end_date)
+
+        so_sales_ids = so.values_list("created_by", flat=True)
+        queryset = User.objects.filter(id__in=list(set(so_sales_ids)))
+        return queryset
+
+    @drf_yasg_utils.swagger_auto_schema(manual_parameters=[search_manual_parametrs[1]])
     def list(self, request):
         queryset = self.filter_queryset(self.get_queryset())
         search = request.query_params.get("search")
-        if search:
-            queryset = queryset.annotate(
-                full_name=Concat('first_name', Value(' '),
-                                 'last_name', output_field=CharField())
-            ).filter(
-                full_name__icontains=search
-            )
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            serializer = self.get_serializer(page, many=True, context={
+                                             "search": search, "request": request})
             return self.get_paginated_response(serializer.data)
         else:
-            serializer = self.get_serializer(queryset)
+            serializer = self.get_serializer(
+                queryset,  context={"search": search, "request": request})
             return Response(serializer.data)
 
     @drf_yasg_utils.swagger_auto_schema(manual_parameters=search_manual_parametrs)
@@ -222,7 +238,7 @@ class RecordingSalesViewSet(viewsets.GenericViewSet):
                 queryset, context={"sales": instance})
             return Response(serializer.data)
 
-    @action(methods=["GET"], detail=False, url_path="excel")
+    # @action(methods=["GET"], detail=False, url_path="excel")
     def export_excel(self, request):
         queryset = self.filter_queryset(self.get_queryset())
 
