@@ -44,3 +44,7 @@ MOBILE_ROLE_MENU_MAP = (
 )
 
 PICKER_CHECKER_GROUP_NAME = ['Picker', 'Checker']
+
+
+# user group
+UG_SALES = "Sales"
