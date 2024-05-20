@@ -14,6 +14,8 @@ class UserFilter(django_filters.FilterSet):
         'Put date range in this format: start_date,end_date [YYYY-MM-DD,YYYY-MM-DD]'))
     group_id = django_filters.CharFilter(
         method='filter_group_id', help_text=_('Filter by group id'))
+    group_name = django_filters.CharFilter(
+        method='filter_group_name', help_text=_('Filter by group name'))
     search = django_filters.CharFilter(
         method="filter_search", help_text=_("Search by name or email"))
 
@@ -29,6 +31,11 @@ class UserFilter(django_filters.FilterSet):
     def filter_group_id(self, queryset, name, value):
         if value and value.isdigit():
             return queryset.filter(groups__id=int(value))
+        return queryset
+
+    def filter_group_name(self, queryset, name, value):
+        if value:
+            return queryset.filter(groups__name=value)
         return queryset
 
     def filter_search(self, queryset, name, value):
