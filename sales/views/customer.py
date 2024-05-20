@@ -144,6 +144,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         order_created_at_range = request.query_params.get(
             "order_created_at_range")
+        created_by_id = request.query_params.get("created_by_id")
         order_items = OrderItem.objects.filter(order__customer__in=queryset)
         if order_created_at_range:
             order_created_at_range = order_created_at_range.split(',')
@@ -151,6 +152,12 @@ class CustomerViewSet(viewsets.ModelViewSet):
                 start_date, end_date = order_created_at_range
                 order_items = order_items.filter(
                     order__created_at__gte=start_date, order__created_at__lte=end_date)
+        if created_by_id and created_by_id.isdigit():
+            order_items = order_items.filter(
+                order__created_by_id=int(created_by_id))
+            customer_ids = order_items.values_list(
+                "order__customer_id", flat=True)
+            queryset = queryset.filter(id__in=list(set(customer_ids)))
 
         headers = {
             "customer": "Customer",
