@@ -50,6 +50,7 @@ class Supplier(BaseModelGeneric):
     payment_term = models.IntegerField(choices=PAYMENT_TERMS_CHOICES,
                                        default=PAYMENT_TERM_CASH,
                                        help_text="Enter payment term to decide billing date Purchase Order")
+    has_payable = models.BooleanField(default=False)
 
     def get_payment_term_display(self):
         return dict(self.PAYMENT_TERMS).get(self.payment_term, 'Unknown')
@@ -138,6 +139,8 @@ class PurchaseOrder(BaseModelGeneric):
                                        decimal_places=2,
                                        default=0,
                                        help_text=_('Enter the DP amount'))
+    down_payment_date = models.DateField(null=True, blank=True, help_text=_(
+        "Enter the down payment date for purchase order"))
 
     def __str__(self):
         return _("Purchase Order #{id32}").format(id32=self.id32)
@@ -314,3 +317,127 @@ class VendorPerformance(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _("Vendor Performance")
         verbose_name_plural = _("Vendor Performances")
+
+
+class PurchaseOrderPayment(BaseModelGeneric):
+    AUTHORIZE = 'authorize'
+    CAPTURE = 'capture'
+    SETTLEMENT = 'settlement'
+    DENY = 'deny'
+    PENDING = 'pending'
+    CANCEL = 'cancel'
+    REFUND = 'refund'
+    EXPIRE = 'expired'
+    FAILURE = 'falure'
+
+    # STATUS_CHOICES
+    STATUS_CHOICES = [
+        (AUTHORIZE, _('Authorize: The payment has been authorized but not yet captured.')),
+        (CAPTURE, _('Capture: The authorized payment has been secured.')),
+        (SETTLEMENT, _('Settlement: The payment process has been completed and funds have been transferred.')),
+        (DENY, _('Deny: The payment request was denied.')),
+        (PENDING, _('Pending: The payment process is ongoing and the final status is not yet determined.')),
+        (CANCEL, _('Cancel: The payment process was canceled before completion.')),
+        (REFUND, _('Refund: Funds have been returned to the payer.')),
+        (EXPIRE, _('Expired: The payment authorization has expired without capture.')),
+        (FAILURE, _('Failure: The payment process encountered an error and was unsuccessful.'))
+    ]
+
+    purchase_order = models.ForeignKey(
+        PurchaseOrder,
+        on_delete=models.CASCADE,
+        help_text=_('Select the invoice associated with the payment')
+    )
+    amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        help_text=_('Enter the payment amount')
+    )
+    payment_date = models.DateField(help_text=_('Enter the payment date'))
+    payment_evidence = models.ForeignKey(
+        File, related_name='%(app_label)s_%(class)s_payment_evidence', blank=True, null=True, on_delete=models.SET_NULL)
+    status = models.CharField(
+        max_length=255,  # Adjusting for the added descriptions
+        choices=STATUS_CHOICES,
+        default=PENDING,
+        help_text=_('Current status of the payment.')
+    )
+
+    def __str__(self):
+        return _('Payment #{id32} - {po}').format(id32=self.id32, po=self.purchase_order)
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = _('Payment')
+        verbose_name_plural = _('Payments')
+
+
+class Payable(BaseModelGeneric):
+    supplier = models.ForeignKey(
+        Supplier,
+        on_delete=models.CASCADE,
+        related_name='supplier_payables',
+        help_text=_('Select the customer associated with the order')
+    )
+    order = models.ForeignKey(
+        PurchaseOrder,
+        on_delete=models.CASCADE,
+        related_name='order_payables',
+        related_query_name='orderitem',
+        help_text=_('Select the order associated with the item')
+    )
+    shipment = models.ForeignKey(
+        Shipment,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='shipment_payables',
+        help_text=_('Select the invoice associated with the payment')
+    )
+    payment = models.ForeignKey(
+        PurchaseOrderPayment,
+        on_delete=models.CASCADE,
+        related_name='inbounds',
+        blank=True,
+        null=True,
+        help_text=_('Select the invoice associated with the payment')
+    )
+    stock_movement = models.ForeignKey(
+        StockMovement,
+        on_delete=models.CASCADE,
+        related_name='inbounds',
+        blank=True,
+        null=True,
+        help_text=_('Select the invoice associated with the payment')
+    )
+    amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        help_text=_('Enter receivable amount')
+    )
+    paid_at = models.DateTimeField(blank=True, null=True)
+
+    @property
+    def is_paid(self):
+        return True if self.paid_at else None
+
+    @property
+    def less_30_days_amount(self):
+        return self.order.less_30_days_amount
+
+    @property
+    def less_60_days_amount(self):
+        return self.order.less_60_days_amount
+
+    @property
+    def less_90_days_amount(self):
+        return self.order.less_90_days_amount
+
+    @property
+    def more_than_90_days_amount(self):
+        return self.order.more_than_90_days_amount
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = _('Payable')
+        verbose_name_plural = _('Payables')

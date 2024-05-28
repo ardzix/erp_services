@@ -114,6 +114,7 @@ def restore_product_quantity(sender, instance, **kwargs):
         quantity=models.F('quantity') - instance.quantity)
 
 
+'''
 @receiver(post_save, sender=WarehouseStock)
 def create_auto_po(sender, instance, created, **kwargs):
     """
@@ -153,6 +154,7 @@ def create_auto_po(sender, instance, created, **kwargs):
             po = get_or_create_purchase_order(supplier, instance.warehouse)
             po_price = last_po_item.actual_price if last_po_item and last_po_item.actual_price else last_po_item.po_price if last_po_item else 0
             create_or_update_po_item(po, product, purchase_quantity, po_price)
+'''
 
 
 def get_supplier(product, last_po_item):

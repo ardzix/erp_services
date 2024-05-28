@@ -133,15 +133,18 @@ class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
 
         # Update or create PurchaseOrderItem instances
         if items_data is not None:
-            existing_ids = [item.id for item in instance.purchaseorderitem_set.all()]
+            existing_ids = [
+                item.id for item in instance.purchaseorderitem_set.all()]
             for item_data in items_data:
                 item_id = item_data.get('id', None)
                 if item_id and item_id in existing_ids:
                     # Update existing item
-                    PurchaseOrderItem.objects.filter(id=item_id).update(**item_data)
+                    PurchaseOrderItem.objects.filter(
+                        id=item_id).update(**item_data)
                 else:
                     # Create new item
-                    PurchaseOrderItem.objects.create(purchase_order=instance, **item_data)
+                    PurchaseOrderItem.objects.create(
+                        purchase_order=instance, **item_data)
 
             # Optional: remove items that are not in the updated data
             updated_ids = [item['id'] for item in items_data if 'id' in item]
@@ -150,3 +153,9 @@ class PurchaseOrderDetailSerializer(serializers.ModelSerializer):
                     PurchaseOrderItem.objects.filter(id=item_id).delete()
 
         return instance
+
+
+class PODownPaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseOrder
+        fields = ("down_payment", "down_payment_date")
