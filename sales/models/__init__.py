@@ -351,7 +351,7 @@ class Invoice(BaseModelGeneric):
         amount = 0
         for item in self.order.order_items.all():
             amount += item.price * item.quantity
-        return amount
+        return amount - self.order.down_payment
 
     @property
     def vat_percent(self):
