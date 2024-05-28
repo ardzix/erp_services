@@ -239,7 +239,7 @@ def create_invoice_on_order_submit(sender, instance, **kwargs):
     After saving a `SalesOrder`, if the order's status is 'SUBMITTED' and there isn't already an associated invoice,
     this signal creates a new `Invoice` entry associated with the given order.
     """
-    if instance.status == SalesOrder.SUBMITTED and not hasattr(instance, 'invoice'):
+    if instance.status == SalesOrder.APPROVED and not hasattr(instance, 'invoice'):
         Invoice.objects.create(
             order=instance,
             invoice_date=timezone.now().date(),
