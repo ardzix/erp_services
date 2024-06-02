@@ -25,6 +25,19 @@ class Employee(BaseModelGeneric):
     last_location = models.PointField(null=True, blank=True, help_text=_(
         "Coordinates where the employee currently located"))
 
+    basic_salary = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        default=0,
+        help_text=_("Enter the employee's basic salary amount")
+    )
+    bank_account_number = models.CharField(
+        max_length=25,
+        null=True,
+        blank=True,
+        help_text=_("Enter the employee's bank account number")
+    )
+
     def __str__(self):
         return _("Employee #{emp_id} - {emp_name}").format(emp_id=self.id32, emp_name=self.user.username)
 
@@ -114,6 +127,47 @@ class LocationTracker(BaseModelGeneric):
             self.employee = Employee.objects.get(user=self._current_user)
         return super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ['-id']
+        verbose_name = _("Location Tracker")
+        verbose_name_plural = _("Location Trackers")
+
+class Salary(BaseModelGeneric):
+    employee = models.ForeignKey(
+        Employee, 
+        on_delete=models.CASCADE, 
+        help_text="Select the employee associated with this salary record"
+    )
+    pay_date = models.DateField(
+        help_text="Enter the date when the salary was paid"
+    )
+    salary = models.DecimalField(
+        max_digits=19, 
+        decimal_places=2, 
+        help_text="Enter the total gross salary amount"
+    )
+    incentive = models.DecimalField(
+        max_digits=19, 
+        decimal_places=2, 
+        default=0,
+        help_text="Enter the additional incentive amount"
+    )
+    operational_cost = models.DecimalField(
+        max_digits=19, 
+        decimal_places=2, 
+        default=0,
+        help_text="Enter the operational costs deducted"
+    )
+    bonus = models.DecimalField(
+        max_digits=19, 
+        decimal_places=2, 
+        default=0,
+        help_text="Enter the bonus amount awarded"
+    )
+
+    def __str__(self):
+        return f"Salary for {self.employee.user.get_full_name()} on {self.pay_date}"
+    
     class Meta:
         ordering = ['-id']
         verbose_name = _("Location Tracker")

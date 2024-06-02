@@ -18,12 +18,8 @@ from ..serializers.supplier import (
 )
 from ..serializers.purchase_order import (
     PurchaseOrderListSerializer, PurchaseOrderDetailSerializer, InvalidPOItemSerializer, PODownPaymentSerializer)
+from ..filter import SupplierFilter
 
-
-class SupplierFilter(CreatedAtFilterMixin):
-    class Meta:
-        model = Supplier
-        fields = ['created_at_range']
 
 
 class SupplierViewSet(viewsets.ModelViewSet):

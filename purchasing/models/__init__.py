@@ -58,6 +58,14 @@ class Supplier(BaseModelGeneric):
     def __str__(self):
         return _("Supplier #{id32} - {name}").format(id32=self.id32, name=self.name)
 
+    @property
+    def payables(self):
+        return self.supplier_payables.filter(paid_at__isnull=True)
+
+    @property
+    def payable_amount(self):
+        return self.payables.aggregate(total_amount=models.Sum('amount')).get('total_amount')
+
     class Meta:
         ordering = ['-id']
         verbose_name = _("Supplier")

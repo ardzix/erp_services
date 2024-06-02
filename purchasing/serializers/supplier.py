@@ -17,7 +17,7 @@ class CompanyProfileID32Mixin:
 class SupplierListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
-        fields = ['id32', 'created_at', 'name', 'company_profile']
+        fields = ['id32', 'created_at', 'name', 'company_profile', 'contact_number', 'payable_amount']
 
 
 class SupplierDetailSerializer(serializers.ModelSerializer):
@@ -36,7 +36,7 @@ class SupplierDetailSerializer(serializers.ModelSerializer):
         model = Supplier
         fields = [
             'id32', 'created_at', 'name', 'contact_number', 'address', 'location', 
-            'location_coordinate', 'company_profile'
+            'location_coordinate', 'company_profile', 'payable_amount'
         ]
 
 
