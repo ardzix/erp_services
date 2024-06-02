@@ -1,5 +1,10 @@
+import datetime
 from rest_framework import viewsets, permissions, filters, decorators, response
+from django_filters import rest_framework as django_filters
+from django.utils.translation import gettext_lazy as _
+from django.shortcuts import HttpResponse
 from libs.pagination import CustomPagination
+from libs.excel import create_xlsx_file
 from ..models import Department, Employee, LocationTracker, Salary
 from ..serializers.employee import (
     DepartmentSerializer,
@@ -8,6 +13,24 @@ from ..serializers.employee import (
     SalarySerializer,
     SalaryReportSerializer,
 )
+
+
+class SalaryFilter(django_filters.FilterSet):
+    pay_date_range = django_filters.CharFilter(
+        method="filter_pay_date_range",
+        help_text=_(
+            "Put date range in this format: start_date,end_date [YYYY-MM-DD,YYYY-MM-DD]"
+        ),
+    )
+
+    def filter_pay_date_range(self, queryset, name, value):
+        if value:
+            # Split the value on a comma to extract the start and end dates
+            dates = value.split(",")
+            if len(dates) == 2:
+                start_date, end_date = dates
+                return queryset.filter(pay_date__gte=start_date, pay_date__lte=end_date)
+        return queryset
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -68,7 +91,12 @@ class SalaryViewSet(viewsets.ModelViewSet):
         permissions.DjangoModelPermissions,
     ]
     pagination_class = CustomPagination
-    filter_backends = (filters.OrderingFilter, filters.SearchFilter)
+    filterset_class = SalaryFilter
+    filter_backends = (
+        filters.OrderingFilter,
+        filters.SearchFilter,
+        django_filters.DjangoFilterBackend,
+    )
     search_fields = [
         "employee__user__username",
         "employee__user__email",
@@ -95,6 +123,41 @@ class SalaryViewSet(viewsets.ModelViewSet):
     @decorators.action(methods=["GET"], detail=False, url_path="report/excel")
     def get_report_excel(self, request):
         queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset)
 
-        return serializer.data
+        headers = {
+            "name": "Nama",
+            "bank_account_number": "No. Rekening",
+            "incentive": "Insentif",
+            "operational_cost": "Uang Ops",
+            "bonus": "Bonus",
+            "salary": "Gaji Pokok",
+            "total": "Jumlah",
+        }
+
+        items = []
+        for salary in queryset:
+            items.append(
+                {
+                    "name": salary.employee.user.get_full_name(),
+                    "bank_account_number": salary.employee.bank_account_number,
+                    "incentive": salary.incentive,
+                    "operational_cost": salary.operational_cost,
+                    "bonus": salary.bonus,
+                    "salary": salary.salary,
+                    "total": salary.total
+                }
+            )
+
+        output = create_xlsx_file(headers, items, True)
+        output.seek(0)
+        filename = (
+            f"salary_{datetime.datetime.now().strftime('%Y-%m-%d')}.xlsx"
+        )
+        http_response = HttpResponse(
+            output,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        http_response["Content-Disposition"] = "attachment; filename=%s" % filename
+        http_response["Access-Control-Expose-Headers"] = "Content-Disposition"
+
+        return http_response

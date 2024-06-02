@@ -148,4 +148,5 @@ class SalaryReportSerializer(serializers.ModelSerializer):
             "incentive",
             "operational_cost",
             "bonus",
+            "total"
         )

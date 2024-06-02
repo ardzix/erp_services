@@ -165,6 +165,10 @@ class Salary(BaseModelGeneric):
         help_text="Enter the bonus amount awarded"
     )
 
+    @property
+    def total(self):
+        return self.salary + self.bonus + self.incentive + self.operational_cost
+
     def __str__(self):
         return f"Salary for {self.employee.user.get_full_name()} on {self.pay_date}"
     
