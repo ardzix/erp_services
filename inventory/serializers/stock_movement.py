@@ -420,12 +420,29 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         return stock_movement
 
     def update(self, instance, validated_data):
-        validated_data['purchase_order'] = PurchaseOrder.objects.filter(id32=validated_data.pop('purchase_order_id32')).first()
-        if 'items' in validated_data:
-            validated_data.pop('items')
+        if 'purchase_order_id32' in validated_data:
+            validated_data['purchase_order'] = PurchaseOrder.objects.filter(id32=validated_data.pop('purchase_order_id32')).first()
         if 'movement_evidence_id32' in validated_data:
             movement_evidence = validated_data.pop('movement_evidence_id32')
             validated_data['movement_evidence'] = movement_evidence
+
+        
+        items_data = validated_data.pop('items', None)
+        # Update or create Stock Movement Item instances
+        if items_data is not None:
+            smi_ids = []
+            for item_data in items_data:
+                smi = StockMovementItem.objects.filter(product=item_data.get('product'), unit = item_data.get('unit')).first()
+                if smi:
+                    [setattr(smi, key, val) for key, val in item_data.items()]
+                    smi.save()
+                else:
+                    # Create new item
+                    smi = StockMovementItem.objects.create(stock_movement=instance, **item_data)
+                smi_ids.append(smi.id)
+
+            StockMovementItem.objects.filter(stock_movement=instance).exclude(id__in=smi_ids).delete()
+
         return super().update(instance, validated_data)
 
 

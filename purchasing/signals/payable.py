@@ -48,7 +48,7 @@ def create_next_trip_on_trip_complete(sender, instance, **kwargs):
 @receiver(pre_save, sender=StockMovement)
 def check_po(sender, instance, **kwargs):
     prev_stock_movement = StockMovement.objects.filter(purchase_order=instance.purchase_order).first()
-    if prev_stock_movement:
+    if prev_stock_movement and instance.purchase_order:
         instance.pk = prev_stock_movement.pk
         raise serializers.ValidationError({
             'purchase_order_id32': _("Stock movement with given purchase order is already exists.")

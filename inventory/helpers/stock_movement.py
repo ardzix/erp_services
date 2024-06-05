@@ -58,7 +58,7 @@ def calculate_buy_price(item):
 
     """
     product = item.product
-    product.last_buy_price = item.buy_price / item.unit.conversion_to_top_level()
+    product.last_buy_price = (item.buy_price if item.buy_price else 0) / item.unit.conversion_to_top_level()
     product.save()
 
 

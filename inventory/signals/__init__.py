@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from hr.models import Attendance
 from libs.constants import PICKER_CHECKER_GROUP_NAME
+from sales.models import Customer
 from ..models import Product, ProductLog, StockMovement, Warehouse, StockMovementItem, WarehouseStock
 from ..helpers.stock_movement import handle_origin_warehouse, handle_destination_warehouse, is_dispatch_status_change
 
@@ -29,6 +30,7 @@ from ..helpers.stock_movement import handle_origin_warehouse, handle_destination
 # 10. handle_movement_item_status_change_post: Checks for changes in movement item status after save.
 # 11. stock_movement_status_update: Updates stock movement status based on associated item's status.
 # 12. set_movement_date_on_status_change: Set the movement_date to the current time if it's None
+# 13. autoswitch_status_based_on_origin_destination: Copy status to origin status if its outbond and destination status if its inbound
 
 # Others
 # 13. set_agent_able_to_checkout: Set agents (checker or picker) able to checkout if there is nothing to move
@@ -183,6 +185,21 @@ def check_movement_item_previous_status(sender, instance, **kwargs):
         sm_prev = StockMovementItem.objects.get(id=instance.pk)
         instance.origin_movement_status_before = sm_prev.origin_movement_status
         instance.destination_movement_status_before = sm_prev.destination_movement_status
+
+@receiver(pre_save, sender=StockMovementItem)
+def autoswitch_status_based_on_origin_destination(sender, instance, **kwargs):
+    from purchasing.models import Supplier
+    """
+    Check status before saving the StockMovementItem, assign it to the instance to be used in post_save.
+    """
+    if not instance.pk:
+        return
+    
+    sm = instance.stock_movement
+    if sm.origin_type == ContentType.objects.get_for_model(Supplier) and sm.destination_type == ContentType.objects.get_for_model(Warehouse):
+        instance.destination_movement_status = instance.origin_movement_status
+    elif sm.origin_type == ContentType.objects.get_for_model(Warehouse) and sm.destination_type == ContentType.objects.get_for_model(Customer):
+        instance.origin_movement_status = instance.destination_movement_status
 
 
 @receiver(post_save, sender=StockMovementItem)
