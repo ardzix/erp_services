@@ -432,13 +432,14 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         if items_data is not None:
             smi_ids = []
             for item_data in items_data:
-                smi = StockMovementItem.objects.filter(product=item_data.get('product'), unit = item_data.get('unit')).first()
+                smi = StockMovementItem.objects.filter(stock_movement=instance, product=item_data.get('product'), unit = item_data.get('unit')).first()
                 if smi:
                     [setattr(smi, key, val) for key, val in item_data.items()]
                     smi.save()
                 else:
                     # Create new item
                     smi = StockMovementItem.objects.create(stock_movement=instance, **item_data)
+                # print(item_data, smi.origin_movement_status)
                 smi_ids.append(smi.id)
 
             StockMovementItem.objects.filter(stock_movement=instance).exclude(id__in=smi_ids).delete()

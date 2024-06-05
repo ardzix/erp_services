@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.utils import timezone
 from hr.models import Attendance
-from libs.constants import PICKER_CHECKER_GROUP_NAME
+from libs.constants import PICKER_CHECKER_GROUP_NAME, WAITING
 from sales.models import Customer
 from ..models import Product, ProductLog, StockMovement, Warehouse, StockMovementItem, WarehouseStock
 from ..helpers.stock_movement import handle_origin_warehouse, handle_destination_warehouse, is_dispatch_status_change
@@ -196,9 +196,9 @@ def autoswitch_status_based_on_origin_destination(sender, instance, **kwargs):
         return
     
     sm = instance.stock_movement
-    if sm.origin_type == ContentType.objects.get_for_model(Supplier) and sm.destination_type == ContentType.objects.get_for_model(Warehouse):
+    if sm.origin_type == ContentType.objects.get_for_model(Supplier) and sm.destination_type == ContentType.objects.get_for_model(Warehouse) and instance.origin_movement_status != WAITING:
         instance.destination_movement_status = instance.origin_movement_status
-    elif sm.origin_type == ContentType.objects.get_for_model(Warehouse) and sm.destination_type == ContentType.objects.get_for_model(Customer):
+    elif sm.origin_type == ContentType.objects.get_for_model(Warehouse) and sm.destination_type == ContentType.objects.get_for_model(Customer) and instance.destination_movement_status != WAITING:
         instance.origin_movement_status = instance.destination_movement_status
 
 
