@@ -8,7 +8,15 @@ from common.models import File
 from inventory.models import Product, Unit, Warehouse, StockMovement
 from .customer import CustomerLiteSerializer
 from .trip import CustomerVisitStatusSerializer
-from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment
+from ..models import (
+    SalesOrder,
+    OrderItem,
+    Customer,
+    Invoice,
+    SalesPayment,
+    OQMDaily,
+    SellingMarginDaily,
+)
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -507,3 +515,36 @@ class RecordingSalesDetailSerializer(serializers.Serializer):
             **to_representation,
             "customer": customer,
         }
+
+
+class OQMDailySerializer(serializers.ModelSerializer):
+    total_omzet = serializers.DecimalField(decimal_places=2, max_digits=19)
+    total_quantity = serializers.IntegerField()
+    total_margin = serializers.DecimalField(decimal_places=2, max_digits=19)
+    daily_margin_percentage = serializers.DecimalField(decimal_places=2, max_digits=19)
+
+    class Meta:
+        model = OQMDaily
+        fields = (
+            "date",
+            "daily_omzet",
+            "daily_quantity",
+            "daily_margin",
+            "total_omzet",
+            "total_quantity",
+            "total_margin",
+            "daily_margin_percentage",
+            "daily_margin_percentage",
+        )
+
+
+class SellingMarginSerializer(serializers.ModelSerializer):
+    sales = serializers.SerializerMethodField()
+    total_margin = serializers.DecimalField(max_digits=19, decimal_places=2)
+
+    def get_sales(self, obj):
+        return f"{obj.sales.first_name} {obj.sales.last_name} ({obj.sales.email})"
+
+    class Meta:
+        model = SellingMarginDaily
+        fields = ("date", "sales", "daily_margin", "total_margin")

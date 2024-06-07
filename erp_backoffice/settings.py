@@ -60,7 +60,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'leaflet',
     'drf_yasg',
-    'reversion'
+    'reversion',
+    'scheduler'
 ]
 
 MIDDLEWARE = [

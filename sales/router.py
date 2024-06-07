@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from .views.customer import CustomerViewSet, StoreTypeViewSet
-from .views.sales import SalesOrderViewSet, SalesPaymentViewSet, RecordingSalesViewSet
+from .views.sales import SalesOrderViewSet, SalesPaymentViewSet, RecordingSalesViewSet, OQMDailyViewSet, SellingMarginViewSet
 from .views.trip import (
     TripTemplateViewSet,
     TripViewSet,
@@ -20,3 +20,5 @@ router.register('sales_order', SalesOrderViewSet, basename='sales_order')
 router.register('sales_payment', SalesPaymentViewSet, basename='sales_payment')
 router.register('recording_sales', RecordingSalesViewSet,
                 basename='recording_sales')
+router.register('oqm-daily', OQMDailyViewSet, basename='oqm_daily')
+router.register('selling-margin-daily', SellingMarginViewSet, basename='selling-margin_daily')

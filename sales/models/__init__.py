@@ -241,6 +241,44 @@ class SalesOrder(BaseModelGeneric):
     def total(self):
         return self.invoice.total
 
+    @property
+    def margin_amount(self):
+        from django.db.models import F, Sum
+
+        order_items = self.order_items.filter()
+        margin_amount = order_items.aggregate(
+            margin=Sum(F("price") * F("quantity"))
+            - Sum(F("product__base_price") * F("quantity"))
+        ).get("margin")
+        margin_amount = 0 if not margin_amount else margin_amount
+        return margin_amount
+
+    @property
+    def total_qty(self):
+        from django.db.models import Sum
+
+        order_items = self.order_items.filter()
+        total_qty = order_items.aggregate(total_qty=Sum("quantity")).get("total_qty")
+        return total_qty if total_qty else 0
+
+    @property
+    def total_omzet(self):
+        from django.db.models import F, Sum
+
+        order_items = self.order_items.filter()
+        total_omzet = order_items.aggregate(
+            total_omzet=Sum(F("price") * F("quantity"))
+        ).get("total_omzet")
+        return total_omzet if total_omzet else 0
+
+    @property
+    def total_omzet(self):
+        from django.db.models import F, Sum
+
+        order_items = self.order_items.filter()
+        total_omzet = order_items.aggregate(total_omzet=Sum(
+            F('price') * F('quantity'))).get("total_omzet")
+        return total_omzet if total_omzet else 0
 
 class OrderItem(BaseModelGeneric):
     order = models.ForeignKey(
@@ -601,3 +639,20 @@ class CustomerVisitReport(BaseModelGeneric):
         ordering = ['-id']
         verbose_name = _('Customer Visit Report')
         verbose_name_plural = _('Customer Visit Reports')
+
+class OQMDaily(models.Model):
+    date = models.DateField(unique=True)
+    daily_omzet = models.DecimalField(max_digits=19, decimal_places=2)
+    daily_quantity = models.IntegerField()
+    daily_margin = models.DecimalField(max_digits=19, decimal_places=2)
+    daily_margin_percentage = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        ordering = ['-date']
+        verbose_name = _('OQM Daily')
+        verbose_name_plural = _('OQM Dailies')
+
+class SellingMarginDaily(models.Model):
+    date = models.DateField(unique=True)
+    sales = models.ForeignKey(User, on_delete=models.CASCADE)
+    daily_margin = models.DecimalField(max_digits=19, decimal_places=2)

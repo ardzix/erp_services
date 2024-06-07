@@ -6,8 +6,7 @@ from rest_framework.decorators import action
 from drf_yasg import utils as drf_yasg_utils, openapi
 from django.utils.translation import gettext_lazy as _
 from django_filters import rest_framework as django_filters
-from django.db.models import Sum, F, CharField, Value
-from django.db.models.functions import Concat
+from django.db.models import Sum, F, Window, ExpressionWrapper, DecimalField, Case, When, Value
 from django.shortcuts import HttpResponse
 from django.contrib.auth.models import User
 from libs.filter import CreatedAtFilterMixin
@@ -16,9 +15,28 @@ from libs.excel import create_xlsx_file
 from common.serializers import FileSerializer
 from common.models import File
 from ..scripts import generate_invoice_pdf_for_instances
-from ..serializers.sales import (SalesOrderSerializer, SalesOrderListSerializer, SalesOrderDetailSerializer, InvoiceSerializer,
-                                 SalesPaymentSerializer, SalesPaymentPartialUpdateSerializer, RecordingSalesListSerializer, RecordingSalesDetailSerializer)
-from ..models import SalesOrder, Invoice, SalesPayment, CustomerVisit, OrderItem, Customer
+from ..serializers.sales import (
+    SalesOrderSerializer,
+    SalesOrderListSerializer,
+    SalesOrderDetailSerializer,
+    InvoiceSerializer,
+    SalesPaymentSerializer,
+    SalesPaymentPartialUpdateSerializer,
+    RecordingSalesListSerializer,
+    RecordingSalesDetailSerializer,
+    OQMDailySerializer,
+    SellingMarginSerializer,
+)
+from ..models import (
+    SalesOrder,
+    Invoice,
+    SalesPayment,
+    CustomerVisit,
+    OrderItem,
+    Customer,
+    OQMDaily,
+    SellingMarginDaily,
+)
 
 
 class SalesFilter(CreatedAtFilterMixin):
@@ -44,6 +62,29 @@ class SalesFilter(CreatedAtFilterMixin):
         visits = CustomerVisit.objects.filter(
             trip__id32__in=values_list, sales_order__isnull=False)
         return queryset.filter(id__in=visits.values_list('sales_order', flat=True)).order_by('created_at')
+
+
+class OQMDailyFilter(django_filters.FilterSet):
+    order_date_range = django_filters.CharFilter(
+        method="filter_order_date_range",
+        help_text=_(
+            "Put date range in this format: start_date,end_date [YYYY-MM-DD,YYYY-MM-DD]"
+        ),
+    )
+
+    def filter_order_date_range(self, queryset, name, value):
+        if value:
+            # Split the value on a comma to extract the start and end dates
+            dates = value.split(",")
+            if len(dates) == 2:
+                start_date, end_date = dates
+                return queryset.filter(
+                    date__gte=start_date, date__lte=end_date
+                )
+        return queryset
+
+class SellingMarginFilter(OQMDailyFilter):
+    pass
 
 
 class SalesOrderViewSet(viewsets.ModelViewSet):
@@ -354,3 +395,47 @@ class RecordingSalesViewSet(viewsets.GenericViewSet):
         http_response["Access-Control-Expose-Headers"] = "Content-Disposition"
 
         return http_response
+
+
+class OQMDailyViewSet(viewsets.GenericViewSet, viewsets.mixins.ListModelMixin):
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    pagination_class = CustomPagination
+    queryset = OQMDaily.objects.annotate(
+        total_omzet=Window(
+            expression=Sum('daily_omzet'),
+            order_by=F('date').asc()
+        ),
+        total_quantity=Window(
+            expression=Sum('daily_quantity'),
+            order_by=F('date').asc()
+        ),
+        total_margin=Window(
+            expression=Sum('daily_margin'),
+            order_by=F('date').asc()
+        ),
+        total_margin_percentage=Case(
+            When(total_omzet=0, then=Value(0)),
+            default=ExpressionWrapper(
+                (F('total_margin') / F('total_omzet')) * 100,
+                output_field=DecimalField(max_digits=10, decimal_places=2)
+            ),
+            output_field=DecimalField(max_digits=10, decimal_places=2)
+        )
+    ).order_by('date')
+    serializer_class = OQMDailySerializer
+    filter_backends = (django_filters.DjangoFilterBackend, )
+    filterset_class = OQMDailyFilter
+
+class SellingMarginViewSet(viewsets.GenericViewSet, viewsets.mixins.ListModelMixin):
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    pagination_class = CustomPagination
+    queryset = SellingMarginDaily.objects.annotate(
+        total_margin=Window(
+            expression=Sum('daily_margin'),
+            order_by=F('date').asc()
+        ),
+    ).order_by('date')
+    serializer_class = SellingMarginSerializer
+    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
+    filterset_class = SellingMarginFilter
+    search_fields = ["sales__username", "sales__first_name", "sales__last_name"]
