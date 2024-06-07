@@ -1,6 +1,7 @@
 # serializers.py
 
 from rest_framework import serializers
+from rest_framework.response import Response
 from django.contrib.gis.geos import Point
 from django.contrib.auth.models import User
 from libs.utils import handle_location
@@ -120,6 +121,9 @@ class SalarySerializer(serializers.ModelSerializer):
             "bonus",
         )
         read_only_fields = ["id32", "user_full_name", "user_username"]
+
+class SalaryListSerializer(SalarySerializer):
+    employee_id32 = serializers.CharField()
 
 
 class SalaryReportSerializer(serializers.ModelSerializer):

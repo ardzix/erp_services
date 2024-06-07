@@ -3,6 +3,7 @@ from rest_framework import viewsets, permissions, filters, decorators, response
 from django_filters import rest_framework as django_filters
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import HttpResponse
+from django.db.models import F
 from libs.pagination import CustomPagination
 from libs.excel import create_xlsx_file
 from ..models import Department, Employee, LocationTracker, Salary
@@ -11,6 +12,7 @@ from ..serializers.employee import (
     EmployeeSerializer,
     LocationTrackerSerializer,
     SalarySerializer,
+    SalaryListSerializer,
     SalaryReportSerializer,
 )
 
@@ -85,7 +87,7 @@ class LocationTrackerViewSet(viewsets.ModelViewSet):
 
 
 class SalaryViewSet(viewsets.ModelViewSet):
-    queryset = Salary.objects.all()
+    queryset = Salary.objects.all().annotate(employee_id32=F('employee__id32'))
     permission_classes = [
         permissions.IsAuthenticated,
         permissions.DjangoModelPermissions,
@@ -107,7 +109,11 @@ class SalaryViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "head", "options", "patch", "delete"]
 
     def get_serializer_class(self):
-        return {"get_report": SalaryReportSerializer}.get(self.action, SalarySerializer)
+        return {
+            "get_report": SalaryReportSerializer,
+            "list": SalaryListSerializer,
+            "retrieve": SalaryListSerializer,
+        }.get(self.action, SalarySerializer)
 
     @decorators.action(methods=["GET"], detail=False, url_path="report")
     def get_report(self, request):
