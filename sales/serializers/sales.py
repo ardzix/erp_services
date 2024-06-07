@@ -521,7 +521,7 @@ class OQMDailySerializer(serializers.ModelSerializer):
     total_omzet = serializers.DecimalField(decimal_places=2, max_digits=19)
     total_quantity = serializers.IntegerField()
     total_margin = serializers.DecimalField(decimal_places=2, max_digits=19)
-    daily_margin_percentage = serializers.DecimalField(decimal_places=2, max_digits=19)
+    total_margin_percentage = serializers.DecimalField(decimal_places=2, max_digits=19)
 
     class Meta:
         model = OQMDaily
@@ -534,7 +534,7 @@ class OQMDailySerializer(serializers.ModelSerializer):
             "total_quantity",
             "total_margin",
             "daily_margin_percentage",
-            "daily_margin_percentage",
+            "total_margin_percentage",
         )
 
 
