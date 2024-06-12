@@ -23,32 +23,32 @@ class UserProfile(BaseModelGeneric):
         verbose_name_plural = _("User Profiles")
 
 
-class CompanyProfile(BaseModelGeneric):
-    company_name = models.CharField(
-        max_length=100, help_text=_("Name of the company"))
-    address = models.TextField(help_text=_("Company's address"))
+class Contact(BaseModelGeneric):
+    name = models.CharField(
+        max_length=100, help_text=_("Name of the contact"))
+    address = models.TextField(help_text=_("Contact's address"))
     contact_number = models.CharField(
-        max_length=15, help_text=_("Company's contact number"))
-    # Add any other company-specific fields you need
+        max_length=25, help_text=_("Contact's contact number"))
+    role = models.CharField(max_length=25, default="Contact")
 
     def __str__(self, *args, **kwargs):
-        return self.company_name
+        return f'{self.role}: {self.name}'
 
     class Meta:
         verbose_name = _("Company Profile")
         verbose_name_plural = _("Company Profiles")
 
 
-class Brand(BaseModelGeneric):
-    company = models.ForeignKey(CompanyProfile, on_delete=models.SET_NULL,
-                                blank=True, null=True, help_text=_("Company to which the brand belongs"))
-    name = models.CharField(
-        max_length=100, help_text=_("Enter the brand name"))
+class Brand(Contact):
     description = models.TextField(
         blank=True, help_text=_("Enter the brand description"))
 
     def __str__(self):
         return _("Brand #{brand_id} - {brand_name}").format(brand_id=self.id32, brand_name=self.name)
+    
+    def save(self, *args, **kwargs):
+        self.role = "Brand"
+        return super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Brand")

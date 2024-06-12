@@ -9,10 +9,10 @@ class DepartmentAdmin(BaseAdmin):
 
 @admin.register(Employee)
 class EmployeeAdmin(BaseAdmin):
-    list_display = ['id32', 'user', 'department']
+    list_display = ['id32', 'user', 'name', 'department']
     list_filter = ['department']
     search_fields = ['id32', 'user__username', 'user__first_name', 'user__last_name']
-    fields = ['user', 'department']
+    fields = ['user', 'department', 'name', 'contact_number', 'address']
 
 @admin.register(Leave)
 class LeaveAdmin(BaseAdmin):

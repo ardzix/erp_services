@@ -34,6 +34,7 @@ from django.views.i18n import set_language
 from django.conf import settings
 
 from sales.views.report import SalesReportAPIView
+from accounting.views import ModuleAccountTransactionChoiceView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -54,6 +55,7 @@ urlpatterns = [
 
     path('api/me/', MeView.as_view(), name='me'),
     path('api/auth/login/', CustomAuthToken.as_view(), name='api-login'),
+    path('api/accounting/module_account/name-choices/', ModuleAccountTransactionChoiceView.as_view(), name='accounting_module_account_name_choice'),
     path('api/accounting/', include(accounting_router.urls)),
     path('api/common/', include(common_router.urls)),
     path('api/hr/', include(hr_router.urls)),

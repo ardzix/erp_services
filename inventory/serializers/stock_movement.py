@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from inventory.views import stock_movement
 from libs.utils import validate_file_by_id32
-from purchasing.models import PurchaseOrderItem
+from purchasing.models import PurchaseOrder, PurchaseOrderItem
 from sales.models import SalesOrder
 from ..models import StockMovement, StockMovementItem, Product, Unit, ProductLocation
 
@@ -45,9 +45,22 @@ class SMProductLocationSerializer(serializers.ModelSerializer):
 
 
 class StockMovementItemListSerializer(serializers.ModelSerializer):
+    def update(self, instances, validated_data):
+        # Maps for id->instance and id->data item.
+        item_mapping = {item.id32: item for item in instances}
+        data_mapping = {item['id32']: item for item in validated_data}
+
+        # Perform creations and updates.
+        ret = []
+        for item_id, data in data_mapping.items():
+            item = item_mapping.get(item_id, None)
+            if item is not None:
+                ret.append(self.child.update(item, data))
+
+        return ret
     class Meta:
         model = StockMovementItem
-        fields = ['id32', 'product', 'quantity', 'unit',
+        fields = ['id32', 'product', 'quantity', 'unit', 'buy_price',
                   'origin_movement_status', 'destination_movement_status']
 
     def to_representation(self, instance):
@@ -269,7 +282,7 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
         model = StockMovement
         fields = ['id32', 'created_at', 'origin', 'destination', 'origin_type',
                   'destination_type', 'movement_date', 'status', 'movement_evidence',
-                  'items', 'last_purchase_order']
+                  'items', 'last_purchase_order', 'purchase_order']
         read_only_fields = ['id32', 'created_at', 'last_purchase_order']
 
     def to_representation(self, instance):
@@ -278,6 +291,11 @@ class StockMovementDetailSerializer(StockMovementSerializerMixin, serializers.Mo
             representation['movement_evidence'] = {
                 'id32': instance.movement_evidence.id32,
                 'url': instance.movement_evidence.file.url
+            }
+        if instance.purchase_order:
+            representation['purchase_order'] = {
+                'id32': instance.purchase_order.id32,
+                'str': instance.purchase_order.__str__()
             }
         if instance.last_purchase_order:
             representation['last_purchase_order'] = {
@@ -294,17 +312,23 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
         choices=['warehouse', 'supplier', 'customer'], write_only=True)
     origin_id32 = serializers.CharField(write_only=True)
     destination_id32 = serializers.CharField(write_only=True)
+    destination_id32 = serializers.CharField(write_only=True)
     movement_evidence_id32 = serializers.CharField(
         write_only=True, required=False)
     items = StockMovementItemSerializer(many=True, required=False)
     salesorder_id32s = serializers.ListField(required=False, write_only=True)
+    purchase_order_id32 = serializers.SlugRelatedField(
+        slug_field="id32",
+        queryset=PurchaseOrder.objects.all(),
+        required=True,
+    )
 
     class Meta:
         model = StockMovement
         fields = ['id32', 'created_at', 'status', 'movement_date', 'destination_type',
                   'destination_id32', 'origin_type', 'origin_id32', 'movement_evidence_id32',
-                  'movement_evidence', 'items', 'salesorder_id32s', 'generate_items_from_sales']
-        read_only_fields = ['id32', 'created_at', 'movement_evidence']
+                  'movement_evidence', 'items', 'salesorder_id32s', 'generate_items_from_sales', 'purchase_order_id32']
+        read_only_fields = ['id32', 'created_at', 'movement_evidence', "purchase_order_id32"]
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -375,8 +399,11 @@ class StockMovementCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
-        sales_orders = SalesOrder.objects.filter(
-            id32__in=validated_data.pop('salesorder_id32s'))
+        if 'salesorder_id32s' in validated_data:
+            sales_orders = SalesOrder.objects.filter(
+                id32__in=validated_data.pop('salesorder_id32s'))
+        else:
+            sales_orders = []
         movement_evidence = validated_data.pop(
             'movement_evidence_id32') if 'movement_evidence_id32' in validated_data else None
         validated_data['movement_evidence'] = movement_evidence
@@ -435,20 +462,6 @@ class DistinctStockMovementItemSerializer(serializers.Serializer):
         return SMProductLocationSerializer(ProductLocation.objects.filter(warehouse=stock_movement.destination, product__id32=instance.get('product__id32')), many=True).data
 
 
-class StockMovementItemListSerializer(serializers.ListSerializer):
-    def update(self, instances, validated_data):
-        # Maps for id->instance and id->data item.
-        item_mapping = {item.id32: item for item in instances}
-        data_mapping = {item['id32']: item for item in validated_data}
-
-        # Perform creations and updates.
-        ret = []
-        for item_id, data in data_mapping.items():
-            item = item_mapping.get(item_id, None)
-            if item is not None:
-                ret.append(self.child.update(item, data))
-
-        return ret
 
 
 class StockMovementItemBulkUpdateSerializer(serializers.Serializer):

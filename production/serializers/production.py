@@ -128,6 +128,16 @@ class ProductionTrackingSerializer(serializers.ModelSerializer):
         # or more complex logic to update existing instances without losing data.
 
         return instance
+    
+
+    def to_representation(self, instance):
+        to_representation = super().to_representation(instance)
+        if instance.work_center_warehouse:
+            to_representation["work_center_warehouse"] = {
+                "id32": instance.work_center_warehouse.id32,
+                "str": instance.work_center_warehouse.__str__(),
+            }
+        return to_representation
 
     class Meta:
         model = ProductionTracking

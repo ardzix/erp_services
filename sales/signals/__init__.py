@@ -1,11 +1,10 @@
-from pdb import post_mortem
 from django.db.models.signals import pre_save, post_save, pre_delete
+from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.db import models
-from django.dispatch import receiver
-from libs.constants import WAITING, ON_PROGRESS, COMPLETED, SKIPPED
+from libs.constants import WAITING, COMPLETED, SKIPPED
 from libs.utils import add_one_day
 from inventory.models import Product, StockMovementItem, WarehouseStock
 from ..helpers.sales_order import (canvasing_create_stock_movement,
@@ -103,6 +102,7 @@ def check_salesorder_before_approved(sender, instance, **kwargs):
     instance.unapproved_before = False
     instance.visit_before = False
     so_before = SalesOrder.objects.filter(pk=instance.pk).last()
+    instance.so_before = so_before
     if so_before:
         instance.approved_before = True if so_before.approved_at and so_before.approved_by else False
         instance.unapproved_before = True if so_before.unapproved_at and so_before.unapproved_by else False
@@ -239,10 +239,13 @@ def create_invoice_on_order_submit(sender, instance, **kwargs):
     After saving a `SalesOrder`, if the order's status is 'SUBMITTED' and there isn't already an associated invoice,
     this signal creates a new `Invoice` entry associated with the given order.
     """
-    if instance.status == SalesOrder.SUBMITTED and not hasattr(instance, 'invoice'):
+    invoices = instance.invoice_set.all()
+    print(instance.status, invoices)
+    if instance.status in [SalesOrder.SUBMITTED, SalesOrder.APPROVED] and not invoices.exists() and not instance.is_paid_in_terms:
         Invoice.objects.create(
             order=instance,
             invoice_date=timezone.now().date(),
+            amount = instance.subtotal
             # Any other necessary fields can be populated here.
         )
 

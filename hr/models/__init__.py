@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from django.utils.translation import gettext_lazy as _
 from libs.base_model import BaseModelGeneric, User
+from identities.models import Contact
 
 
 class Department(BaseModelGeneric):
@@ -16,7 +17,7 @@ class Department(BaseModelGeneric):
         verbose_name_plural = _("Departments")
 
 
-class Employee(BaseModelGeneric):
+class Employee(Contact):
     user = models.OneToOneField(User, on_delete=models.CASCADE, help_text=_(
         "The associated user of the employee"))
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True,
@@ -27,6 +28,10 @@ class Employee(BaseModelGeneric):
 
     def __str__(self):
         return _("Employee #{emp_id} - {emp_name}").format(emp_id=self.id32, emp_name=self.user.username)
+    
+    def save(self, *args, **kwargs):
+        self.role = "Employee"
+        return super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-id']

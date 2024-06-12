@@ -7,4 +7,4 @@ class AccountingConfig(AppConfig):
     icon_name = 'library_books'
 
     def ready(self):
-        import accounting.signals.sales  # noqa
+        import accounting.signals  # noqa

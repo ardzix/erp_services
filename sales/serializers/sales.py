@@ -1,12 +1,13 @@
 from django.db.models import F, Sum
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from common.serializers import UserListSerializer
 from common.models import File
 from inventory.models import Product, Unit, Warehouse, StockMovement
 from .customer import CustomerLiteSerializer
 from .trip import CustomerVisitStatusSerializer
-from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment
+from ..models import SalesOrder, OrderItem, Customer, Invoice, SalesPayment, Receivable
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -14,11 +15,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     unit_id32 = serializers.CharField(source='unit.id32')
     unit_symbol = serializers.CharField(source='unit.symbol', read_only=True)
+    price = serializers.DecimalField(max_digits=19, decimal_places=2, required=False)
 
     class Meta:
         model = OrderItem
         fields = ['id32', 'product_id32', 'product_name', 'unit_id32', 'unit_symbol', 'quantity', 'price']
-        read_only_fields = ['id32', 'price', 'product_name', 'unit_symbol']
+        read_only_fields = ['id32', 'product_name', 'unit_symbol']
 
     def validate(self, data):
         validated_data = super().validate(data)
@@ -39,8 +41,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
         except Unit.DoesNotExist:
             raise serializers.ValidationError(
                 {"unit_id32": "Unit with this id32 does not exist or not suits with the product."})
-
-        validated_data['price'] = unit.conversion_to_top_level() * product.sell_price
+        if 'price' not in validated_data or validated_data['price'] == 0:
+            validated_data['price'] = unit.conversion_to_top_level() * product.sell_price
         return validated_data
 
 
@@ -299,8 +301,11 @@ class SalesOrderSerializer(SalesOrderListSerializer):
             unit_instance = Unit.objects.get(id32=unit.get('id32'))
             # Add the actual product to the item_data
             item_data['unit'] = unit_instance
-            OrderItem.objects.create(
-                order=sales_order, **item_data)
+            try:
+                OrderItem.objects.create(
+                    order=sales_order, **item_data)
+            except ValidationError as e:
+                raise serializers.ValidationError(e.message_dict)
 
         return sales_order
 
@@ -355,3 +360,36 @@ class SalesOrderSerializer(SalesOrderListSerializer):
 class SalesReportSerializer(serializers.Serializer):
     total_sales = serializers.DecimalField(max_digits=19, decimal_places=2, required=False)
     total_quantity = serializers.IntegerField(required=False)
+
+
+class ReceivableSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+    
+        representation['customer'] = {
+            'id32': instance.customer.id32,
+            'str': instance.customer.__str__(),
+        }
+        representation['order'] = {
+            'id32': instance.order.id32,
+            'str': instance.order.__str__(),
+        }
+        representation['invoice'] = {
+            'id32': instance.invoice.id32,
+            'number': instance.invoice.number,
+            'str': instance.invoice.__str__(),
+        }
+        if instance.payment:
+            representation['payment'] = {
+                'id32': instance.payment.id32,
+                'str': instance.payment.__str__(),
+            }
+        return representation
+
+    class Meta:
+        model = Receivable
+        fields = ['id32', 'customer', 'order', 'invoice','payment', 'amount', 'paid_at',
+                  'less_30_days_amount', 'less_60_days_amount', 'less_90_days_amount', 'more_than_90_days_amount'
+                  ]
+        read_only_fields = ['id32','customer', 'order', 
+                            'invoice', 'payment']

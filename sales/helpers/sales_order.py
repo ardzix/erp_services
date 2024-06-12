@@ -131,9 +131,10 @@ def handle_unapproved_sales_order(instance):
     Deletes the StockMovement associated with an unapproved SalesOrder, 
     provided the status of the StockMovement is less than or equal to 4.
     """
-    sm = instance.stock_movement
-    if sm and sm.status <= 4:
-        sm.delete()
+
+    for sm in instance.stock_movements.all():
+        if sm and sm.status <= 4:
+            sm.delete()
 
 
 def has_completed_status_changed(old_status, new_status):

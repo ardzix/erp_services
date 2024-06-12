@@ -8,10 +8,11 @@ from libs.filter import CreatedAtFilterMixin
 from libs.pagination import CustomPagination
 from common.serializers import FileSerializer
 from common.models import File
+from sales.filter import ReceivableFilter
 from ..scripts import generate_invoice_pdf_for_instances
-from ..serializers.sales import (SalesOrderSerializer, SalesOrderListSerializer, 
+from ..serializers.sales import (SalesOrderSerializer, SalesOrderListSerializer, ReceivableSerializer,
 SalesOrderDetailSerializer, InvoiceSerializer, SalesPaymentSerializer, SalesPaymentPartialUpdateSerializer)
-from ..models import SalesOrder, Invoice, SalesPayment, CustomerVisit
+from ..models import SalesOrder, Invoice, SalesPayment, CustomerVisit, Receivable
 
 
 
@@ -89,3 +90,16 @@ class SalesPaymentViewSet(viewsets.ModelViewSet):
         if self.action == 'partial_update':
             return SalesPaymentPartialUpdateSerializer
         return super().get_serializer_class()
+
+class ReceivableViewSet(viewsets.ModelViewSet):
+    queryset = Receivable.objects.all().order_by('-created_at')
+    serializer_class = ReceivableSerializer
+    lookup_field = 'id32'
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+    pagination_class = CustomPagination
+    filterset_class = ReceivableFilter
+    filter_backends = (filters.SearchFilter,
+                       django_filters.DjangoFilterBackend, filters.OrderingFilter,)
+    search_fields = ['customer__name', 'customer__store_name']
+    # To restrict certain actions:
+    http_method_names = ['get', 'head', 'options']

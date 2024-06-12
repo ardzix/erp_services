@@ -1,56 +1,55 @@
+from django.utils.translation import gettext_lazy as _
+
 # Transaction constants
-SALE= 'Sale'
-PURCHASE= 'Purchase'
-TRANSFER= 'Transfer'  # For transferring funds between accounts
-ADJUSTMENT= 'Adjustment'  # For corrections or modifications
-EXPENSE= 'Expense'  # For general expenses
-INCOME= 'Income'  # For general income, other than sales
-DEPOSIT= 'Deposit'  # For deposits into accounts
-WITHDRAWAL= 'Withdrawal'  # For withdrawals from accounts
+SALES_ORDER= 'sales_order'
+SALES_PAYMENT= 'sales_payment'
+PURCHASE= 'purchase'
+TRANSFER= 'transfer'  # For transferring funds between accounts
+ADJUSTMENT= 'adjustment'  # For corrections or modifications
+EXPENSE= 'expense'  # For general expenses
+INCOME= 'income'  # For general income, other than sales
+DEPOSIT= 'deposit'  # For deposits into accounts
+WITHDRAWAL= 'withdrawal'  # For withdrawals from accounts
 REFUND= 'Refund'  # For processing refunds
-RECONCILIATION= 'Reconciliation'  # For reconciliation adjustments
-LOAN_PAYMENT= 'Loan Payment'  # For repaying loans
-LOAN_RECEIPT= 'Loan Receipt'  # For receiving loan amounts
-TAX_PAYMENT= 'Tax Payment'  # For specific tax payments
-TAX_REFUND= 'Tax Refund'  # For receiving tax refunds
-INTEREST_INCOME= 'Interest Income'  # For interest received
-INTEREST_EXPENSE= 'Interest Expense'  # For interest paid out
-DIVIDEND= 'Dividend'  # For dividend income
-FEE= 'Fee'  # For any fees charged or paid
-COMMISSION= 'Commission'  # For commissions received or paid
-WRITE_OFF= 'Write Off'  # For bad debts or uncollectible amounts
-OTHER= 'Other'
+RECONCILIATION= 'reconciliation'  # For reconciliation adjustments
+LOAN_PAYMENT= 'loan_payment'  # For repaying loans
+LOAN_RECEIPT= 'loan_receipt'  # For receiving loan amounts
+TAX_PAYMENT= 'tax_payment'  # For specific tax payments
+TAX_REFUND= 'tax_refund'  # For receiving tax refunds
+INTEREST_INCOME= 'interest_income'  # For interest received
+INTEREST_EXPENSE= 'interest_expense'  # For interest paid out
+DIVIDEND= 'dividend'  # For dividend income
+FEE= 'fee'  # For any fees charged or paid
+COMMISSION= 'commission'  # For commissions received or paid
+WRITE_OFF= 'write_off'  # For bad debts or uncollectible amounts
+
+TRANSACTION_CHOICES = (
+    (SALES_ORDER, _('Sales Order')),
+    (SALES_PAYMENT, _('Sales Payment')),
+    (PURCHASE, _('Purchase')),
+)
 
 # Journal Constants
 CREDIT = 'CREDIT'
 DEBIT = 'DEBIT'
 
-# Account name constants
-CASH_ACCOUNT =  "Cash and Cash Equivalents"  # Cash in hand and demand deposits
-AR_ACCOUNT = "Accounts Receivable"  # Amounts owed by customers
-INVENTORY_ACCOUNT = "Inventory"  # Goods available for sale
-PREPAID_EXP_ACCOUNT = "Prepaid Expenses"  # Expenses paid in advance for future periods
-ST_INVESTMENT_ACCOUNT = "Short-Term Investments"  # Investments that will be converted to cash within a year"
-TANGIBLE_ASSET_ACCOUNT = "Property, Plant, and Equipment"  # Tangible fixed assets
-INTANGIBLE_ASSET = "Intangible Assets"  # Non-physical assets like patents and copyrights
-LT_INVESTMENT_ACCOUNT = "Long-Term Investments"  # Investments held for longer than a year
-AP_ACCOUNT = "Accounts Payable"  # Amounts owed to suppliers"
-ACCRUED_LIAB_ACCOUNT = "Accrued Liabilities"  # Liabilities for expenses incurred but not yet paid
-ST_DEBT_ACCOUNT = "Short-Term Debt"  # Debts due within one year"
-LT_DEBT_ACCOUNT = "Long-Term Debt"  # Debts due in more than one year"
-COMMON_STOCK_ACCOUNT = "Common Stock"  # Value of issued common shares"
-RETAINED_EARNING_ACCOUNT = "Retained Earnings"  # Cumulative earnings kept for reinvestment
-ADD_PAID_IN_CAPITAL_ACCOUNT = "Additional Paid-In Capital"  # Amount received from the issuance of shares above par value
-SALES_ACCOUNT = "Sales Revenue"  # Income from primary operations
-COGS_ACCOUNT = "Cost of Goods Sold"  # Cost associated with producing goods
-OPERATING_EXP_ACCOUNT = "Operating Expenses"  # General and administrative expenses
-INTEREST_EXP_ACCOUNT = "Interest Expense"  # Cost of borrowing money
-TAX_EXP_ACCOUNT = "Tax Expense"  # Taxes on profits
-TAX_LIAB_ACCOUNT = "Tax Liability"  # Taxes that should be paid
-ROUNDING_ACCOUNT = "Rounding"  # Small discrepancies between the account amount and the amount actually received.
-OTHER_ACCOUNT = "Other"  # Small discrepancies between the account amount and the amount actually received.
+DEBIT_CREDIT_CHOICES = (
+    (DEBIT, _('Debit')),
+    (CREDIT, _('Credit'))
+)
 
-JOURNAL_DEBIT_MAP = (
-    (SALE, AR_ACCOUNT),
-    (PURCHASE, AP_ACCOUNT),
+CASH_IN = "cash_in"
+CASH_OUT = "cash_out"
+
+# Transaction Module
+SALES_ORDER_CREDIT = 'sales_order_credit'
+SALES_ORDER_DEBIT = 'sales_order_debit'
+SALES_ADVANCE_PAYMENT = 'sales_advance_payment'
+PURCHASING_ADVANCE_PAYMENT = 'purchasing_advance_payment'
+
+TRANSACTION_MODULE_CHOICES = (
+    (SALES_ORDER_CREDIT, _('Sales order credit')),
+    (SALES_ORDER_DEBIT, _('Sales order debit')),
+    (SALES_ADVANCE_PAYMENT, _('Sales advance payment')),
+    (PURCHASING_ADVANCE_PAYMENT, _('Purchasing advance payment')),
 )

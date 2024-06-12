@@ -14,24 +14,31 @@ from ..models import (
     SalesOrder,
     OrderItem,
     Invoice,
-    SalesPayment)
+    SalesPayment,
+    Receivable)
 
 
 @admin.register(Customer)
 class CustomerAdmin(BaseAdmin):
     list_display = ['id32', 'name',
-                    'contact_number', 'address', 'show_location']
-    list_filter = ['company_profile']
+                    'contact_number', 'address', 'show_location', 'receivable_amount']
     search_fields = ['name', 'contact_number', 'address']
-
-    fields = ['name', 'contact_number', 'company_profile',
+    list_filter = ['has_receivable']
+    fields = ['name', 'contact_number',
               'administrative_lv1', 'administrative_lv2', 'administrative_lv3', 'administrative_lv4',
               'rt', 'rw', 'store_name', 'payment_type', 'store_type',
               'id_card', 'store_front', 'store_street', 'signature',
-              'address', 'location'
+              'address', 'location', 'has_receivable', 'receivable_amount'
               ]
+    readonly_fields = ['receivable_amount']
     raw_id_fields = ['administrative_lv1', 'administrative_lv2',
                      'administrative_lv3', 'administrative_lv4']
+    
+
+    
+    def receivable_amount(self, obj):
+        return obj.receivable_amount
+    receivable_amount.short_description = 'Receivable Amount'
 
     def show_location(self, obj):
         return f"Latitude: {obj.location.y}, Longitude: {obj.location.x}" if obj.location else None
@@ -53,7 +60,7 @@ class SalesOrderAdmin(ApproveRejectMixin, BaseAdmin):
     list_filter = ['customer', 'order_date', 'approved_by']
     search_fields = ['id32', 'customer__name']
     fields = ['customer', 'order_date', 'type', 'status', 'warehouse', 'visit', 'approved_by', 'approved_at', 'unapproved_by',
-              'unapproved_at', 'invoice', 'subtotal', 'vat_amount', 'total', 'is_paid', 'invoice_pdf_generated']
+              'unapproved_at', 'invoice', 'subtotal', 'vat_amount', 'total', 'is_paid', 'is_paid_in_terms', 'invoice_pdf_generated']
     readonly_fields = ['invoice', 'approved_by', 'approved_at', 'unapproved_by',
               'unapproved_at', 'subtotal', 'vat_amount', 'total']
 
@@ -68,28 +75,35 @@ class OrderItemAdmin(BaseAdmin):
 
 @admin.register(Invoice)
 class InvoiceAdmin(BaseAdmin):
-    list_display = ['id32', 'order', 'invoice_date', 'total_amount']
+    list_display = ['id32', 'number', 'order', 'invoice_date', 'total_amount']
     list_filter = ['order__customer', 'invoice_date', 'approved_by']
     search_fields = ['id32', 'order__id32']
-    fields = ['order', 'invoice_date', 'approved_by', 'approved_at', 'attachment']
+    fields = ['number', 'order', 'invoice_date', 'amount', 'vat', 'approved_by', 'approved_at', 'attachment']
     raw_id_fields = ['order']
 
     def total_amount(self, instance):
         return instance.order.total
 
 
+@admin.register(Receivable)
+class ReceivableAdmin(BaseAdmin):
+    list_display = ['id32', 'customer', 'invoice',
+                    'amount', 'is_paid']
+    list_filter = ['customer']
+    search_fields = ['customer__name']
+    fields = ['customer', 'order', 'invoice', 'payment', 'amount',
+              'paid_at']
+    raw_id_fields = ['customer', 'order', 'invoice', 'payment']
+
 @admin.register(SalesPayment)
 class SalesPaymentAdmin(BaseAdmin):
-    list_display = ['id32', 'invoice', 'total_amount',
+    list_display = ['id32', 'invoice', 'amount',
                     'payment_date', 'status']
     list_filter = ['invoice__order__customer', 'payment_date', 'approved_by']
     search_fields = ['id32', 'invoice__order__id32']
     fields = ['invoice', 'amount', 'payment_date', 'status', 'payment_evidence',
               'approved_by', 'approved_at']
     raw_id_fields = ['invoice']
-
-    def total_amount(self, instance):
-        return f'{instance.amount:,.0f}'
 
 
 class TripCustomerInline(admin.TabularInline):

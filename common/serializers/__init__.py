@@ -78,6 +78,12 @@ class SetFileSerializer(serializers.Serializer):
             name=data.name, file=data, created_by=user)
         return file_instance
 
+    
+class FileLiteSerializer(FileSerializer):
+
+    class Meta:
+        model = File
+        fields = ("id32", "name", "url")
 
 class MeSerializer(serializers.ModelSerializer):
     groups = serializers.StringRelatedField(many=True)

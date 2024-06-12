@@ -3,9 +3,11 @@ from django.db import connection
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
+from django_filters import rest_framework as django_filters
 from libs.pagination import CustomPagination
 from ..serializers.customer import CustomerSerializer, CustomerListSerializer, CustomerMapSerializer, StoreTypeSerializer
+from ..filter import CustomerFilter
 from ..models import Customer, StoreType
 
 
@@ -43,6 +45,10 @@ class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
     pagination_class = CustomPagination 
+    filterset_class = CustomerFilter
+    filter_backends = (filters.SearchFilter,
+                       django_filters.DjangoFilterBackend, filters.OrderingFilter,)
+    search_fields = ['name', 'store_name']
 
     def get_serializer_class(self):
         if self.action == 'list':

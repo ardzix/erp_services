@@ -1,0 +1,76 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Financial Statement</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 40px;
+            color: #333;
+            font-size: 14px;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 18px;
+            border-top: 2px solid #333;
+            border-bottom: 2px solid #333;
+            padding: 5px 0;
+        }
+        .financial-section {
+            margin-top: 20px;
+        }
+        .section-header {
+            font-size: 16px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        td {
+            padding: 2px 0;
+            text-align: right;
+        }
+        td.label {
+            text-align: left;
+        }
+        .total {
+            font-weight: bold;
+            border-top: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>Financial Statements for {{ tenant_info.name }}</h1>
+        <p>Period: {{ start_date }} to {{ end_date }}</p>
+    </div>
+
+    <h2>{{ financial_statement.str }}</h2>
+
+    {% for group in grouped_entries %}
+    <div class="financial-section">
+        <p class="section-header">{{ group.parent_category_name }}</p>
+        <table>
+            {% for entry in group.entries %}
+            <tr>
+                <td class="label">{{ entry.category.name }}</td>
+                <td>{{ tenant_info.currency_symbol }} {{ entry.amount|floatformat:"0"|intcomma }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="total">
+                <td class="label">Total {{ group.parent_category_name }}</td>
+                <td>{{ tenant_info.currency_symbol }} {{ group.total_amount|floatformat:"0"|intcomma }}</td>
+            </tr>
+        </table>
+    </div>
+    {% endfor %}
+</body>
+</html>
